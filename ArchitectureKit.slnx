@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Lab.BuildingBlocks.Domains/Lab.BuildingBlocks.Domains.csproj" />
+    <Project Path="src/Lab.BuildingBlocks.Application/Lab.BuildingBlocks.Application.csproj" />
+    <Project Path="src/Lab.BuildingBlocks.Integrations/Lab.BuildingBlocks.Integrations.csproj" />
+  </Folder>
+  <Folder Name="/analyzers/">
+    <Project Path="analyzers/DotnetBackendAnalyzers/DotnetBackendAnalyzers.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DotnetBackendAnalyzers.Tests/DotnetBackendAnalyzers.Tests.csproj" />
+  </Folder>
+</Solution>
