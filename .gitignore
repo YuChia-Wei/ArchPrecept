@@ -1,0 +1,25 @@
+# Build outputs
+[Bb]in/
+[Oo]bj/
+artifacts/
+TestResults/
+coverage/
+coverage.*
+
+# IDE and user state
+.vs/
+.idea/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# NuGet artifacts
+*.nupkg
+*.snupkg
+packages/
+
+# Operating-system files
+.DS_Store
+Thumbs.db
