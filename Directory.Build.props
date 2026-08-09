@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+
+    <!-- Packaging remains disabled until the public product and package identities are approved. -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+</Project>
