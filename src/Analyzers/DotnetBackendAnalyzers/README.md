@@ -48,7 +48,7 @@ Analyzers do not replace AI software engineering reasoning context used by revie
 ## Run Tests
 
 ```bash
-dotnet test tests/DotnetBackendAnalyzers.Tests/DotnetBackendAnalyzers.Tests.csproj
+dotnet test tests/Analyzers/DotnetBackendAnalyzers.Tests/DotnetBackendAnalyzers.Tests.csproj
 ```
 
 ## Initial Extraction State
