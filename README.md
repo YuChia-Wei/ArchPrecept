@@ -1,12 +1,14 @@
-# dotnet-architecture-kit
+# .NET Engineering Guardrails
 
-Reusable .NET architecture building blocks and Roslyn analyzers extracted from
+Reusable .NET engineering contracts and Roslyn architecture analyzers extracted from
 the `dotnet-mq-arch-lab` and `ai-collaboration-prompts-dotnet-backend`
 repositories.
 
-This repository is in its initial extraction stage. The public product name,
-NuGet package IDs, package boundaries, version policy, and publication contract
-are intentionally not defined yet.
+This repository is in its initial extraction stage. Project names, default
+assembly names, root namespaces, and the solution use the approved
+`EngineeringGuardrails` capability hierarchy. NuGet package IDs, package
+boundaries, version policy, and publication contract remain intentionally
+undefined.
 
 ## Planned Repository Areas
 

@@ -535,15 +535,15 @@ Consumer Test 必須對實際 Pack 後的 Artifact 執行，不可只使用 Proj
 ```text
 src/
 ├─ Contracts/
-│  ├─ Lab.BuildingBlocks.Domains
-│  ├─ Lab.BuildingBlocks.Application
-│  └─ Lab.BuildingBlocks.Integrations
+│  ├─ EngineeringGuardrails.Contracts.Domain
+│  ├─ EngineeringGuardrails.Contracts.Application
+│  └─ EngineeringGuardrails.Contracts.Messaging.Abstractions
 └─ Analyzers/
-   └─ DotnetBackendAnalyzers
+   └─ EngineeringGuardrails.Analyzers.Core
 
 tests/
 └─ Analyzers/
-   └─ DotnetBackendAnalyzers.Tests
+   └─ EngineeringGuardrails.Analyzers.Core.Tests
 
 docs/
 samples/
@@ -551,18 +551,18 @@ samples/
 
 已知基線：
 
-- Domain、Application 與 Integration 抽取專案；
+- Domain、Application 與 Messaging Abstractions 抽取專案；
 - Roslyn Analyzer 初始實作；
 - 17 個 Diagnostic 與 49 個通過測試的規劃紀錄；
 - Analyzer 目前主要依簡單型別名稱、Suffix 與方法形狀判定角色；
 - Project 仍為 `IsPackable=false`；
-- 公開 Package ID、Namespace、Assembly、License 與相容性策略尚未核准。
+- Project、預設 Assembly Name 與根 Namespace 已核准採 `EngineeringGuardrails.<Capability>`；公開 Package ID、License 與相容性策略尚未核准。
 
 目前尚未建立 `src/ArchitectureTesting/` 與 `src/Conformance/` 專案；兩者是已規劃但尚未實作的產品能力，不以空目錄或空專案預先佔位。
 
 主要重構方向：
 
-- 移除 `Backend`、`Lab` 與 `BuildingBlocks` 作為未核准的公開產品識別；
+- 維持 Project、Assembly 與 Namespace 的 `EngineeringGuardrails.<Capability>` 階層，禁止重新引入 `Backend`、`Lab` 與 `BuildingBlocks` 產品身分；
 - 把分散於各 Analyzer 的角色判定抽成中央 Classifier；
 - 把 Source-included Analyzer 轉為正式 Analyzer 成品；
 - 將 Reference Contracts 從複製來源轉為 Canonical Ownership；
