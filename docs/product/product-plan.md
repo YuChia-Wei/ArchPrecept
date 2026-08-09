@@ -182,9 +182,10 @@ related_documents:
 | DEC-007 | Core 規則宿主中立，ASP.NET Core／Messaging 規則以 Profile 區分 | 已確認 | 支援桌面、Console、Worker、批次與其他宿主 |
 | DEC-008 | 規則目錄是機器可讀的正式來源 | 已確認 | 避免 Diagnostic、Markdown 與設定各自漂移 |
 | DEC-009 | 零 Diagnostic 不得自動等同整體合規 | 已確認 | 無法辨識或未啟用的規則應標示 `not-evaluated` |
-| DEC-010 | NuGet Package ID 與公開命名空間延後決策 | 已確認 | 先穩定產品與 API 邊界，避免命名過早固化 |
+| DEC-010 | NuGet Package ID 與 Package Prefix 延後決策 | 已確認 | Project、Assembly 與 Namespace 可先穩定能力身分，但不據此推定發布識別 |
 | DEC-011 | 產品規劃書與 PRD 採受控持續演進；Markdown 為正式來源，Word 為衍生輸出 | 已確認 | 讓 Git Diff、Review、歷史追蹤與自動驗證有單一來源，避免雙向人工維護造成漂移 |
 | DEC-012 | 未來安裝 AI Collaboration Framework 時保留 `docs/` 產品文件，並以 `.dev/` 補上開發治理層 | 已確認 | Framework 導入應採語意映射與 Gap Analysis，不應把產品文件無差別搬入流程目錄 |
+| DEC-014 | .NET Project、預設 Assembly Name 與 Namespace 採 `EngineeringGuardrails.<Capability>` 階層 | 已確認 | 移除抽取來源的 `Lab`、`BuildingBlocks` 與 `Backend` 身分，並讓程式碼結構直接反映產品能力；不決定 NuGet Package ID |
 | DEC-013 | 工程規範、PRD Requirement、Rule、執行機制、實作、測試與證據必須雙向可追溯 | 已確認 | 可識別「規範沒有工具」與「工具缺少正式規範依據」兩種治理缺口 |
 
 ## 4. 產品設計原則
@@ -505,7 +506,7 @@ Repository 邊界不等於 NuGet 相依邊界。同一 repo 仍可讓 Analyzer-o
 
 ## 11. 預期 Git repo 結構
 
-> 下列目錄名稱描述責任，不代表最終 Package ID、Assembly 或 Namespace。
+> 下列 `EngineeringGuardrails.*` 名稱是已核准的 .NET Project、預設 Assembly Name 與 Namespace 工作身分；不代表或推定最終 NuGet Package ID。其他目錄名稱描述 Repository 責任。
 
 ```text
 dotnet-engineering-guardrails/
@@ -536,12 +537,12 @@ dotnet-engineering-guardrails/
 │
 ├─ src/
 │  ├─ Contracts/
-│  │  ├─ Domain/
-│  │  ├─ Application/
-│  │  ├─ Messaging.Abstractions/
-│  │  └─ EventSourcing/
+│  │  ├─ EngineeringGuardrails.Contracts.Domain/
+│  │  ├─ EngineeringGuardrails.Contracts.Application/
+│  │  ├─ EngineeringGuardrails.Contracts.Messaging.Abstractions/
+│  │  └─ EngineeringGuardrails.Contracts.EventSourcing/
 │  ├─ Analyzers/
-│  │  └─ CoreAnalyzers/
+│  │  └─ EngineeringGuardrails.Analyzers.Core/
 │  │     ├─ Classification/
 │  │     │  ├─ Roles/
 │  │     │  ├─ Evidence/
@@ -629,6 +630,8 @@ dotnet-engineering-guardrails/
 - `rules/`：機器可讀規則與 Schema，不是一般說明文件。
 - `docs/rules/`：人類可讀的理由、範例、例外與遷移說明。
 - `src/`：所有可建置、可發布的產品原始碼；第一層依產品能力分組，不在 Repository 根目錄另設 `analyzers/` 或 `tools/` 原始碼樹。
+- 產品 `.csproj` 檔名、預設 Assembly Name 與根 Namespace 使用 `EngineeringGuardrails.<Capability>`；測試專案使用對應產品名稱加 `.Tests`。
+- `EngineeringGuardrails.*` 工作身分不得自動複用為 NuGet Package ID；發布識別仍需獨立決策與核准。
 - `src/Contracts/`：選配 runtime contracts；目錄位置不代表 Analyzer 相依。
 - `src/Analyzers/`：Roslyn Analyzer 與僅限安全修正的 Code Fix 原始碼。
 - `src/ArchitectureTesting/`：可由採用端測試專案引用的架構測試程式庫。
@@ -956,7 +959,7 @@ rules/
 | P1 | GitHub Packages、nuget.org 或其他初始 Feed | Phase 3 |
 | P2 | Conformance CLI 技術、AOT 與輸出 Schema | Phase 4 |
 | P2 | 是否提供 Code Fix | Phase 5 |
-| Deferred | NuGet Package ID、Package Prefix、Namespace、Assembly Name | API 與產品邊界穩定後 |
+| Deferred | NuGet Package ID、Package Prefix | API、產品邊界與發布治理穩定後 |
 
 # 附錄 A：目前程式碼基線
 

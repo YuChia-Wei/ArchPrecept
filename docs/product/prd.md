@@ -287,6 +287,7 @@ Architecture Testing 與完整 Conformance CLI 可在 MVP 後續里程碑完成�
 | RL-007 | Validation、Feed Publication、Hosted Release 與下載後驗證是不同 Checkpoint | P1 | Release Workflow 有獨立狀態與失敗處理 |
 | RL-008 | 課程啟發揭露、Provenance 與授權檢查未通過不得公開發布 | P0 | Workflow 有明確阻擋條件 |
 | RL-009 | 所有可建置、可發布的產品原始碼必須集中於 `src/`，並依 `Contracts`、`Analyzers`、`ArchitectureTesting`、`Conformance` 等能力分組 | P0 | Repository 結構檢查拒絕位於 `src/` 外的產品 Project；測試 Project 位於對應的 `tests/<Capability>/` 且不進入發布 Inventory |
+| RL-010 | 產品 Project、預設 Assembly Name 與根 Namespace 必須使用 `EngineeringGuardrails.<Capability>` 階層；測試 Project 加 `.Tests` | P0 | Repository 不含產品身分中的 `Lab`、`BuildingBlocks` 或 `Backend`；命名檢查不建立或推定 NuGet Package ID |
 
 ## 12. 非功能需求
 
@@ -389,7 +390,7 @@ enforcement:
   - type: roslyn-analyzer
     diagnostic_id: <diagnostic-id>
 implementation:
-  - src/Analyzers/CoreAnalyzers/Rules/Application/UseCaseContractAnalyzer.cs
+  - src/Analyzers/EngineeringGuardrails.Analyzers.Core/Rules/Application/UseCaseContractAnalyzer.cs
 tests:
   - tests/Analyzers/UseCaseContractAnalyzerTests.cs
   - tests/Consumers/AnalyzerOnly.CustomContracts/

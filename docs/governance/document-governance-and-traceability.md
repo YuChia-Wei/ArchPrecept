@@ -574,7 +574,7 @@ enforcement:
   - type: roslyn-analyzer
     diagnostic_id: <diagnostic-id>
 implementation:
-  - src/Analyzers/CoreAnalyzers/Rules/Application/RepositoryContractAnalyzer.cs
+  - src/Analyzers/EngineeringGuardrails.Analyzers.Core/Rules/Application/RepositoryContractAnalyzer.cs
 tests:
   - tests/Analyzers/RepositoryContractAnalyzerTests.cs
   - tests/Consumers/AnalyzerOnly.CustomContracts/
