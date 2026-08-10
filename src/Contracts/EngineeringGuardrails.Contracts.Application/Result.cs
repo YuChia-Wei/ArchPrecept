@@ -5,6 +5,9 @@ namespace EngineeringGuardrails.Contracts.Application;
 /// </summary>
 public sealed class Result
 {
+    /// <summary>
+    /// 以指定成功狀態與錯誤訊息初始化結果。
+    /// </summary>
     private Result(bool isSuccess, string? errorMessage)
     {
         IsSuccess = isSuccess;
@@ -47,6 +50,9 @@ public sealed class Result
 /// <typeparam name="TValue">成功時承載的值型別。</typeparam>
 public sealed class Result<TValue>
 {
+    /// <summary>
+    /// 以指定成功狀態、值與錯誤訊息初始化結果。
+    /// </summary>
     private Result(bool isSuccess, TValue? value, string? errorMessage)
     {
         IsSuccess = isSuccess;

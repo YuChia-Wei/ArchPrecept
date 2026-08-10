@@ -8,6 +8,9 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace EngineeringGuardrails.Analyzers.Core;
 
+/// <summary>
+/// 驗證 Mapper 類別的靜態性與相依性是否維持純轉換邊界。
+/// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MapperComplianceAnalyzer : DiagnosticAnalyzer
 {
@@ -18,11 +21,17 @@ public sealed class MapperComplianceAnalyzer : DiagnosticAnalyzer
         "Handler"
     };
 
+    /// <summary>
+    /// 取得此分析器支援的 Diagnostic 描述項目。
+    /// </summary>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(
             RuleDescriptors.MapperMustBeStatic,
             RuleDescriptors.MapperForbiddenDependency);
 
+    /// <summary>
+    /// 初始化分析器並註冊類別宣告的語法節點分析。
+    /// </summary>
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -30,6 +39,9 @@ public sealed class MapperComplianceAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(AnalyzeMapper, SyntaxKind.ClassDeclaration);
     }
 
+    /// <summary>
+    /// 分析名稱以 <c>Mapper</c> 結尾的類別是否為靜態且未參考受禁止相依性。
+    /// </summary>
     private static void AnalyzeMapper(SyntaxNodeAnalysisContext context)
     {
         var declaration = (ClassDeclarationSyntax)context.Node;
@@ -63,6 +75,9 @@ public sealed class MapperComplianceAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>
+    /// 判斷型別是否為 Repository、Use Case 或 Handler 等 Mapper 不應依賴的型別。
+    /// </summary>
     private static bool IsForbiddenDependency(ITypeSymbol type)
     {
         var candidate = type is INamedTypeSymbol { IsGenericType: true } namedType

@@ -11,10 +11,10 @@ namespace EngineeringGuardrails.Contracts.Application;
 public interface IDomainEventDispatcher
 {
     /// <summary>
-    /// 發布領域事件
+    /// 將領域事件分派給目前程序內可處理的 Handler。
     /// </summary>
-    /// <param name="events"></param>
-    /// <param name="ct"></param>
-    /// <returns></returns>
+    /// <param name="events">要分派的領域事件集合。</param>
+    /// <param name="ct">取消非同步作業的權杖。</param>
+    /// <returns>代表非同步分派作業的工作。</returns>
     Task DispatchAsync(IEnumerable<IDomainEvent> events, CancellationToken ct = default);
 }

@@ -27,11 +27,11 @@ public abstract class EsAggregateRoot<TId>
     }
 
     /// <summary>
-    /// Marks the currently pending events as committed at the supplied stream version.
+    /// 將目前待處理事件標示為已在指定事件流版本提交。
     /// </summary>
-    /// <param name="committedVersion">The stream version after all pending events were appended.</param>
+    /// <param name="committedVersion">所有待處理事件附加後的事件流版本。</param>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when the supplied version does not match the aggregate version plus its pending events.
+    /// 當指定版本與聚合根版本加上待處理事件數不符時擲回。
     /// </exception>
     public void MarkChangesAsCommitted(int committedVersion)
     {

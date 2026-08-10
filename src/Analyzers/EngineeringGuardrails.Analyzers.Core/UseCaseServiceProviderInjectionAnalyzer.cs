@@ -5,9 +5,15 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace EngineeringGuardrails.Analyzers.Core;
 
+/// <summary>
+/// 驗證 Use Case 與派送 Handler 的相依性、契約形狀及傳輸邊界。
+/// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
 {
+    /// <summary>
+    /// 取得此分析器支援的 Diagnostic 描述項目。
+    /// </summary>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(
             RuleDescriptors.UseCaseServiceProviderInjection,
@@ -18,6 +24,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             RuleDescriptors.UseCaseForbiddenDependency,
             RuleDescriptors.DispatchHandlerBoundary);
 
+    /// <summary>
+    /// 初始化分析器並註冊具名型別及物件建立運算式的分析。
+    /// </summary>
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -26,6 +35,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(AnalyzeObjectCreation, Microsoft.CodeAnalysis.CSharp.SyntaxKind.ObjectCreationExpression);
     }
 
+    /// <summary>
+    /// 分析 Use Case 契約、Use Case 實作與派送 Handler 的形狀及相依性。
+    /// </summary>
     private static void AnalyzeNamedType(SymbolAnalysisContext context)
     {
         var type = (INamedTypeSymbol)context.Symbol;
@@ -96,6 +108,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>
+    /// 確認 Use Case 介面只宣告一個符合規範的 <c>ExecuteAsync</c> 操作。
+    /// </summary>
     private static void AnalyzeUseCaseContract(SymbolAnalysisContext context, INamedTypeSymbol type)
     {
         var methods = type.GetMembers().OfType<IMethodSymbol>()
@@ -117,6 +132,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
         AnalyzeExecuteAsyncShape(context, type, executeMethods[0]);
     }
 
+    /// <summary>
+    /// 確認具體 Use Case 實作的操作形狀及建構子相依性符合規範。
+    /// </summary>
     private static void AnalyzeUseCaseImplementation(SymbolAnalysisContext context, INamedTypeSymbol type)
     {
         if (type.IsAbstract)
@@ -160,6 +178,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>
+    /// 驗證 <c>ExecuteAsync</c> 的回傳型別、取消權杖與輸入參數形狀。
+    /// </summary>
     private static void AnalyzeExecuteAsyncShape(
         SymbolAnalysisContext context,
         INamedTypeSymbol type,
@@ -205,6 +226,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>
+    /// 驗證 Command 或 Query Handler 僅調適一個 Use Case，且不依賴儲存庫或領域服務。
+    /// </summary>
     private static void AnalyzeDispatchHandler(SymbolAnalysisContext context, INamedTypeSymbol type)
     {
         var dependencies = type.InstanceConstructors
@@ -237,6 +261,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>
+    /// 以指定細節回報 Use Case 契約形狀違規。
+    /// </summary>
     private static void ReportUseCaseShape(
         SymbolAnalysisContext context,
         INamedTypeSymbol type,
@@ -249,6 +276,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             detail));
     }
 
+    /// <summary>
+    /// 偵測 Use Case 或 Handler 是否直接建立 Repository 型別。
+    /// </summary>
     private static void AnalyzeObjectCreation(SyntaxNodeAnalysisContext context)
     {
         var creation = (Microsoft.CodeAnalysis.CSharp.Syntax.ObjectCreationExpressionSyntax)context.Node;
@@ -271,6 +301,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             createdType.Name));
     }
 
+    /// <summary>
+    /// 檢查欄位、屬性或參數型別，並回報服務提供者或服務定位器的使用。
+    /// </summary>
     private static void ReportForbiddenMemberType(
         SymbolAnalysisContext context,
         INamedTypeSymbol containingType,
@@ -296,6 +329,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>
+    /// 偵測屬性上的服務注入屬性並回報相依性解析違規。
+    /// </summary>
     private static void ReportInjectionAttributes(
         SymbolAnalysisContext context,
         INamedTypeSymbol containingType,
@@ -318,6 +354,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>
+    /// 判斷型別本身或其實作介面是否具有指定名稱的命令或查詢標記。
+    /// </summary>
     private static bool ImplementsMarker(ITypeSymbol type, string markerPrefix)
     {
         if (type.TypeKind == TypeKind.Interface && type.Name == markerPrefix)
@@ -336,18 +375,27 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
         return false;
     }
 
+    /// <summary>
+    /// 判斷型別是否為 <c>System.Threading.Tasks.Task</c> 或其泛型形式。
+    /// </summary>
     private static bool IsTask(ITypeSymbol type)
     {
         return type.Name == "Task"
             && type.ContainingNamespace?.ToDisplayString() == "System.Threading.Tasks";
     }
 
+    /// <summary>
+    /// 判斷型別是否為 <c>System.Threading.CancellationToken</c>。
+    /// </summary>
     private static bool IsCancellationToken(ITypeSymbol type)
     {
         return type.Name == "CancellationToken"
             && type.ContainingNamespace?.ToDisplayString() == "System.Threading";
     }
 
+    /// <summary>
+    /// 判斷型別是否為可直接作為 Use Case 輸入的標準純量型別。
+    /// </summary>
     private static bool IsStandardScalar(ITypeSymbol type)
     {
         return type.SpecialType is SpecialType.System_Boolean
@@ -367,6 +415,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             || type.Name is "Guid" or "DateTime" or "DateTimeOffset" or "DateOnly" or "TimeOnly";
     }
 
+    /// <summary>
+    /// 判斷型別是否為傳輸層的 Request、Command、Query、Message 或 Contract。
+    /// </summary>
     private static bool IsTransportContract(ITypeSymbol type)
     {
         var name = type.Name;
@@ -378,6 +429,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             || type.AllInterfaces.Any(contract => contract.Name is "ICommand" or "IQuery");
     }
 
+    /// <summary>
+    /// 判斷型別是否為 Use Case 不可直接依賴的訊息、調度、傳輸或另一個 Use Case 型別。
+    /// </summary>
     private static bool IsForbiddenUseCaseDependency(ITypeSymbol type)
     {
         var name = type.Name;
@@ -390,6 +444,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             || namespaceName.StartsWith("Microsoft.AspNetCore", System.StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// 判斷輸出型別是否為 HTTP、訊息代理或框架專屬的傳輸結果。
+    /// </summary>
     private static bool IsTransportOutput(ITypeSymbol type)
     {
         var name = type.Name;
@@ -401,23 +458,35 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             || namespaceName.StartsWith("Wolverine", System.StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// 判斷型別名稱是否以 <c>UseCase</c> 結尾。
+    /// </summary>
     private static bool IsUseCaseType(ITypeSymbol type)
     {
         return type.Name.EndsWith("UseCase", System.StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// 判斷型別名稱是否為 Command 或 Query 派送 Handler。
+    /// </summary>
     private static bool IsDispatchHandler(INamedTypeSymbol type)
     {
         return type.Name.EndsWith("CommandHandler", System.StringComparison.Ordinal)
             || type.Name.EndsWith("QueryHandler", System.StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// 判斷型別是否為派送 Handler 不可直接依賴的儲存庫或領域服務。
+    /// </summary>
     private static bool IsForbiddenHandlerDependency(ITypeSymbol type)
     {
         return type.Name.EndsWith("Repository", System.StringComparison.Ordinal)
             || type.Name.EndsWith("DomainService", System.StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// 判斷型別名稱是否呈現 Use Case 或 Handler 角色。
+    /// </summary>
     private static bool LooksLikeUseCaseOrHandler(INamedTypeSymbol type)
     {
         var name = type.Name;

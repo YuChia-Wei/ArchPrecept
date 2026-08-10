@@ -1,80 +1,62 @@
 # Engineering Guardrails Analyzers Core
 
-Roslyn architecture analyzers copied from the .NET backend AI Context framework
-as the initial source baseline for this repository.
+本專案的 Roslyn 架構分析器，係自 .NET backend AI Context framework 複製而來，作為此 Repository 的初始原始碼基線。
 
-Current diagnostics:
+## 目前的 Diagnostic
 
-- `DBA1001` (error): enforces semantic aggregate/query repository boundaries,
-  compatibility inheritance, Aggregate Root constraints, the portable two-method
-  aggregate contract, and the prohibition on public generic writable CRUD ports.
-- `DBA1002` (error): use cases or handlers must not inject `IServiceProvider`.
-- `DBA1003`: aggregates/entities should not reference infrastructure types such as `DbContext`.
-- `DBA1004`: concrete controller classes should declare `ApiControllerAttribute`.
-- `DBA1005` (error): controllers must not reference `DbContext` or call `SaveChanges`.
-- `DBA1006` (error): controllers must not directly construct Handler or Use Case types.
-- `DBA1007`: object mappers should be static classes.
-- `DBA1008`: object mappers should not depend on repositories, use cases, or handlers.
-- `DBA1009`: event-sourced aggregate state should mutate only inside `When` transitions.
-- `DBA1010` (error): use cases must not use service locator or attribute-based property injection.
-- `DBA1011` (error): handlers must not mix command and query marker responsibilities.
-- `DBA1012` (error): use cases must not directly construct repositories.
-- `DBA1013`: projection services should not call EF persistence write operations.
-- `DBA1014` (error): controllers must not inject concrete Handlers, buses,
-  dispatchers, write repositories, or Domain services. Query repositories/services
-  remain available for an explicitly selected pure-query endpoint.
-- `DBA1015` (error): Use Case contracts and implementations must use
-  `ExecuteAsync`, a non-optional `CancellationToken`, and transport-neutral input;
-  a Use Case must not also expose `Handle`/`HandleAsync`.
-- `DBA1016` (error): Use Cases must not inject `IMessageBus`, a mediator/
-  dispatcher, or another Use Case.
-- `DBA1017` (error): `*CommandHandler` and `*QueryHandler` types must adapt to
-  exactly one Use Case and must not depend on repositories or Domain services.
+- [`DBA1001`](../../../docs/diagnostics/DBA1001.md)（`error`）：驗證 Aggregate／Query Repository 的語意邊界、相容性繼承、Aggregate Root 限制、可攜式雙方法 Aggregate 合約，並禁止通用泛型可寫入 CRUD Port。
+- [`DBA1002`](../../../docs/diagnostics/DBA1002.md)（`error`）：Use Case 或 Handler 不得注入 `IServiceProvider`。
+- [`DBA1003`](../../../docs/diagnostics/DBA1003.md)（`warning`）：Aggregate／Entity 不應參考如 `DbContext` 等基礎設施型別。
+- [`DBA1004`](../../../docs/diagnostics/DBA1004.md)（`warning`）：具體 Controller 類別應宣告 `ApiControllerAttribute`。
+- [`DBA1005`](../../../docs/diagnostics/DBA1005.md)（`error`）：Controller 不得參考 `DbContext` 或呼叫 `SaveChanges`。
+- [`DBA1006`](../../../docs/diagnostics/DBA1006.md)（`error`）：Controller 不得直接建立 Handler 或 Use Case 型別。
+- [`DBA1007`](../../../docs/diagnostics/DBA1007.md)（`warning`）：物件 Mapper 應為靜態類別。
+- [`DBA1008`](../../../docs/diagnostics/DBA1008.md)（`warning`）：物件 Mapper 不應相依 Repository、Use Case 或 Handler。
+- [`DBA1009`](../../../docs/diagnostics/DBA1009.md)（`warning`）：事件溯源 Aggregate 的狀態只應在 `When` transition 中變更。
+- [`DBA1010`](../../../docs/diagnostics/DBA1010.md)（`error`）：Use Case 不得使用 Service Locator 或 attribute-based 屬性注入。
+- [`DBA1011`](../../../docs/diagnostics/DBA1011.md)（`error`）：Handler 不得混合處理 Command 與 Query marker 職責。
+- [`DBA1012`](../../../docs/diagnostics/DBA1012.md)（`error`）：Use Case 不得直接建立 Repository。
+- [`DBA1013`](../../../docs/diagnostics/DBA1013.md)（`warning`）：Projection 服務不應呼叫 EF 持久化寫入操作。
+- [`DBA1014`](../../../docs/diagnostics/DBA1014.md)（`error`）：Controller 不得注入具體 Handler、訊息匯流排、調度器、寫入 Repository 或 Domain Service；Query Repository／Service 僅保留給已明確選定的純查詢端點。
+- [`DBA1015`](../../../docs/diagnostics/DBA1015.md)（`error`）：Use Case 合約與實作必須使用 `ExecuteAsync`、非選用的 `CancellationToken` 與傳輸無關輸入；Use Case 也不得同時公開 `Handle`／`HandleAsync`。
+- [`DBA1016`](../../../docs/diagnostics/DBA1016.md)（`error`）：Use Case 不得注入 `IMessageBus`、中介器／調度器或另一個 Use Case。
+- [`DBA1017`](../../../docs/diagnostics/DBA1017.md)（`error`）：`*CommandHandler` 與 `*QueryHandler` 型別必須調適至恰好一個 Use Case，且不得相依 Repository 或 Domain Service。
 
-`DBA1001` replaces the former repository grep compliance scripts. It classifies
-canonical, compatibility, and derived ports through interface inheritance rather
-than broad `Repository` name matching. Target-specific batch ports are intentionally
-outside this portable analyzer.
+完整的逐項手冊、觸發條件、範例、修正與 suppression 指引，請見 [`docs/diagnostics/README.md`](../../../docs/diagnostics/README.md)。
 
-`DBA1004` through `DBA1006` replace the former controller grep compliance script.
-`DBA1007` and `DBA1008` replace the former mapper grep compliance scripts.
-`DBA1014` through `DBA1017` enforce the deterministic portion of the approved Use
-Case inbound-port and Handler adapter model. Whether a pure-query endpoint was
-explicitly selected remains target-repository evidence and is not inferred from
-orchestration quality.
+`DBA1001` 取代原有以 grep 進行的 Repository 合規腳本。它透過介面繼承分類標準、相容與衍生 Port，而非廣泛比對 `Repository` 名稱；目標專用的批次 Port 則刻意不納入此可攜式分析器。
 
-Analyzers do not replace AI software engineering reasoning context used by review and architecture skills.
+`DBA1004` 至 `DBA1006` 取代原有以 grep 進行的 Controller 合規腳本；`DBA1007` 與 `DBA1008` 取代原有 Mapper 合規腳本。`DBA1014` 至 `DBA1017` 實作已核准 Use Case inbound-port 與 Handler adapter 模型中可確定判定的部分。純查詢端點是否已被明確選定，仍屬目標 Repository 的證據，不會從協調邏輯品質自動推論。
 
-## Run Tests
+分析器不取代供審查與架構技能使用的 AI 軟體工程推理脈絡。
+
+## 執行測試
 
 ```bash
 dotnet test tests/Analyzers/EngineeringGuardrails.Analyzers.Core.Tests/EngineeringGuardrails.Analyzers.Core.Tests.csproj
 ```
 
-## Initial Extraction State
+## 初始擷取狀態
 
-This project remains non-packable. The approved project, default assembly, and
-root namespace identity is `EngineeringGuardrails.Analyzers.Core`. NuGet package
-identity, supported compiler matrix, and publication contract remain unapproved.
+本專案仍不可封裝（non-packable）。已核准的專案、預設組件與根命名空間識別均為 `EngineeringGuardrails.Analyzers.Core`；NuGet 套件識別、支援的編譯器矩陣與發佈合約仍未核准。
 
-## Wire Into A Target Repo
+## 接線至目標 Repository
 
-For source-included evaluation, wire this analyzer project into target projects
-through `Directory.Build.props`.
+進行原始碼內含式評估時，請透過 `Directory.Build.props` 將此分析器專案接線至目標專案。
 
-Use:
+使用：
 
 - `templates/Directory.Build.props.snippet`
 - `templates/analyzer-severity.editorconfig`
 
-The snippet adds the analyzer project as a `ProjectReference` with:
+該片段會以以下設定將分析器專案加入為 `ProjectReference`：
 
 - `OutputItemType="Analyzer"`
 - `ReferenceOutputAssembly="false"`
 - `PrivateAssets="all"`
 
-This lets target projects receive analyzer diagnostics during `dotnet build` without referencing the analyzer as a runtime assembly.
+如此一來，目標專案可在 `dotnet build` 期間接收分析器 Diagnostic，而不會把分析器專案當作執行階段組件參考。
 
-The severity template keeps each architecture diagnostic independently configurable. Target repositories may use `none`, `suggestion`, `warning`, or `error` according to their architecture profile and team agreement.
+嚴重性範本讓每個架構 Diagnostic 可獨立設定。目標 Repository 可依架構 Profile 與團隊共識選用 `none`、`silent`、`suggestion`、`warning` 或 `error`。
 
-Custom DBA diagnostics run during build after the analyzer project is wired in. Standard IDE coding-style preferences may additionally require `EnforceCodeStyleInBuild`, `dotnet format --verify-no-changes`, or an equivalent CI command. A warning blocks the build only when warnings are treated as errors.
+自訂 DBA Diagnostic 會在分析器專案接線後的建置期間執行。標準 IDE 程式碼風格偏好可能還需要 `EnforceCodeStyleInBuild`、`dotnet format --verify-no-changes` 或等效的 CI 命令。只有目標建置將 warning 視為 error 時，warning 才會阻擋建置。

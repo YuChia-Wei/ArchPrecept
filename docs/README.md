@@ -9,6 +9,7 @@
 | `DOC-PRODUCT-PLAN` | 產品規劃書 | `draft` | `docs/product/product-plan.md` |
 | `DOC-PRD` | 產品需求文件（PRD） | `draft` | `docs/product/prd.md` |
 | `DOC-GOV-TRACEABILITY` | 文件治理與規則追溯規範 | `draft` | `docs/governance/document-governance-and-traceability.md` |
+| `DOC-DIAGNOSTICS` | 分析器 Diagnostic 說明書 | `draft` | `docs/diagnostics/README.md` |
 
 ## 正式來源原則
 

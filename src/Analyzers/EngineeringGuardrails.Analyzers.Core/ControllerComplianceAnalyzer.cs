@@ -8,12 +8,18 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace EngineeringGuardrails.Analyzers.Core;
 
+/// <summary>
+/// 驗證 API Controller 的屬性、相依性、持久化存取與直接建立應用程式型別的邊界。
+/// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
 {
     private static readonly ImmutableHashSet<string> PersistenceMethods =
         ImmutableHashSet.Create(StringComparer.Ordinal, "SaveChanges", "SaveChangesAsync");
 
+    /// <summary>
+    /// 取得此分析器支援的 Diagnostic 描述項目。
+    /// </summary>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(
             RuleDescriptors.ControllerApiAttribute,
@@ -21,6 +27,9 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
             RuleDescriptors.ControllerDirectConstruction,
             RuleDescriptors.ControllerForbiddenDependency);
 
+    /// <summary>
+    /// 初始化分析器並註冊 Controller 類別宣告的語法節點分析。
+    /// </summary>
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -28,6 +37,9 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(AnalyzeController, SyntaxKind.ClassDeclaration);
     }
 
+    /// <summary>
+    /// 針對具 Controller 命名尾碼的具體類別執行所有 Controller 邊界檢查。
+    /// </summary>
     private static void AnalyzeController(SyntaxNodeAnalysisContext context)
     {
         var declaration = (ClassDeclarationSyntax)context.Node;
@@ -48,6 +60,9 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
         AnalyzeInjectedDependencies(context, controllerSymbol);
     }
 
+    /// <summary>
+    /// 檢查 Controller 建構子的注入相依性，並回報不允許的型別。
+    /// </summary>
     private static void AnalyzeInjectedDependencies(
         SyntaxNodeAnalysisContext context,
         INamedTypeSymbol controllerSymbol)
@@ -71,6 +86,9 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>
+    /// 判斷注入型別是否違反 Controller 應依賴 Use Case 邊界的規則。
+    /// </summary>
     private static bool IsForbiddenControllerDependency(ITypeSymbol type)
     {
         var name = type.Name;
@@ -91,6 +109,9 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
             && !type.AllInterfaces.Any(contract => contract.Name == "IQueryRepository");
     }
 
+    /// <summary>
+    /// 確認具體 Controller 是否宣告 <c>ApiControllerAttribute</c>。
+    /// </summary>
     private static void AnalyzeApiControllerAttribute(
         SyntaxNodeAnalysisContext context,
         ClassDeclarationSyntax declaration,
@@ -112,6 +133,9 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
             controllerSymbol.Name));
     }
 
+    /// <summary>
+    /// 偵測 Controller 對 <c>DbContext</c> 或持久化寫入方法的直接使用。
+    /// </summary>
     private static void AnalyzePersistenceAccess(
         SyntaxNodeAnalysisContext context,
         ClassDeclarationSyntax declaration)
@@ -148,6 +172,9 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>
+    /// 偵測 Controller 是否直接建立 Handler 或 Use Case 型別。
+    /// </summary>
     private static void AnalyzeDirectConstruction(
         SyntaxNodeAnalysisContext context,
         ClassDeclarationSyntax declaration)
@@ -170,6 +197,9 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>
+    /// 判斷型別或其基底型別是否為 <c>DbContext</c>。
+    /// </summary>
     private static bool IsDbContext(ITypeSymbol? type)
     {
         for (var current = type as INamedTypeSymbol; current is not null; current = current.BaseType)
@@ -183,6 +213,9 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
         return false;
     }
 
+    /// <summary>
+    /// 從呼叫語法取得可辨識的方法名稱。
+    /// </summary>
     private static string? GetInvokedMethodName(InvocationExpressionSyntax invocation)
     {
         return invocation.Expression switch

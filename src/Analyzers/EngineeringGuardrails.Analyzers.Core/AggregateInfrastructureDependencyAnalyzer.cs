@@ -7,14 +7,23 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace EngineeringGuardrails.Analyzers.Core;
 
+/// <summary>
+/// 分析聚合根與領域實體是否直接參考基礎設施型別。
+/// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AggregateInfrastructureDependencyAnalyzer : DiagnosticAnalyzer
 {
     private static readonly string[] ForbiddenTypeSuffixes = { ".DbContext", "DbContext" };
 
+    /// <summary>
+    /// 取得此分析器支援的 Diagnostic 描述項目。
+    /// </summary>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(RuleDescriptors.AggregateInfrastructureDependency);
 
+    /// <summary>
+    /// 初始化分析器並註冊類別宣告的語法節點分析。
+    /// </summary>
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -22,6 +31,9 @@ public sealed class AggregateInfrastructureDependencyAnalyzer : DiagnosticAnalyz
         context.RegisterSyntaxNodeAction(AnalyzeClass, SyntaxKind.ClassDeclaration);
     }
 
+    /// <summary>
+    /// 分析聚合根或領域實體的類別宣告，並回報對基礎設施型別的參考。
+    /// </summary>
     private static void AnalyzeClass(SyntaxNodeAnalysisContext context)
     {
         var classDeclaration = (ClassDeclarationSyntax)context.Node;
@@ -48,6 +60,9 @@ public sealed class AggregateInfrastructureDependencyAnalyzer : DiagnosticAnalyz
         }
     }
 
+    /// <summary>
+    /// 判斷型別是否依名稱或繼承關係呈現聚合根或領域實體角色。
+    /// </summary>
     private static bool LooksLikeAggregateOrEntity(INamedTypeSymbol symbol)
     {
         if (symbol.Name.EndsWith("Aggregate", System.StringComparison.Ordinal)
@@ -69,6 +84,9 @@ public sealed class AggregateInfrastructureDependencyAnalyzer : DiagnosticAnalyz
         return false;
     }
 
+    /// <summary>
+    /// 判斷型別完整名稱是否符合受禁止的基礎設施型別尾碼。
+    /// </summary>
     private static bool IsForbiddenInfrastructureType(ITypeSymbol type)
     {
         var fullName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);

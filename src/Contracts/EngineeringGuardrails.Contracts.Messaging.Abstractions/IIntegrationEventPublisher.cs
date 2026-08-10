@@ -15,8 +15,10 @@ public interface IIntegrationEventPublisher
     /// <returns>代表非同步操作的工作物件</returns>
     Task PublishAsync(IIntegrationEvent integrationEvent);
 
-    /// <summary>Publishes an event with stable delivery metadata.</summary>
-    /// <remarks>Adapters that support deduplication or partitioning should preserve this metadata.</remarks>
+    /// <summary>
+    /// 使用穩定的傳遞中繼資料發布整合事件。
+    /// </summary>
+    /// <remarks>支援去重或分割的轉接器應保留這些中繼資料。</remarks>
     Task PublishAsync(IIntegrationEvent integrationEvent, IntegrationMessageDelivery delivery)
     {
         return PublishAsync(integrationEvent);
