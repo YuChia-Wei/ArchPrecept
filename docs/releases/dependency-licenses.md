@@ -48,6 +48,6 @@ Roslyn 與 xUnit／TestPlatform 僅 build/test 使用，其 DLL 不在產品 nup
 
 NETStandard.Library 2.0.3、System.Buffers 4.5.1、System.Memory 4.5.5、System.Numerics.Vectors 4.4.0、System.Threading.Tasks.Extensions 4.5.4：直接讀取實際還原套件中的 MIT LICENSE.TXT，不再依賴會漂移的 master URL。Microsoft.NETCore.Platforms 1.1.0：讀取其隨附 Microsoft 條款。
 
-xunit.abstractions 2.0.3：上游 [2.0.3 固定 tag](https://github.com/xunit/abstractions.xunit/tree/489a2b3949a9ae8587201a22a8ecfc1d791fa1f3) 與 nupkg 的 nuspec 都採 xunit/xunit 的 licenseUrl；對照 [發布時期固定 License](https://github.com/xunit/xunit/blob/8d0cdc1cf585f5cf285d221e0c8ff793e6aeea30/license.txt) 為 Apache-2.0。tag 本身不附 LICENSE，套件也沒有 source-build SHA，故證據是版本標籤與宣告 URL 的鏈結，不聲稱已重現上游 build。此限制記錄為證據品質限制，當前不散布其 binary，不需要負責人猜測授權。
+xunit.abstractions 2.0.3：上游 [2.0.3 固定 tag](https://github.com/xunit/abstractions.xunit/tree/489a2b3949a9ae8587201a22a8ecfc1d791fa1f3) 與 nupkg 的 nuspec 都採 xunit/xunit 的 licenseUrl；對照 [發布時期固定 License](https://github.com/xunit/xunit/blob/8d0cdc1cf585f5cf285d221e0c8ff793e6aeea30/license.txt) 為 Apache-2.0。tag 本身不附 LICENSE，且其 nuspec 仍標 2.0.1（2.0.1／2.0.2／2.0.3 tags 指向同一 commit）；已還原 nupkg 的 nuspec 則為 2.0.3，也沒有 source-build SHA，故證據是實際套件授權 URL 與歷史授權文字，加上上游標籤的有限佐證，不聲稱已重現上游 build。此限制記錄為證據品質限制，當前不散布其 binary，不需要負責人猜測授權。
 
 選定 Apache-2.0 不會改變依賴原條款。沒有依據要求替本次未散布的 build/test 套件複製所有上游 notices 到產品中；若未來改為 vendor／bundle／重發依賴，需重做散布範圍審查。
