@@ -1,4 +1,4 @@
-# .NET Engineering Guardrails 文件索引
+# ArchPrecept 文件索引
 
 此目錄保存產品層級、對外可閱讀且需長期維護的正式文件。
 

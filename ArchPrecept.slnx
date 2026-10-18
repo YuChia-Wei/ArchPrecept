@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/Contracts/">
+    <Project Path="src/Contracts/ArchPrecept.Contracts.Domain/ArchPrecept.Contracts.Domain.csproj" />
+    <Project Path="src/Contracts/ArchPrecept.Contracts.Application/ArchPrecept.Contracts.Application.csproj" />
+    <Project Path="src/Contracts/ArchPrecept.Contracts.Messaging.Abstractions/ArchPrecept.Contracts.Messaging.Abstractions.csproj" />
+  </Folder>
+  <Folder Name="/src/Analyzers/">
+    <Project Path="src/Analyzers/ArchPrecept.Analyzers.Core/ArchPrecept.Analyzers.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/Analyzers/">
+    <Project Path="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ArchPrecept.Analyzers.Core.Tests.csproj" />
+  </Folder>
+</Solution>

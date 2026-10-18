@@ -1,13 +1,13 @@
 ---
-title: ".NET Engineering Guardrails"
+title: "ArchPrecept"
 subtitle: "文件治理與規則追溯規範"
 author: "產品負責人：YuChia Wei"
-date: "2026-08-09"
+date: "2026-10-18"
 lang: "zh-TW"
 document_id: "DOC-GOV-TRACEABILITY"
-document_version: "0.1"
+document_version: "0.2"
 status: "draft"
-last_reviewed: "2026-08-09"
+last_reviewed: "2026-10-18"
 canonical_path: "docs/governance/document-governance-and-traceability.md"
 canonical: true
 source_format: "markdown"
@@ -52,8 +52,8 @@ related_documents:
 
 > **文件狀態：治理基線草案（Governance Baseline Draft）**<br>
 > **目標 GitHub Repository：** `dotnet-engineering-guardrails`<br>
-> **版本：** `0.1`<br>
-> **上游文件：** 《.NET Engineering Guardrails 產品規劃書》與《產品需求文件（PRD）》<br>
+> **版本：** `0.2`<br>
+> **上游文件：** 《ArchPrecept 產品規劃書》與《產品需求文件（PRD）》<br>
 > **Repository 建議正式路徑：** `docs/governance/document-governance-and-traceability.md`
 
 | 欄位 | 內容 |
@@ -70,7 +70,7 @@ related_documents:
 
 # 執行摘要
 
-`.NET Engineering Guardrails` 的產品價值建立在「規範、規則與驗證證據可被一致維護」之上。若產品規劃書、PRD、工程規範、Rule Catalog、Diagnostic 與測試各自演進，即使 Analyzer 技術上正確，產品仍可能出現兩類風險：一是工程規範已改變但驗證工具未跟上；二是 Analyzer 已新增限制，卻缺少可辯護的規範依據。
+`ArchPrecept` 的產品價值建立在「規範、規則與驗證證據可被一致維護」之上。若產品規劃書、PRD、工程規範、Rule Catalog、Diagnostic 與測試各自演進，即使 Analyzer 技術上正確，產品仍可能出現兩類風險：一是工程規範已改變但驗證工具未跟上；二是 Analyzer 已新增限制，卻缺少可辯護的規範依據。
 
 因此，本文件將產品文件視為**持續演進的受控產品資產（governed living product assets）**，而不是一次性提案、會議紀錄或工作日誌。產品規劃書與 PRD 先放置於 `docs/product/`，以 Markdown 作為單一正式來源；Word／PDF 僅作為衍生輸出。機器可讀 Rule Catalog 與 Mapping 放在 `rules/`；未來 AI Collaboration Framework 具備適合 Analyzer／套件產品開發的 Profile 後，再新增 `.dev/` 承接 Requirement 拆解、Spec、Standard、Workflow 與 Release Evidence。
 
@@ -574,7 +574,7 @@ enforcement:
   - type: roslyn-analyzer
     diagnostic_id: <diagnostic-id>
 implementation:
-  - src/Analyzers/EngineeringGuardrails.Analyzers.Core/Rules/Application/RepositoryContractAnalyzer.cs
+  - src/Analyzers/ArchPrecept.Analyzers.Core/Rules/Application/RepositoryContractAnalyzer.cs
 tests:
   - tests/Analyzers/RepositoryContractAnalyzerTests.cs
   - tests/Consumers/AnalyzerOnly.CustomContracts/
@@ -584,7 +584,7 @@ release_evidence: null
 # 附錄 C：文件 Metadata 範例
 
 ```yaml
-title: .NET Engineering Guardrails Product Plan
+title: ArchPrecept Product Plan
 document_version: 0.3
 status: active
 owner: YuChia Wei

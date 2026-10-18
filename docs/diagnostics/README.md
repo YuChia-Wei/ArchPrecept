@@ -1,7 +1,8 @@
 ---
-title: "Engineering Guardrails 分析器 Diagnostic 說明書"
+title: "ArchPrecept 分析器 Diagnostic 說明書"
 document_id: DOC-DIAGNOSTICS
-document_version: 0.1
+document_version: 0.2
+last_reviewed: 2026-10-18
 status: draft
 lang: zh-TW
 canonical_path: docs/diagnostics/README.md
@@ -9,7 +10,7 @@ canonical_path: docs/diagnostics/README.md
 
 # 分析器 Diagnostic 說明書
 
-本目錄是 `EngineeringGuardrails.Analyzers.Core` 目前所有 Roslyn Diagnostic 的可閱讀正式說明來源。每份手冊說明實際觸發條件、違規與合規範例、修正方式、已知限制、設定／suppression 選項，以及對應的實作與測試。
+本目錄是 `ArchPrecept.Analyzers.Core` 目前所有 Roslyn Diagnostic 的可閱讀正式說明來源。每份手冊說明實際觸發條件、違規與合規範例、修正方式、已知限制、設定／suppression 選項，以及對應的實作與測試。
 
 這些手冊記錄的是目前分析器已實作的行為；它們不是新的 Rule ID、規則目錄或架構決策。若分析器的實作、Diagnostic ID 或預設嚴重性變更，必須同步更新相應手冊與自動驗收測試。
 
@@ -19,7 +20,7 @@ canonical_path: docs/diagnostics/README.md
 2. 先確認「適用範圍與觸發條件」與「已知限制與例外」是否適用於目標程式碼。
 3. 依「修正指引」調整程式碼；若例外是經過刻意核准的架構選擇，依「設定與 Suppression」留下可追溯的 suppression。
 
-分析器專案也提供 [severity 範本](../../src/Analyzers/EngineeringGuardrails.Analyzers.Core/templates/analyzer-severity.editorconfig)；接線與建置方式請見其 [README](../../src/Analyzers/EngineeringGuardrails.Analyzers.Core/README.md)。
+分析器專案也提供 [severity 範本](../../src/Analyzers/ArchPrecept.Analyzers.Core/templates/analyzer-severity.editorconfig)；接線與建置方式請見其 [README](../../src/Analyzers/ArchPrecept.Analyzers.Core/README.md)。
 
 ## Diagnostic 目錄
 

@@ -1,0 +1,18 @@
+<!--
+  Source-included analyzer wiring snippet.
+
+  Copy this ItemGroup into the target repository's root Directory.Build.props
+  after src/Analyzers/ArchPrecept.Analyzers.Core has been copied into the target repo.
+
+  Keep this as a source-included template until analyzer rules and AI context
+  integration stabilize.
+-->
+<Project>
+  <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory)src/Analyzers/ArchPrecept.Analyzers.Core/ArchPrecept.Analyzers.Core.csproj')">
+    <ProjectReference
+      Include="$(MSBuildThisFileDirectory)src/Analyzers/ArchPrecept.Analyzers.Core/ArchPrecept.Analyzers.Core.csproj"
+      OutputItemType="Analyzer"
+      ReferenceOutputAssembly="false"
+      PrivateAssets="all" />
+  </ItemGroup>
+</Project>

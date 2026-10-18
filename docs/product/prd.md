@@ -1,13 +1,13 @@
 ---
-title: ".NET Engineering Guardrails"
+title: "ArchPrecept"
 subtitle: "產品需求文件（PRD）"
 author: "產品負責人：YuChia Wei"
-date: "2026-08-09"
+date: "2026-10-18"
 lang: "zh-TW"
 document_id: "DOC-PRD"
-document_version: "0.3"
+document_version: "0.4"
 status: "draft"
-last_reviewed: "2026-08-09"
+last_reviewed: "2026-10-18"
 canonical_path: "docs/product/prd.md"
 canonical: true
 source_format: "markdown"
@@ -16,7 +16,7 @@ owners:
 related_documents:
   - "DOC-PRODUCT-PLAN"
   - "DOC-GOV-TRACEABILITY"
-supersedes: "0.2"
+supersedes: "0.3"
 ---
 
 # 目錄
@@ -54,9 +54,9 @@ supersedes: "0.2"
 
 > **文件狀態：需求基線草案（Requirements Baseline Draft）**<br>
 > **目標 GitHub Repository：** `dotnet-engineering-guardrails`<br>
-> **版本：** `0.3`<br>
-> **上游文件：** 《.NET Engineering Guardrails 產品規劃書》<br>
-> **重要排除事項：** 本文件刻意不決定 NuGet Package ID、套件前綴、公開命名空間與最終 Assembly 名稱。
+> **版本：** `0.4`<br>
+> **上游文件：** 《ArchPrecept 產品規劃書》<br>
+> **重要排除事項：** 產品品牌與 Project／Assembly／Namespace 前綴已核准為 ArchPrecept；本文件不核准 NuGet Package ID、套件發布與商標權利。
 
 | 欄位 | 內容 |
 |---|---|
@@ -65,16 +65,18 @@ supersedes: "0.2"
 | 正式來源 | Markdown；Word／PDF 僅為衍生輸出 |
 | 文件目的 | 將產品規劃轉換為可追蹤、可測試且具有明確驗收標準的產品需求 |
 | 適用對象 | 產品負責人、維護者、開發者、Reviewer、測試與 Release 維護者 |
-| 工作名稱 | `.NET Engineering Guardrails` |
+| 工作名稱 | `ArchPrecept` |
 | Repository 名稱 | `dotnet-engineering-guardrails` |
 | 需求範圍 | Rule Model、Role Classification、Analyzer、Reference Contracts、Architecture Testing、Conformance、設定、文件治理、雙向追溯、打包與 Release |
-| 關聯治理文件 | 《.NET Engineering Guardrails 文件治理與規則追溯規範》 |
+| 關聯治理文件 | 《ArchPrecept 文件治理與規則追溯規範》 |
 | 需求治理 | Requirement ID 穩定；需求變更需同步驗收標準、測試及相容性影響 |
-| 本版排除 | NuGet Package ID、品牌前綴、商標名稱、最終定價與商業化策略 |
+| 本版排除 | NuGet Package ID 核准、商標權利確認、最終定價與商業化策略 |
+
+本版依產品規劃書 DEC-015／DEC-016 更新品牌與程式碼命名前綴，並保留所有 Requirement ID。既有使用端需由 `EngineeringGuardrails.*` 遷移至 `ArchPrecept.*`、更新引用並重新建置；不宣稱二進位相容。GitHub Repository 改名另行安排，本機目錄 `dotnet-architecture-kit` 固定保留。Package ID 僅有命名候選，所有專案維持不可封裝。
 
 # 執行摘要
 
-本 PRD 將《.NET Engineering Guardrails 產品規劃書》中的產品方向，轉換為可實作與驗收的功能需求、非功能需求、資料模型、測試策略及 MVP 完成條件。
+本 PRD 將《ArchPrecept 產品規劃書》中的產品方向，轉換為可實作與驗收的功能需求、非功能需求、資料模型、測試策略及 MVP 完成條件。
 
 首個外部可用 Prerelease 的核心，不是增加更多零散 Diagnostic，而是先完成中央 Architecture Role Classifier、Analyzer 與 Reference Contract Libraries 的相依解耦，以及 Analyzer-only／Custom Contracts 的完整 Consumer Test。產品必須證明：即使採用端不使用本產品定義的 `IAggregateRoot`、`IUseCase` 或 Repository 介面，仍可透過明確角色映射執行主要架構規則。
 
@@ -287,7 +289,7 @@ Architecture Testing 與完整 Conformance CLI 可在 MVP 後續里程碑完成�
 | RL-007 | Validation、Feed Publication、Hosted Release 與下載後驗證是不同 Checkpoint | P1 | Release Workflow 有獨立狀態與失敗處理 |
 | RL-008 | 課程啟發揭露、Provenance 與授權檢查未通過不得公開發布 | P0 | Workflow 有明確阻擋條件 |
 | RL-009 | 所有可建置、可發布的產品原始碼必須集中於 `src/`，並依 `Contracts`、`Analyzers`、`ArchitectureTesting`、`Conformance` 等能力分組 | P0 | Repository 結構檢查拒絕位於 `src/` 外的產品 Project；測試 Project 位於對應的 `tests/<Capability>/` 且不進入發布 Inventory |
-| RL-010 | 產品 Project、預設 Assembly Name 與根 Namespace 必須使用 `EngineeringGuardrails.<Capability>` 階層；測試 Project 加 `.Tests` | P0 | Repository 不含產品身分中的 `Lab`、`BuildingBlocks` 或 `Backend`；命名檢查不建立或推定 NuGet Package ID |
+| RL-010 | 產品 Project、預設 Assembly Name 與根 Namespace 必須使用 `ArchPrecept.<Capability>` 階層；測試 Project 加 `.Tests` | P0 | Repository 不含產品身分中的 `Lab`、`BuildingBlocks` 或 `Backend`；命名檢查不建立或推定 NuGet Package ID |
 
 ## 12. 非功能需求
 
@@ -390,7 +392,7 @@ enforcement:
   - type: roslyn-analyzer
     diagnostic_id: <diagnostic-id>
 implementation:
-  - src/Analyzers/EngineeringGuardrails.Analyzers.Core/Rules/Application/UseCaseContractAnalyzer.cs
+  - src/Analyzers/ArchPrecept.Analyzers.Core/Rules/Application/UseCaseContractAnalyzer.cs
 tests:
   - tests/Analyzers/UseCaseContractAnalyzerTests.cs
   - tests/Consumers/AnalyzerOnly.CustomContracts/
@@ -402,17 +404,17 @@ status: active
 ### 13.5 Document Metadata（概念）
 
 ```yaml
-title: .NET Engineering Guardrails PRD
+title: ArchPrecept PRD
 document_id: DOC-PRD
-document_version: 0.3
+document_version: 0.4
 status: draft
 owners:
   - YuChia Wei
 canonical_path: docs/product/prd.md
 canonical: true
 source_format: markdown
-last_reviewed: 2026-08-09
-supersedes: 0.2
+last_reviewed: 2026-10-18
+supersedes: 0.3
 related_documents:
   - DOC-PRODUCT-PLAN
   - DOC-GOV-TRACEABILITY
@@ -492,7 +494,7 @@ Consumer Test 必須對實際 Pack 後的 Artifact 執行，不可只使用 Proj
 
 首個外部可用 Prerelease 必須同時符合：
 
-1. Repository 名稱與產品定位已更新為 `.NET Engineering Guardrails`。
+1. Repository 名稱與產品定位已更新為 `ArchPrecept`。
 2. Analyzer 不直接或間接相依任何 Reference Contract Library。
 3. Custom Contracts Consumer 可透過明確 Mapping 觸發 Aggregate、Repository 與 Use Case 核心規則。
 4. Reference Contracts Consumer 可在低設定下觸發相同規則。
@@ -535,15 +537,15 @@ Consumer Test 必須對實際 Pack 後的 Artifact 執行，不可只使用 Proj
 ```text
 src/
 ├─ Contracts/
-│  ├─ EngineeringGuardrails.Contracts.Domain
-│  ├─ EngineeringGuardrails.Contracts.Application
-│  └─ EngineeringGuardrails.Contracts.Messaging.Abstractions
+│  ├─ ArchPrecept.Contracts.Domain
+│  ├─ ArchPrecept.Contracts.Application
+│  └─ ArchPrecept.Contracts.Messaging.Abstractions
 └─ Analyzers/
-   └─ EngineeringGuardrails.Analyzers.Core
+   └─ ArchPrecept.Analyzers.Core
 
 tests/
 └─ Analyzers/
-   └─ EngineeringGuardrails.Analyzers.Core.Tests
+   └─ ArchPrecept.Analyzers.Core.Tests
 
 docs/
 samples/
@@ -556,13 +558,13 @@ samples/
 - 17 個 Diagnostic 與 49 個通過測試的規劃紀錄；
 - Analyzer 目前主要依簡單型別名稱、Suffix 與方法形狀判定角色；
 - Project 仍為 `IsPackable=false`；
-- Project、預設 Assembly Name 與根 Namespace 已核准採 `EngineeringGuardrails.<Capability>`；公開 Package ID、License 與相容性策略尚未核准。
+- Project、預設 Assembly Name 與根 Namespace 已核准採 `ArchPrecept.<Capability>`；公開 Package ID、License 與相容性策略尚未核准。
 
 目前尚未建立 `src/ArchitectureTesting/` 與 `src/Conformance/` 專案；兩者是已規劃但尚未實作的產品能力，不以空目錄或空專案預先佔位。
 
 主要重構方向：
 
-- 維持 Project、Assembly 與 Namespace 的 `EngineeringGuardrails.<Capability>` 階層，禁止重新引入 `Backend`、`Lab` 與 `BuildingBlocks` 產品身分；
+- 維持 Project、Assembly 與 Namespace 的 `ArchPrecept.<Capability>` 階層，禁止重新引入 `Backend`、`Lab` 與 `BuildingBlocks` 產品身分；
 - 把分散於各 Analyzer 的角色判定抽成中央 Classifier；
 - 把 Source-included Analyzer 轉為正式 Analyzer 成品；
 - 將 Reference Contracts 從複製來源轉為 Canonical Ownership；
@@ -604,7 +606,7 @@ samples/
 
 # 附錄 D：PRD 維護方式
 
-本 PRD 以《.NET Engineering Guardrails 產品規劃書》作為上游產品決策基線，並以《文件治理與規則追溯規範》作為維護規則：
+本 PRD 以《ArchPrecept 產品規劃書》作為上游產品決策基線，並以《文件治理與規則追溯規範》作為維護規則：
 
 - 產品願景、能力邊界、Repository 策略、來源、授權與 Ownership 由產品規劃書管理；PRD 不重複維護相同決策內容。
 - Repository 正本使用穩定路徑 `docs/product/prd.md`，Markdown 為正式來源；版本由文件控制與 Git 歷史管理。

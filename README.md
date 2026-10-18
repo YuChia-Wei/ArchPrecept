@@ -1,4 +1,4 @@
-# .NET Engineering Guardrails
+# ArchPrecept
 
 Reusable .NET engineering contracts and Roslyn architecture analyzers extracted from
 the `dotnet-mq-arch-lab` and `ai-collaboration-prompts-dotnet-backend`
@@ -6,9 +6,20 @@ repositories.
 
 This repository is in its initial extraction stage. Project names, default
 assembly names, root namespaces, and the solution use the approved
-`EngineeringGuardrails` capability hierarchy. NuGet package IDs, package
+`ArchPrecept` capability hierarchy. NuGet package IDs, package
 boundaries, version policy, and publication contract remain intentionally
-undefined.
+undefined. Candidate package names are documented in the
+[product plan](docs/product/product-plan.md#126-package-id-命名候選).
+
+The product was renamed from .NET Engineering Guardrails to ArchPrecept on
+2026-10-18. Existing consumers must replace the `EngineeringGuardrails.*` project,
+assembly, and namespace prefix with `ArchPrecept.*`, update references, and rebuild.
+Diagnostic IDs `DBA1001`–`DBA1017` and rule behavior remain unchanged.
+
+The GitHub repository currently remains `dotnet-engineering-guardrails`; its rename
+will be handled separately. The local checkout directory `dotnet-architecture-kit`
+is intentionally retained to preserve chat/Codex session continuity and does not
+need to match the online repository name.
 
 ## Planned Repository Areas
 

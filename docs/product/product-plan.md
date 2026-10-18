@@ -1,13 +1,13 @@
 ---
-title: ".NET Engineering Guardrails"
+title: "ArchPrecept"
 subtitle: "產品規劃書"
 author: "產品負責人：YuChia Wei"
-date: "2026-08-09"
+date: "2026-10-18"
 lang: "zh-TW"
 document_id: "DOC-PRODUCT-PLAN"
-document_version: "0.3"
+document_version: "0.4"
 status: "draft"
-last_reviewed: "2026-08-09"
+last_reviewed: "2026-10-18"
 canonical_path: "docs/product/product-plan.md"
 canonical: true
 source_format: "markdown"
@@ -56,8 +56,8 @@ related_documents:
 
 > **文件狀態：決策基線草案（Decision Baseline Draft）**<br>
 > **目標 GitHub Repository：** `dotnet-engineering-guardrails`<br>
-> **版本：** `0.3`<br>
-> **重要排除事項：** 本文件刻意不決定 NuGet Package ID、套件前綴、公開命名空間與最終 Assembly 名稱。
+> **版本：** `0.4`<br>
+> **重要排除事項：** 產品品牌與 Project／Assembly／Namespace 前綴已核准為 ArchPrecept；本文件不核准 NuGet Package ID、套件發布與商標權利。
 
 | 欄位 | 內容 |
 |---|---|
@@ -66,24 +66,24 @@ related_documents:
 | 正式來源 | Markdown；Word／PDF 僅為衍生輸出 |
 | 文件目的 | 匯總產品定位、能力邊界、Git repo 策略與結構、採用模式、發布成品、治理原則及演進路線 |
 | 適用對象 | 產品負責人、維護者、貢獻者、AI Collaboration Framework 維護者、試用團隊及潛在採用者 |
-| 工作名稱 | `.NET Engineering Guardrails` |
+| 工作名稱 | `ArchPrecept` |
 | Repository 名稱 | `dotnet-engineering-guardrails` |
 | Repository 模式 | 單一儲存庫（monorepo），輸出多個可獨立採用的成品 |
 | 目前階段 | 初始抽取、產品邊界定義、公開契約硬化與 Analyzer 架構重整前 |
 | 本版納入 | 產品背景、定位、決策、設計原則、使用者、能力架構、責任邊界、repo 結構、文件治理與追溯、發布治理、來源與 Ownership、Roadmap、風險及待決策事項 |
-| 關聯治理文件 | 《.NET Engineering Guardrails 文件治理與規則追溯規範》 |
-| 本版排除 | NuGet Package ID、品牌前綴、商標名稱、最終定價與商業化策略 |
+| 關聯治理文件 | 《ArchPrecept 文件治理與規則追溯規範》 |
+| 本版排除 | NuGet Package ID 核准、商標權利確認、最終定價與商業化策略 |
 
 # 執行摘要
 
-`.NET Engineering Guardrails` 的目的，是解決「軟體工程規範寫得很清楚，但缺乏可信、可執行、可在編譯與 CI 階段產生證據的驗證機制」這個問題。
+`ArchPrecept` 的目的，是解決「軟體工程規範寫得很清楚，但缺乏可信、可執行、可在編譯與 CI 階段產生證據的驗證機制」這個問題。
 
 產品不只包含 Roslyn 分析器（Roslyn Analyzer），也包含支援規則執行所需的規則模型、架構角色辨識、架構測試（Architecture Testing）、符合性驗證工具（Conformance Tool）、設定與導入資產，以及一組**選配的參考契約類別庫（Reference Contract Libraries）**。參考契約類別庫預計提供 `IAggregateRoot`、Event-Sourced Aggregate、`IUseCase`、Repository Port、Messaging Abstraction 等正式維護的介面與基底型別，但採用這些型別**不得成為使用 Analyzer 的必要條件**。
 
 本產品與 AI Collaboration Framework 的責任分工如下：
 
 - AI Collaboration Framework 保存工程原則、理由、取捨、例外情境、AI Skill 與人工審查方式。
-- `.NET Engineering Guardrails` 實作可被確定判定的規則、標準化角色模型、參考契約及機械化證據。
+- `ArchPrecept` 實作可被確定判定的規則、標準化角色模型、參考契約及機械化證據。
 - 採用端 Repository 保存自己的真實架構、角色映射、啟用 Profile、例外與抑制證據。
 
 目前建議維持**單一 repo、多個成品輸出**。Analyzer 與參考契約類別庫在套件相依上完全解耦，但放在同一 repo 共同維護，以便在同一個 Pull Request 中原子性更新規則、契約、測試、文件與相容性宣告。只有在參考契約類別庫形成獨立產品生命週期、維護責任或授權邊界時，才考慮拆分新的 repo。
@@ -153,7 +153,7 @@ related_documents:
 
 ### 2.3 產品定位
 
-`.NET Engineering Guardrails` 是：
+`ArchPrecept` 是：
 
 - .NET 軟體工程規則的機械化執行產品線；
 - 可獨立採用的 Roslyn Analyzer、Architecture Testing 與 Conformance Tool；
@@ -161,7 +161,7 @@ related_documents:
 - 適用於 Web API、桌面應用程式、Worker、Console Job、批次工具、Message Consumer 與類別庫的宿主中立核心；
 - 提供選配 Reference Contract Libraries 的單一 repo、多成品產品。
 
-`.NET Engineering Guardrails` 不是：
+`ArchPrecept` 不是：
 
 - DDD、Clean Architecture 或 Hexagonal Architecture 的唯一官方實作；
 - 必須全面繼承特定 Base Class 才能使用的 Application Framework；
@@ -174,7 +174,7 @@ related_documents:
 | 編號 | 決策 | 狀態 | 理由 |
 |---|---|---|---|
 | DEC-001 | GitHub repo 使用 `dotnet-engineering-guardrails` | 已確認 | 目前產品主軸已收斂為規則模型、機械化執行與符合性證據 |
-| DEC-002 | 對外工作名稱使用 `.NET Engineering Guardrails` | 已確認 | 能清楚表達產品目的，不把範圍侷限於 Backend |
+| DEC-002 | 對外工作名稱使用 `.NET Engineering Guardrails` | 已由 DEC-015 取代 | 保留原工作名稱的歷史；自 2026-10-18 起採 ArchPrecept |
 | DEC-003 | 維持單一 repo、多成品輸出 | 已確認 | 契約、Analyzer、Rule Catalog、測試與相容性需原子性共同演進 |
 | DEC-004 | Analyzer 不得依賴 Reference Contract Libraries | 已確認 | Analyzer-only 必須是一等採用模式 |
 | DEC-005 | 未採用本產品介面的專案也必須能執行核心規則 | 已確認 | 既有系統不能被迫全面遷移才能獲得驗證能力 |
@@ -185,8 +185,16 @@ related_documents:
 | DEC-010 | NuGet Package ID 與 Package Prefix 延後決策 | 已確認 | Project、Assembly 與 Namespace 可先穩定能力身分，但不據此推定發布識別 |
 | DEC-011 | 產品規劃書與 PRD 採受控持續演進；Markdown 為正式來源，Word 為衍生輸出 | 已確認 | 讓 Git Diff、Review、歷史追蹤與自動驗證有單一來源，避免雙向人工維護造成漂移 |
 | DEC-012 | 未來安裝 AI Collaboration Framework 時保留 `docs/` 產品文件，並以 `.dev/` 補上開發治理層 | 已確認 | Framework 導入應採語意映射與 Gap Analysis，不應把產品文件無差別搬入流程目錄 |
-| DEC-014 | .NET Project、預設 Assembly Name 與 Namespace 採 `EngineeringGuardrails.<Capability>` 階層 | 已確認 | 移除抽取來源的 `Lab`、`BuildingBlocks` 與 `Backend` 身分，並讓程式碼結構直接反映產品能力；不決定 NuGet Package ID |
+| DEC-014 | .NET Project、預設 Assembly Name 與 Namespace 採 `EngineeringGuardrails.<Capability>` 階層 | 已由 DEC-015 取代 | 保留原命名決策；能力分層與不推定 NuGet Package ID 的原則繼續適用 |
 | DEC-013 | 工程規範、PRD Requirement、Rule、執行機制、實作、測試與證據必須雙向可追溯 | 已確認 | 可識別「規範沒有工具」與「工具缺少正式規範依據」兩種治理缺口 |
+| DEC-015 | 產品採 ArchPrecept；Solution 採 `ArchPrecept.slnx`；Project、預設 Assembly Name 與 Namespace 採 `ArchPrecept.<Capability>` | 已確認，2026-10-18 生效 | 取代 DEC-002 與 DEC-014 的命名；保留能力分層、公開型別簡名、Diagnostic ID 與規則行為；不核准套件發布 |
+| DEC-016 | GitHub Repository 改名另行安排，本機目錄保留 `dotnet-architecture-kit` | 已確認，2026-10-18 生效 | DEC-001 仍記錄目前遠端名稱；本機目錄保留以維持 chat/Codex session 連續性，不要求與線上名稱一致 |
+
+### 3.1 改名與採用端遷移
+
+本次將 `EngineeringGuardrails.*` 改為 `ArchPrecept.*`，並將 `EngineeringGuardrails.slnx` 改為 `ArchPrecept.slnx`。既有使用端需同步更新 ProjectReference、Assembly 引用、using 與完整型別名稱並重新建置；Assembly 與公開型別身分會改變，不能視為二進位相容的更名。既有 Diagnostic ID `DBA1001`～`DBA1017`、嚴重性與規則行為不變。
+
+本次只執行 Repository 內部與文件改名。GitHub Repository 仍為 `dotnet-engineering-guardrails`；本機目錄 `dotnet-architecture-kit` 固定保留。`IsPackable=false` 持續生效，未核准 Package ID、套件發布、版本政策或 License。DEC-010 繼續適用；下列套件名稱僅供後續發布決策評估。
 
 ## 4. 產品設計原則
 
@@ -315,7 +323,7 @@ Repository 預設不可打包；只有 package inventory 明確核准的專案�
 ## 7. 產品能力架構
 
 ```text
-.NET Engineering Guardrails
+ArchPrecept
 │
 ├─ Rule Model
 │  ├─ Canonical Rule Catalog
@@ -416,7 +424,7 @@ AI Collaboration Framework
                 │
                 │ 規則來源與相容版本引用
                 ▼
-.NET Engineering Guardrails
+ArchPrecept
   ├─ Rule Catalog
   ├─ Role Classification
   ├─ Analyzer / Architecture Tests
@@ -506,7 +514,7 @@ Repository 邊界不等於 NuGet 相依邊界。同一 repo 仍可讓 Analyzer-o
 
 ## 11. 預期 Git repo 結構
 
-> 下列 `EngineeringGuardrails.*` 名稱是已核准的 .NET Project、預設 Assembly Name 與 Namespace 工作身分；不代表或推定最終 NuGet Package ID。其他目錄名稱描述 Repository 責任。
+> 下列 `ArchPrecept.*` 名稱是已核准的 .NET Project、預設 Assembly Name 與 Namespace 工作身分；不代表或推定最終 NuGet Package ID。其他目錄名稱描述 Repository 責任。
 
 ```text
 dotnet-engineering-guardrails/
@@ -537,12 +545,12 @@ dotnet-engineering-guardrails/
 │
 ├─ src/
 │  ├─ Contracts/
-│  │  ├─ EngineeringGuardrails.Contracts.Domain/
-│  │  ├─ EngineeringGuardrails.Contracts.Application/
-│  │  ├─ EngineeringGuardrails.Contracts.Messaging.Abstractions/
-│  │  └─ EngineeringGuardrails.Contracts.EventSourcing/
+│  │  ├─ ArchPrecept.Contracts.Domain/
+│  │  ├─ ArchPrecept.Contracts.Application/
+│  │  ├─ ArchPrecept.Contracts.Messaging.Abstractions/
+│  │  └─ ArchPrecept.Contracts.EventSourcing/
 │  ├─ Analyzers/
-│  │  └─ EngineeringGuardrails.Analyzers.Core/
+│  │  └─ ArchPrecept.Analyzers.Core/
 │  │     ├─ Classification/
 │  │     │  ├─ Roles/
 │  │     │  ├─ Evidence/
@@ -618,7 +626,7 @@ dotnet-engineering-guardrails/
 ├─ Directory.Packages.props
 ├─ global.json
 ├─ NuGet.Config
-├─ EngineeringGuardrails.slnx
+├─ ArchPrecept.slnx
 ├─ README.md
 ├─ LICENSE
 ├─ NOTICE
@@ -630,8 +638,8 @@ dotnet-engineering-guardrails/
 - `rules/`：機器可讀規則與 Schema，不是一般說明文件。
 - `docs/rules/`：人類可讀的理由、範例、例外與遷移說明。
 - `src/`：所有可建置、可發布的產品原始碼；第一層依產品能力分組，不在 Repository 根目錄另設 `analyzers/` 或 `tools/` 原始碼樹。
-- 產品 `.csproj` 檔名、預設 Assembly Name 與根 Namespace 使用 `EngineeringGuardrails.<Capability>`；測試專案使用對應產品名稱加 `.Tests`。
-- `EngineeringGuardrails.*` 工作身分不得自動複用為 NuGet Package ID；發布識別仍需獨立決策與核准。
+- 產品 `.csproj` 檔名、預設 Assembly Name 與根 Namespace 使用 `ArchPrecept.<Capability>`；測試專案使用對應產品名稱加 `.Tests`。
+- `ArchPrecept.*` 工作身分不得自動複用為 NuGet Package ID；發布識別仍需獨立決策與核准。
 - `src/Contracts/`：選配 runtime contracts；目錄位置不代表 Analyzer 相依。
 - `src/Analyzers/`：Roslyn Analyzer 與僅限安全修正的 Code Fix 原始碼。
 - `src/ArchitectureTesting/`：可由採用端測試專案引用的架構測試程式庫。
@@ -677,7 +685,7 @@ rules/
 
 ## 12. 預期發布成品
 
-> 本節僅定義成品類型，不決定 Package ID。
+> 本節定義成品類型，並列出尚未核准的 Package ID 命名候選。
 
 ### 12.1 Reference Contract Libraries
 
@@ -721,6 +729,22 @@ rules/
 - Compatibility Manifest
 - Rule Catalog Snapshot
 - Software Bill of Materials（SBOM，後續成熟階段）
+
+### 12.6 Package ID 命名候選
+
+下表是 ArchPrecept 品牌下的套件命名候選，尚未核准為發布識別、未確認 NuGet 可用性，也不啟用封裝或發布。DEC-010 繼續適用。
+
+| 能力 | Package ID 候選 | 實作狀態 |
+|---|---|---|
+| Domain Contracts | `ArchPrecept.Contracts.Domain` | 已有對應專案 |
+| Application Contracts | `ArchPrecept.Contracts.Application` | 已有對應專案 |
+| Messaging Abstractions | `ArchPrecept.Contracts.Messaging.Abstractions` | 已有對應專案 |
+| 核心 Analyzer | `ArchPrecept.Analyzers.Core` | 已有對應專案 |
+| Event Sourcing Contracts | `ArchPrecept.Contracts.EventSourcing` | 規劃中；目前 `EsAggregateRoot` 仍位於 Domain，不因改名拆分 |
+| Architecture Testing | `ArchPrecept.ArchitectureTesting` | 尚未建立專案 |
+| Conformance CLI／.NET Tool | `ArchPrecept.Conformance` | 尚未建立專案，CLI 命令名稱另行決策 |
+
+測試專案不發布套件；未來能力不以空專案預先佔位。目前不新增 `ArchPrecept` 或 `ArchPrecept.Analyzers` 聚合套件，待實際安裝組合需求確立後再評估。Analyzer 與 Contracts 繼續獨立採用。
 
 ## 13. 版本與相容性治理
 
@@ -839,7 +863,7 @@ rules/
 **目標：** 完成 repo 命名、產品定位、目錄策略、課程啟發揭露，以及來源與授權檢查基線。<br>
 **主要工作：**
 
-- 將 repo 定位改為 `.NET Engineering Guardrails`；
+- 將 repo 定位改為 `ArchPrecept`；
 - 建立 Product Plan、PRD、文件治理與規則追溯規範、Decision Log；
 - 建立 `docs/product/`、`docs/governance/` 與 `rules/mappings/` 的正式來源結構；
 - 建立來源清冊、課程啟發說明與 Provenance 記錄；
@@ -941,7 +965,7 @@ rules/
 - 提供完整 ORM、Outbox、Message Bus 或 Transaction Runtime；
 - 規定單一專案資料夾結構為唯一正確架構；
 - 透過 Analyzer 取代人類或 AI 架構審查；
-- 決定 NuGet Package ID、個人／品牌前綴及最終商標。
+- 核准 NuGet Package ID、套件發布及商標權利；ArchPrecept 品牌與程式碼前綴依 DEC-015 已確認。
 
 ## 19. 待決策事項
 
@@ -968,15 +992,15 @@ rules/
 ```text
 src/
 ├─ Contracts/
-│  ├─ EngineeringGuardrails.Contracts.Domain
-│  ├─ EngineeringGuardrails.Contracts.Application
-│  └─ EngineeringGuardrails.Contracts.Messaging.Abstractions
+│  ├─ ArchPrecept.Contracts.Domain
+│  ├─ ArchPrecept.Contracts.Application
+│  └─ ArchPrecept.Contracts.Messaging.Abstractions
 └─ Analyzers/
-   └─ EngineeringGuardrails.Analyzers.Core
+   └─ ArchPrecept.Analyzers.Core
 
 tests/
 └─ Analyzers/
-   └─ EngineeringGuardrails.Analyzers.Core.Tests
+   └─ ArchPrecept.Analyzers.Core.Tests
 
 docs/
 samples/
@@ -989,13 +1013,13 @@ samples/
 - 17 個 Diagnostic 與 49 個通過測試的規劃紀錄；
 - Analyzer 目前主要依簡單型別名稱、Suffix 與方法形狀判定角色；
 - Project 仍為 `IsPackable=false`；
-- Project、預設 Assembly Name 與根 Namespace 已核准採 `EngineeringGuardrails.<Capability>`；公開 Package ID、License 與相容性策略尚未核准。
+- Project、預設 Assembly Name 與根 Namespace 已核准採 `ArchPrecept.<Capability>`；公開 Package ID、License 與相容性策略尚未核准。
 
 目前尚未建立 `src/ArchitectureTesting/` 與 `src/Conformance/` 專案；兩者是已規劃但尚未實作的能力邊界，不以空目錄或空專案預先佔位。
 
 主要重構方向：
 
-- 維持 Project、Assembly 與 Namespace 的 `EngineeringGuardrails.<Capability>` 階層，禁止重新引入 `Backend`、`Lab` 與 `BuildingBlocks` 產品身分；
+- 維持 Project、Assembly 與 Namespace 的 `ArchPrecept.<Capability>` 階層，禁止重新引入 `Backend`、`Lab` 與 `BuildingBlocks` 產品身分；
 - 把分散於各 Analyzer 的角色判定抽成中央 Classifier；
 - 把 Source-included Analyzer 轉為正式 Analyzer 成品；
 - 將 Reference Contracts 從複製來源轉為 Canonical Ownership；
@@ -1020,14 +1044,14 @@ samples/
 # 附錄 C：主要來源與參考
 
 - AI Collaboration Framework：`https://github.com/YuChia-Wei/ai-collaboration-prompts-dotnet-backend`
-- 目前抽取 Repository：`https://github.com/YuChia-Wei/dotnet-architecture-kit`
+- 目前 Repository：[dotnet-engineering-guardrails](https://github.com/YuChia-Wei/dotnet-engineering-guardrails)；GitHub 改名另行安排，本機目錄保留 `dotnet-architecture-kit`。
 - Analyzer 構想的課程啟發：[Teddysoft 課程](https://teddysoft.tw/courses/ai-coding-pl/)
 - Domain Contract 來源之一：`https://github.com/YuChia-Wei/dotnet-webapi-lab/tree/main/src/dotnetLab.BuildingBlocks.Domain`
 - 分散式架構 Contract 來源：`https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/tree/main/src/BuildingBlocks`
 
 # 附錄 D：文件治理與持續演進
 
-本產品以《.NET Engineering Guardrails 文件治理與規則追溯規範》作為完整治理依據，摘要如下：
+本產品以《ArchPrecept 文件治理與規則追溯規範》作為完整治理依據，摘要如下：
 
 - 產品規劃書與 PRD 是持續演進的受控基線，不是 Sprint 日誌或單次交付紀錄。
 - Repository 內以 `docs/product/product-plan.md`、`docs/product/prd.md` 作為穩定 Markdown 正本；版本由文件控制 Metadata 與 Git 歷史保存。
