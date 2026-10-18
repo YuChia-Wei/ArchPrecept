@@ -53,6 +53,9 @@ Console.WriteLine(typeof(IIntegrationEvent).FullName);
         $PSNativeCommandUseErrorActionPreference = $true
         $diagnostics | Set-Content "$mode/expected-diagnostic.log"
         if ($code -eq 0 -or $diagnostics -notmatch 'error DBA1001' -or $diagnostics -match 'CS8032|CS9057|AD0001') { throw "Analyzer diagnostic smoke failed: $diagnostics" }
+        # Actions' pwsh wrapper propagates LASTEXITCODE, including expected negative builds.
+        # Clear it only after the diagnostic assertion succeeds; unexpected failures still throw.
+        $global:LASTEXITCODE = 0
     }
     Write-Host "Package consumers passed on SDK $selected (net$SdkMajor.0): analyzer-only and reference contracts; DBA1001 verified."
 } finally {
