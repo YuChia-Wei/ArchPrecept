@@ -1,44 +1,56 @@
-# C# 檔案來源盤點
+# 檔案來源核對紀錄
 
-基線：baeb302，2026-10-18。以下只證明本地 Git 可追到的位置；所有檔案的上游 commit、原始 path、權利人及授權依據仍待核對。初次 import 不是原創證明；停在改名 commit 的檔案還需回接。
+2026-10-19。負責人確認 Framework、distributed architecture Lab 與 webapi Lab 為其自身知識累積來源，並核准 ArchPrecept 採 Apache-2.0。此確認作為自有內容授權依據，不要求先替整個上游 repo 補 License。
 
-| 現行檔案 | git log --follow 最早紀錄 | 上游來源／授權結案 |
+初始匯入 commit `133ecc03f12414217454e89e6ee2d295226d7712` 的 34 個 C# 檔案，與下列固定來源快照逐檔比對，忽略行尾格式後全部相同：17 個 Contracts 來自 Lab，9 個 Analyzer 與 8 個測試來自 Framework。比較的是原始匯入內容；目前版本已經過 namespace、XML 文件與專案路徑調整，不宣稱目前所有 bytes 與上游相同。
+
+| 現行檔案 | 匯入路徑 | 上游固定來源 |
 |---|---|---|
-| `src/Analyzers/ArchPrecept.Analyzers.Core/AggregateInfrastructureDependencyAnalyzer.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Analyzers/ArchPrecept.Analyzers.Core/ControllerComplianceAnalyzer.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Analyzers/ArchPrecept.Analyzers.Core/DiagnosticCategories.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Analyzers/ArchPrecept.Analyzers.Core/EventSourcedAggregateMutationAnalyzer.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Analyzers/ArchPrecept.Analyzers.Core/MapperComplianceAnalyzer.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Analyzers/ArchPrecept.Analyzers.Core/ProjectionReadOnlyAnalyzer.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Analyzers/ArchPrecept.Analyzers.Core/RepositoryQueryMethodAnalyzer.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Analyzers/ArchPrecept.Analyzers.Core/RuleDescriptors.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Analyzers/ArchPrecept.Analyzers.Core/UseCaseServiceProviderInjectionAnalyzer.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Application/IAggregateRepository.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Application/IDomainEventDispatcher.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Application/IQueryRepository.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Application/PageResult.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Application/Result.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Domain/AggregateRoot.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Domain/DomainEntity.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Domain/EsAggregateRoot.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Domain/IAggregateRoot.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Domain/IDomainEntity.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Domain/IDomainEvent.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Domain/ValueObject.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Messaging.Abstractions/Configuration/MessagingTransportOptions.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Messaging.Abstractions/IIntegrationEvent.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Messaging.Abstractions/IIntegrationEventPublisher.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Messaging.Abstractions/IRequestContract.cs` | `d7e452b 2026-08-09 refactor(repo): adopt EngineeringGuardrails identities` | 待核對 |
-| `src/Contracts/ArchPrecept.Contracts.Messaging.Abstractions/IntegrationMessageDelivery.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/AggregateInfrastructureDependencyAnalyzerTests.cs` | `d7e452b 2026-08-09 refactor(repo): adopt EngineeringGuardrails identities` | 待核對 |
-| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/AnalyzerTestHelper.cs` | `133ecc0 2026-07-27 feat(core): import building blocks and analyzers` | 待核對 |
-| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ControllerComplianceAnalyzerTests.cs` | `d7e452b 2026-08-09 refactor(repo): adopt EngineeringGuardrails identities` | 待核對 |
-| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/DiagnosticDocumentationCoverageTests.cs` | `d0d23e9 2026-08-10 docs: add analyzer manuals and zh-TW XML summaries` | 待核對 |
-| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/EventSourcedAggregateMutationAnalyzerTests.cs` | `d7e452b 2026-08-09 refactor(repo): adopt EngineeringGuardrails identities` | 待核對 |
-| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/MapperComplianceAnalyzerTests.cs` | `d7e452b 2026-08-09 refactor(repo): adopt EngineeringGuardrails identities` | 待核對 |
-| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ProjectionReadOnlyAnalyzerTests.cs` | `d7e452b 2026-08-09 refactor(repo): adopt EngineeringGuardrails identities` | 待核對 |
-| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/RepositoryQueryMethodAnalyzerTests.cs` | `d7e452b 2026-08-09 refactor(repo): adopt EngineeringGuardrails identities` | 待核對 |
-| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/UseCaseServiceProviderInjectionAnalyzerTests.cs` | `d7e452b 2026-08-09 refactor(repo): adopt EngineeringGuardrails identities` | 待核對 |
-| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/XmlDocumentationCoverageTests.cs` | `d0d23e9 2026-08-10 docs: add analyzer manuals and zh-TW XML summaries` | 待核對 |
+| `src/Analyzers/ArchPrecept.Analyzers.Core/AggregateInfrastructureDependencyAnalyzer.cs` | `analyzers/DotnetBackendAnalyzers/AggregateInfrastructureDependencyAnalyzer.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers/AggregateInfrastructureDependencyAnalyzer.cs) |
+| `src/Analyzers/ArchPrecept.Analyzers.Core/ControllerComplianceAnalyzer.cs` | `analyzers/DotnetBackendAnalyzers/ControllerComplianceAnalyzer.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers/ControllerComplianceAnalyzer.cs) |
+| `src/Analyzers/ArchPrecept.Analyzers.Core/DiagnosticCategories.cs` | `analyzers/DotnetBackendAnalyzers/DiagnosticCategories.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers/DiagnosticCategories.cs) |
+| `src/Analyzers/ArchPrecept.Analyzers.Core/EventSourcedAggregateMutationAnalyzer.cs` | `analyzers/DotnetBackendAnalyzers/EventSourcedAggregateMutationAnalyzer.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers/EventSourcedAggregateMutationAnalyzer.cs) |
+| `src/Analyzers/ArchPrecept.Analyzers.Core/MapperComplianceAnalyzer.cs` | `analyzers/DotnetBackendAnalyzers/MapperComplianceAnalyzer.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers/MapperComplianceAnalyzer.cs) |
+| `src/Analyzers/ArchPrecept.Analyzers.Core/ProjectionReadOnlyAnalyzer.cs` | `analyzers/DotnetBackendAnalyzers/ProjectionReadOnlyAnalyzer.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers/ProjectionReadOnlyAnalyzer.cs) |
+| `src/Analyzers/ArchPrecept.Analyzers.Core/RepositoryQueryMethodAnalyzer.cs` | `analyzers/DotnetBackendAnalyzers/RepositoryQueryMethodAnalyzer.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers/RepositoryQueryMethodAnalyzer.cs) |
+| `src/Analyzers/ArchPrecept.Analyzers.Core/RuleDescriptors.cs` | `analyzers/DotnetBackendAnalyzers/RuleDescriptors.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers/RuleDescriptors.cs) |
+| `src/Analyzers/ArchPrecept.Analyzers.Core/UseCaseServiceProviderInjectionAnalyzer.cs` | `analyzers/DotnetBackendAnalyzers/UseCaseServiceProviderInjectionAnalyzer.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers/UseCaseServiceProviderInjectionAnalyzer.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Application/IAggregateRepository.cs` | `src/Lab.BuildingBlocks.Application/IAggregateRepository.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Application/IAggregateRepository.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Application/IDomainEventDispatcher.cs` | `src/Lab.BuildingBlocks.Application/IDomainEventDispatcher.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Application/IDomainEventDispatcher.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Application/IQueryRepository.cs` | `src/Lab.BuildingBlocks.Application/IQueryRepository.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Application/IQueryRepository.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Application/PageResult.cs` | `src/Lab.BuildingBlocks.Application/PageResult.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Application/PageResult.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Application/Result.cs` | `src/Lab.BuildingBlocks.Application/Result.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Application/Result.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Domain/AggregateRoot.cs` | `src/Lab.BuildingBlocks.Domains/AggregateRoot.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Domains/AggregateRoot.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Domain/DomainEntity.cs` | `src/Lab.BuildingBlocks.Domains/DomainEntity.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Domains/DomainEntity.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Domain/EsAggregateRoot.cs` | `src/Lab.BuildingBlocks.Domains/EsAggregateRoot.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Domains/EsAggregateRoot.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Domain/IAggregateRoot.cs` | `src/Lab.BuildingBlocks.Domains/IAggregateRoot.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Domains/IAggregateRoot.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Domain/IDomainEntity.cs` | `src/Lab.BuildingBlocks.Domains/IDomainEntity.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Domains/IDomainEntity.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Domain/IDomainEvent.cs` | `src/Lab.BuildingBlocks.Domains/IDomainEvent.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Domains/IDomainEvent.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Domain/ValueObject.cs` | `src/Lab.BuildingBlocks.Domains/ValueObject.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Domains/ValueObject.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Messaging.Abstractions/Configuration/MessagingTransportOptions.cs` | `src/Lab.BuildingBlocks.Integrations/Configuration/MessagingTransportOptions.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Integrations/Configuration/MessagingTransportOptions.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Messaging.Abstractions/IIntegrationEvent.cs` | `src/Lab.BuildingBlocks.Integrations/IIntegrationEvent.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Integrations/IIntegrationEvent.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Messaging.Abstractions/IIntegrationEventPublisher.cs` | `src/Lab.BuildingBlocks.Integrations/IIntegrationEventPublisher.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Integrations/IIntegrationEventPublisher.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Messaging.Abstractions/IRequestContract.cs` | `src/Lab.BuildingBlocks.Integrations/IRequestContract.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Integrations/IRequestContract.cs) |
+| `src/Contracts/ArchPrecept.Contracts.Messaging.Abstractions/IntegrationMessageDelivery.cs` | `src/Lab.BuildingBlocks.Integrations/IntegrationMessageDelivery.cs` | [固定來源](https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/blob/203b1775885fa2872c4ca649326691729358a5a0/src/BuildingBlocks/Lab.BuildingBlocks.Integrations/IntegrationMessageDelivery.cs) |
+| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/AggregateInfrastructureDependencyAnalyzerTests.cs` | `tests/DotnetBackendAnalyzers.Tests/AggregateInfrastructureDependencyAnalyzerTests.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers.Tests/AggregateInfrastructureDependencyAnalyzerTests.cs) |
+| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/AnalyzerTestHelper.cs` | `tests/DotnetBackendAnalyzers.Tests/AnalyzerTestHelper.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers.Tests/AnalyzerTestHelper.cs) |
+| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ControllerComplianceAnalyzerTests.cs` | `tests/DotnetBackendAnalyzers.Tests/ControllerComplianceAnalyzerTests.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers.Tests/ControllerComplianceAnalyzerTests.cs) |
+| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/DiagnosticDocumentationCoverageTests.cs` | 本 repo 新增 | `d0d23e9` 文件覆蓋測試 |
+| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/EventSourcedAggregateMutationAnalyzerTests.cs` | `tests/DotnetBackendAnalyzers.Tests/EventSourcedAggregateMutationAnalyzerTests.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers.Tests/EventSourcedAggregateMutationAnalyzerTests.cs) |
+| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/MapperComplianceAnalyzerTests.cs` | `tests/DotnetBackendAnalyzers.Tests/MapperComplianceAnalyzerTests.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers.Tests/MapperComplianceAnalyzerTests.cs) |
+| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ProjectionReadOnlyAnalyzerTests.cs` | `tests/DotnetBackendAnalyzers.Tests/ProjectionReadOnlyAnalyzerTests.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers.Tests/ProjectionReadOnlyAnalyzerTests.cs) |
+| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/RepositoryQueryMethodAnalyzerTests.cs` | `tests/DotnetBackendAnalyzers.Tests/RepositoryQueryMethodAnalyzerTests.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers.Tests/RepositoryQueryMethodAnalyzerTests.cs) |
+| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/UseCaseServiceProviderInjectionAnalyzerTests.cs` | `tests/DotnetBackendAnalyzers.Tests/UseCaseServiceProviderInjectionAnalyzerTests.cs` | [固定來源](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/0587f359c4710440c440353c969a18c7b203b4d4/tools/DotnetBackendAnalyzers.Tests/UseCaseServiceProviderInjectionAnalyzerTests.cs) |
+| `tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/XmlDocumentationCoverageTests.cs` | 本 repo 新增 | `d0d23e9` 文件覆蓋測試 |
 
-另須核對非 C# 資產：17 份 docs/diagnostics/DBA*.md、產品文件與 README、Analyzer README、templates/Directory.Build.props.snippet、templates/analyzer-severity.editorconfig、samples/README.md，以及此次新增的 eng/ 與 workflows。此表不宣稱涵蓋所有非程式文字的來源。
+## 其他資產與限制
+
+Framework 快照：`0587f359c4710440c440353c969a18c7b203b4d4`；Lab 快照：`203b1775885fa2872c4ca649326691729358a5a0`。詳細 blob IDs 與比對結果見 [機器可讀證據](source-comparison-evidence.json)。
+
+Analyzer severity template 與來源相同；README 與 props snippet 的差異為抽取說明及 tools/ → analyzers/ 路徑。後續改名由本 repo Git 歷史保留。17 份 Diagnostic 手冊及兩個文件覆蓋測試於 `d0d23e9` 新增；查閱其來源引用未發現額外第三方授權標記，這不等於對未知外部資料做過全面相似性檢索。
+
+webapi Lab 作為較早的知識與設計參考，其固定 HEAD `746c13157ab21b2b06c800e75d85b39bcc72a1cc` 下有 Domain interfaces 與 ValueObjectBase；本次已由 distributed architecture Lab 找到全部 Contracts 的直接匯入對應，不把 webapi Lab 誤標為本次直接逐檔來源。
+
+IIntegrationEvent 的文章連結保留為觀念參考：現行僅有 OccurredOn，文章範例 IIntegrationEvent 使用 EventType/Version，並非該示範的直接複製。未發現其他程式檔中的外部來源 URL 或第三方 copyright header。
+
+唯一仍需負責人就未公開資料確認的範圍：Teddysoft 教材／課程練習是否有直接帶入的文字、程式或範例。公開課程頁與本機 Git 無法驗證私人教材；既有「啟發」揭露保留，不將課程自動視為原始碼作者。對整體自有來源的聲明已記錄，不重複要求泛泛的 ownership 確認。

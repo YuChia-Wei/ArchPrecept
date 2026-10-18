@@ -13,7 +13,7 @@
 
 ## 正式來源原則
 
-發布準備：[0.0.1-preview 與 CI/CD](releases/preview.md)；待決策：[License 與來源盤點](releases/licensing-assessment.md)；轉正式版前再評估：[版本維護規則提案](releases/version-policy-proposal.md)。
+發布準備：[0.0.1-preview 與 CI/CD](releases/preview.md)；Apache-2.0 已採用及待確認項目：[License 與來源檢查](releases/licensing-assessment.md)；轉正式版前再評估：[版本維護規則提案](releases/version-policy-proposal.md)。
 
 - Markdown 是 Repository 內唯一可編輯的正式來源。
 - Word、PDF 等格式為衍生輸出，不得與 Markdown 平行人工修改。

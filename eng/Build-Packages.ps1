@@ -23,6 +23,10 @@ try {
             try { [xml]$spec = $reader.ReadToEnd() } finally { $reader.Dispose() }
             if ($spec.package.metadata.version -ne $version -or $spec.package.metadata.id -ne $id) { throw 'Package identity mismatch.' }
             if ($spec.package.metadata.repository.url -ne 'https://github.com/YuChia-Wei/ArchPrecept') { throw 'Repository metadata mismatch.' }
+            if ($spec.package.metadata.license.type -ne 'expression' -or $spec.package.metadata.license.InnerText -ne 'Apache-2.0') { throw 'Expected Apache-2.0 SPDX license.' }
+            foreach ($notice in @('LICENSE', 'NOTICE', 'THIRD-PARTY-NOTICES.md')) {
+                if ($notice -notin $entries) { throw "Missing legal file: $notice" }
+            }
         } finally { $zip.Dispose() }
     }
     $packages | Sort-Object Name | ForEach-Object { "$( (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() )  $($_.Name)" } | Set-Content (Join-Path $OutputDirectory 'SHA256SUMS')

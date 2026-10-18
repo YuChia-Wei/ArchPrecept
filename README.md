@@ -40,7 +40,9 @@ All buildable, publishable product source belongs under a capability directory i
 verification and adoption assets rather than product artifacts.
 
 Only the four implemented product projects are packable. Tests and samples do not
-ship. Package publication is disabled pending License/provenance and access review;
+ship. ArchPrecept's own code and documentation are licensed under
+[Apache-2.0](LICENSE); dependencies retain their respective licenses.
+Package publication is disabled pending the remaining provenance confirmation and access review;
 CI artifacts are validation candidates, not published releases.
 
 Analyzer Diagnostic 的觸發條件、範例、修正與 suppression 指引，請見

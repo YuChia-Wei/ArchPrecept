@@ -1,6 +1,6 @@
 # 0.0.1-preview 發布準備
 
-2026-10-18：負責人允許準備 GitHub CI/CD、PR 與 GitHub Packages preview；若有顧慮可停在發布前設定。遠端已確認改名為 `YuChia-Wei/ArchPrecept`。本次採發布前準備：License 尚未選定，產品規劃 §14 的來源檢查亦未完成；不替負責人選 License，不上傳 registry、不建立 Release/tag。
+2026-10-19：已依負責人決定採 Apache-2.0，完成可自行核對的直接來源與依賴授權檢查；私人教材是否直接帶入仍待確認，詳見[來源檢查結果](licensing-assessment.md)。初期維持 GitHub Packages，來源確認完成後另行安排發布；nuget.org 留到正式版前。發布開關保持關閉，不上傳 registry、不建立 Release/tag。
 
 ## 套件 inventory
 
@@ -33,7 +33,7 @@ CI artifacts 是候選成品。公開 repo 的 Actions artifacts 不應視為私
 
 啟用前需完成：
 
-1. 檔案來源與發布權利檢查，決定 License 並加入根目錄 `LICENSE`（封裝會自動帶入）。
+1. Apache-2.0、LICENSE、NOTICE 與套件 SPDX 已完成；補齊來源檢查文件中的私人教材確認後，才安排發布。
 2. 檢查 GitHub Packages 的 package 存取權、repo permission inheritance、帳戶配額及費用；先保留 private，另行確認是否對團隊開放，不自動改成 public。個人帳戶的 private package 不等於企業的 internal visibility。
 3. 建立／檢查 `github-packages-preview` Environment，可配置 required reviewer；此 workflow 不會替你建立 reviewer 規則。
 4. 合併已通過 CI 的 PR，才將 repository variable `PREVIEW_PUBLISH_ENABLED` 設為 `true` 並手動執行。此次不設定此開關。
@@ -46,7 +46,7 @@ registry：`https://nuget.pkg.github.com/YuChia-Wei/index.json`。GitHub NuGet �
 
 ## 日後 nuget.org 注意事項
 
-- 決定 License，完成來源與第三方授權盤點；公開 repo 不等於授權條款已齊全。
+- 沿用已核准的 Apache-2.0，完成最後來源確認；依賴變動後重新檢查其授權與散布範圍。
 - 確認四個 Package ID 可用、帳戶/組織 ownership 與交接方式；GitHub namespace 不會替你保留 nuget.org ID。
 - Preview 仍是公開可取得的套件。ID/version 不可覆寫；unlist 不能視為完全撤回已被下載的成品。
 - 建議使用 nuget.org Trusted Publishing（GitHub OIDC 短效憑證），將信任限制到指定 repo、workflow 與 environment；另建 nuget.org job，不沿用 GitHub Packages token。

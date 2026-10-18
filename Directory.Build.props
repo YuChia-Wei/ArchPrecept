@@ -14,10 +14,13 @@
     <Description>ArchPrecept reusable architecture contracts and Roslyn analyzers. Experimental preview.</Description>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <PackageLicenseFile Condition="Exists('$(MSBuildThisFileDirectory)LICENSE')">LICENSE</PackageLicenseFile>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <Copyright>Copyright 2026 YuChia Wei</Copyright>
   </PropertyGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/" />
     <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="/" Condition="Exists('$(MSBuildThisFileDirectory)LICENSE')" />
+    <None Include="$(MSBuildThisFileDirectory)NOTICE" Pack="true" PackagePath="/" />
+    <None Include="$(MSBuildThisFileDirectory)THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 </Project>

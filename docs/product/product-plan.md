@@ -804,6 +804,8 @@ rules/
 
 ### 14.2 來源揭露與授權處理原則
 
+2026-10-19 決策：ArchPrecept 自有內容採 Apache-2.0。負責人確認 Framework、distributed architecture Lab 與 webapi Lab 為自有知識累積來源；固定上游逐檔比對及依賴條款檢查已記錄於[來源檢查結果](../releases/licensing-assessment.md)。私人教材是否直接帶入仍待確認，尚未核准啟用 registry 發布。此決策更新先前 License 未選定的狀態，不更動舊版快照的歷史記錄。
+
 - 對外文件應清楚揭露課程對產品構想的啟發關係，避免把課程貢獻描述成不存在。
 - 本 repo 應擁有後續自行設計與實作的 Roslyn Analyzer 原始碼、Rule Catalog、Diagnostic 定義、測試及文件。
 - 公開發布前，應進行檔案層級的來源與授權檢查，確認發布成品未直接包含需另行授權的教材文字、程式碼或其他受保護內容。
