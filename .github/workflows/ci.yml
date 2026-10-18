@@ -35,7 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [8, 9, 10]
+        sdk: [8, 10]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4

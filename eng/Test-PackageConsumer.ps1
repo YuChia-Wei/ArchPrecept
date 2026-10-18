@@ -1,5 +1,5 @@
 param(
-    [ValidateSet(8, 9, 10)][int]$SdkMajor = 8,
+    [ValidateSet(8, 10)][int]$SdkMajor = 8,
     [string]$PackageDirectory = 'artifacts/packages'
 )
 $ErrorActionPreference = 'Stop'

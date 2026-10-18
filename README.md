@@ -1,7 +1,8 @@
 # ArchPrecept
 
 Reusable .NET engineering contracts and Roslyn architecture analyzers extracted from
-the `dotnet-mq-arch-lab` and `ai-collaboration-prompts-dotnet-backend`
+the `dotnet-distributed-architecture-lab` (formerly `dotnet-mq-arch-lab`) and
+`ai-collaboration-framework` (formerly `ai-collaboration-prompts-dotnet-backend`)
 repositories.
 
 This repository is in its initial extraction stage. Project names, default
@@ -9,7 +10,10 @@ assembly names, root namespaces, and the solution use the approved
 `ArchPrecept` capability hierarchy. The four implemented packages are prepared
 as `0.0.1-preview`; see the [preview release guide](docs/releases/preview.md)
 for package IDs, compatibility, CI and publication readiness. The
-[version policy proposal](docs/releases/version-policy-proposal.md) awaits owner review.
+[version policy proposal](docs/releases/version-policy-proposal.md) is deferred until
+stable-release planning. Current supported consumers are .NET 8 and 10; .NET 11
+will be evaluated after a later release. See the
+[License and provenance assessment](docs/releases/licensing-assessment.md) for publication gaps.
 
 The product was renamed from .NET Engineering Guardrails to ArchPrecept on
 2026-10-18. Existing consumers must replace the `EngineeringGuardrails.*` project,

@@ -15,14 +15,15 @@
 
 ## 驗證與 CI
 
+負責人已確認目前支援 .NET 8／10；.NET 9 不列為承諾支援版本，.NET 11 待後續發布後再評估。Preview 維持現有版號安排，正式版版本維護政策暫緩決定。
+
 ```powershell
 ./eng/Build-Packages.ps1
 ./eng/Test-PackageConsumer.ps1 -SdkMajor 8
-./eng/Test-PackageConsumer.ps1 -SdkMajor 9
 ./eng/Test-PackageConsumer.ps1 -SdkMajor 10
 ```
 
-安裝 global.json 指定的 .NET 10 SDK feature band（允許同 band patch）建置；消費測試各自選用指定 major 的最新已安裝 feature band。CI 的 Package CI 在 PR、main 和 codex 分支執行：Release build、既有 Analyzer regression suite、封裝內容/metadata 檢查、SHA-256，以及 SDK 8/9/10 的套件消費測試。每次 consumer 使用獨立 cache 與本機 feed，避免同版號快取遮蔽新產物；驗證 Analyzer-only、自訂 IRepository 違規及參考 Contracts 安裝與執行。
+安裝 global.json 指定的 .NET 10 SDK feature band（允許同 band patch）建置；消費測試各自選用指定 major 的最新已安裝 feature band。CI 的 Package CI 在 PR、main 和 codex 分支執行：Release build、既有 Analyzer regression suite、封裝內容/metadata 檢查、SHA-256，以及 SDK 8/10 的套件消費測試。每次 consumer 使用獨立 cache 與本機 feed，避免同版號快取遮蔽新產物；驗證 Analyzer-only、自訂 IRepository 違規及參考 Contracts 安裝與執行。
 
 CI artifacts 是候選成品。公開 repo 的 Actions artifacts 不應視為私密儲存空間。套件 README 和 repository metadata 一併封裝；SDK 提供 repository/source-link 建置整合，但獨立 symbols 發布、完整 Source Link 對外取回測試、完整 public API baseline/provenance audit 仍屬公開發布前工作。
 
@@ -54,4 +55,4 @@ registry：`https://nuget.pkg.github.com/YuChia-Wei/index.json`。GitHub NuGet �
 
 官方參考：[GitHub NuGet registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-nuget-registry)、[nuget.org 發布](https://learn.microsoft.com/en-us/nuget/nuget-org/publish-a-package)、[Trusted Publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing)。
 
-後續版號與維護線請審查[版本規則提案](version-policy-proposal.md)。
+License 選型與發布缺口詳見[授權及來源盤點](licensing-assessment.md)。[版本規則提案](version-policy-proposal.md)保留至轉正式版前再評估。
