@@ -6,18 +6,18 @@ repositories.
 
 This repository is in its initial extraction stage. Project names, default
 assembly names, root namespaces, and the solution use the approved
-`ArchPrecept` capability hierarchy. NuGet package IDs, package
-boundaries, version policy, and publication contract remain intentionally
-undefined. Candidate package names are documented in the
-[product plan](docs/product/product-plan.md#126-package-id-命名候選).
+`ArchPrecept` capability hierarchy. The four implemented packages are prepared
+as `0.0.1-preview`; see the [preview release guide](docs/releases/preview.md)
+for package IDs, compatibility, CI and publication readiness. The
+[version policy proposal](docs/releases/version-policy-proposal.md) awaits owner review.
 
 The product was renamed from .NET Engineering Guardrails to ArchPrecept on
 2026-10-18. Existing consumers must replace the `EngineeringGuardrails.*` project,
 assembly, and namespace prefix with `ArchPrecept.*`, update references, and rebuild.
 Diagnostic IDs `DBA1001`–`DBA1017` and rule behavior remain unchanged.
 
-The GitHub repository currently remains `dotnet-engineering-guardrails`; its rename
-will be handled separately. The local checkout directory `dotnet-architecture-kit`
+The GitHub repository is now `YuChia-Wei/ArchPrecept`.
+The local checkout directory `dotnet-architecture-kit`
 is intentionally retained to preserve chat/Codex session continuity and does not
 need to match the online repository name.
 
@@ -35,8 +35,9 @@ All buildable, publishable product source belongs under a capability directory i
 `src/`. Test and sample projects remain outside `src/` because they are
 verification and adoption assets rather than product artifacts.
 
-All projects remain non-packable until the package identity and release contract
-are explicitly approved.
+Only the four implemented product projects are packable. Tests and samples do not
+ship. Package publication is disabled pending License/provenance and access review;
+CI artifacts are validation candidates, not published releases.
 
 Analyzer Diagnostic 的觸發條件、範例、修正與 suppression 指引，請見
 [`docs/diagnostics/README.md`](docs/diagnostics/README.md)。

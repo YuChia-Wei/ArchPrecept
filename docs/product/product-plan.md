@@ -5,7 +5,7 @@ author: "產品負責人：YuChia Wei"
 date: "2026-10-18"
 lang: "zh-TW"
 document_id: "DOC-PRODUCT-PLAN"
-document_version: "0.4"
+document_version: "0.5"
 status: "draft"
 last_reviewed: "2026-10-18"
 canonical_path: "docs/product/product-plan.md"
@@ -194,7 +194,7 @@ related_documents:
 
 本次將 `EngineeringGuardrails.*` 改為 `ArchPrecept.*`，並將 `EngineeringGuardrails.slnx` 改為 `ArchPrecept.slnx`。既有使用端需同步更新 ProjectReference、Assembly 引用、using 與完整型別名稱並重新建置；Assembly 與公開型別身分會改變，不能視為二進位相容的更名。既有 Diagnostic ID `DBA1001`～`DBA1017`、嚴重性與規則行為不變。
 
-本次只執行 Repository 內部與文件改名。GitHub Repository 仍為 `dotnet-engineering-guardrails`；本機目錄 `dotnet-architecture-kit` 固定保留。`IsPackable=false` 持續生效，未核准 Package ID、套件發布、版本政策或 License。DEC-010 繼續適用；下列套件名稱僅供後續發布決策評估。
+DEC-015 的改名階段只處理 Repository 內部與文件。2026-10-18 後續發布準備已確認 GitHub Repository 為 `YuChia-Wei/ArchPrecept`，本機目錄 `dotnet-architecture-kit` 保留。負責人允許準備 GitHub Packages preview、CI/CD 與 PR；四個既有產品專案已 opt in 封裝為 `0.0.1-preview`。License／來源檢查尚未完成，依本次授權備案暫不實際發布；詳見[發布準備](../releases/preview.md)。未來版本政策仍待審查。
 
 ## 4. 產品設計原則
 
@@ -732,7 +732,7 @@ rules/
 
 ### 12.6 Package ID 命名候選
 
-下表是 ArchPrecept 品牌下的套件命名候選，尚未核准為發布識別、未確認 NuGet 可用性，也不啟用封裝或發布。DEC-010 繼續適用。
+下表保留能力命名規劃。2026-10-18 後續發布準備採用前四個已有實作的 ID 作 GitHub preview 封裝識別，詳見[套件 inventory](../releases/preview.md#套件-inventory)；其他能力仍是候選。nuget.org ID 可用性尚未確認，實際 registry 發布仍停用。
 
 | 能力 | Package ID 候選 | 實作狀態 |
 |---|---|---|
@@ -760,6 +760,8 @@ rules/
 | Report Compatibility | JSON／SARIF／Markdown Schema、Exit Code |
 
 ### 13.2 初期版本策略
+
+以下為規劃方向，未來維護規則仍待負責人決定。本次只固定 `0.0.1-preview`；平台 major 對齊與產品 SemVer 的取捨詳見[版本規則提案](../releases/version-policy-proposal.md)，不自動套用後續升版。
 
 - 初期採 `0.x` Prerelease。
 - 可先採共同 Release Train，但每個成品仍可獨立安裝。

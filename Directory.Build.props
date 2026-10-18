@@ -3,7 +3,21 @@
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
-    <!-- ArchPrecept is approved; packaging remains disabled until package identities and the release contract are approved. -->
+    <Version>0.0.1-preview</Version>
+    <!-- Only the four explicitly opted-in product projects ship. -->
     <IsPackable>false</IsPackable>
+    <Authors>YuChia-Wei</Authors>
+    <RepositoryUrl>https://github.com/YuChia-Wei/ArchPrecept</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/YuChia-Wei/ArchPrecept</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Description>ArchPrecept reusable architecture contracts and Roslyn analyzers. Experimental preview.</Description>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PackageLicenseFile Condition="Exists('$(MSBuildThisFileDirectory)LICENSE')">LICENSE</PackageLicenseFile>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/" />
+    <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="/" Condition="Exists('$(MSBuildThisFileDirectory)LICENSE')" />
+  </ItemGroup>
 </Project>

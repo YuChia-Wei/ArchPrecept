@@ -1,0 +1,62 @@
+name: Publish GitHub preview
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Exact preview version in Directory.Build.props'
+        required: true
+        default: '0.0.1-preview'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-packages-preview
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check publication readiness and immutable source
+        shell: pwsh
+        env:
+          ENABLED: ${{ vars.PREVIEW_PUBLISH_ENABLED }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          if ($env:ENABLED -ne 'true') { throw 'Publication disabled: complete License/provenance and visibility review first.' }
+          if ($env:GITHUB_REF -ne 'refs/heads/main') { throw 'Publish from main only.' }
+          $version = ([xml](Get-Content Directory.Build.props -Raw)).Project.PropertyGroup.Version
+          if ($version -ne $env:REQUESTED_VERSION -or $version -notmatch '^\d+\.\d+\.\d+-preview(?:\.\d+)?$') { throw 'Preview version mismatch.' }
+          if (!(Test-Path LICENSE)) { throw 'Approved LICENSE is required before publication.' }
+  validate:
+    needs: gate
+    uses: ./.github/workflows/ci.yml
+  publish:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: github-packages-preview
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: preview-packages
+          path: packages
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify and publish the tested bytes
+        shell: bash
+        env:
+          GH_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          cd packages
+          sha256sum --check SHA256SUMS
+          for package in *.nupkg; do
+            dotnet nuget push "$package" --source "https://nuget.pkg.github.com/$PACKAGE_OWNER/index.json" --api-key "$GH_PACKAGES_TOKEN" --no-symbols
+          done
