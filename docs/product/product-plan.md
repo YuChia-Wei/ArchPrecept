@@ -5,7 +5,7 @@ author: "產品負責人：YuChia Wei"
 date: "2026-10-18"
 lang: "zh-TW"
 document_id: "DOC-PRODUCT-PLAN"
-document_version: "0.4"
+document_version: "0.5"
 status: "draft"
 last_reviewed: "2026-10-18"
 canonical_path: "docs/product/product-plan.md"
@@ -194,7 +194,7 @@ related_documents:
 
 本次將 `EngineeringGuardrails.*` 改為 `ArchPrecept.*`，並將 `EngineeringGuardrails.slnx` 改為 `ArchPrecept.slnx`。既有使用端需同步更新 ProjectReference、Assembly 引用、using 與完整型別名稱並重新建置；Assembly 與公開型別身分會改變，不能視為二進位相容的更名。既有 Diagnostic ID `DBA1001`～`DBA1017`、嚴重性與規則行為不變。
 
-本次只執行 Repository 內部與文件改名。GitHub Repository 仍為 `dotnet-engineering-guardrails`；本機目錄 `dotnet-architecture-kit` 固定保留。`IsPackable=false` 持續生效，未核准 Package ID、套件發布、版本政策或 License。DEC-010 繼續適用；下列套件名稱僅供後續發布決策評估。
+DEC-015 的改名階段只處理 Repository 內部與文件。2026-10-18 後續發布準備已確認 GitHub Repository 為 `YuChia-Wei/ArchPrecept`，本機目錄 `dotnet-architecture-kit` 保留。負責人允許準備 GitHub Packages preview、CI/CD 與 PR；四個既有產品專案已 opt in 封裝為 `0.0.1-preview`。License／來源檢查尚未完成，依本次授權備案暫不實際發布；詳見[發布準備](../releases/preview.md)。未來版本政策仍待審查。
 
 ## 4. 產品設計原則
 
@@ -732,7 +732,7 @@ rules/
 
 ### 12.6 Package ID 命名候選
 
-下表是 ArchPrecept 品牌下的套件命名候選，尚未核准為發布識別、未確認 NuGet 可用性，也不啟用封裝或發布。DEC-010 繼續適用。
+下表保留能力命名規劃。2026-10-18 後續發布準備採用前四個已有實作的 ID 作 GitHub preview 封裝識別，詳見[套件 inventory](../releases/preview.md#套件-inventory)；其他能力仍是候選。nuget.org ID 可用性尚未確認，實際 registry 發布仍停用。
 
 | 能力 | Package ID 候選 | 實作狀態 |
 |---|---|---|
@@ -760,6 +760,8 @@ rules/
 | Report Compatibility | JSON／SARIF／Markdown Schema、Exit Code |
 
 ### 13.2 初期版本策略
+
+以下為規劃方向，未來維護規則仍待負責人決定。本次只固定 `0.0.1-preview`；平台 major 對齊與產品 SemVer 的取捨詳見[版本規則提案](../releases/version-policy-proposal.md)，不自動套用後續升版。
 
 - 初期採 `0.x` Prerelease。
 - 可先採共同 Release Train，但每個成品仍可獨立安裝。
@@ -792,15 +794,17 @@ rules/
 
 ## 14. 來源、授權與 Ownership 規劃
 
-### 14.1 Analyzer 的課程啟發與產品化起點
+### 14.1 AI 協作的課程啟發與既有 .NET 工具的產品化
 
-本產品的 Analyzer 構想，起於完成 Teddysoft 課程後，受到課程內容與實作方式的啟發。課程網址：[Teddysoft AI Coding 課程頁面](https://teddysoft.tw/courses/ai-coding-pl/)。
+依負責人於 2026-10-19 的補充，Teddysoft 課程主要採用 Java，啟發的是與 AI 協作的模式。ArchPrecept 的套件與分析器在此之前已在使用，負責人也曾研究這類工具；課程不是 .NET 套件與分析器技術的起點。課程網址：[Teddysoft AI Coding 課程頁面](https://teddysoft.tw/courses/ai-coding-pl/)。
 
-在後續整理 AI Collaboration Framework 的過程中，逐步確認僅依靠 Prompt、規範文件、AI 自我檢查或人工 Code Review，仍可能因理解差異、上下文遺漏與執行不一致而偏離架構規範。因此開始利用 .NET 的 Roslyn Analyzer 開發配套靜態分析器，讓人與 AI 之外的第三方工具能在編譯與 CI 階段提供可重複、可追溯的架構檢查證據。
+為了與 AI 協作，並在看到課程以純文字比較處理這類需求後，負責人想到將既有 .NET 生態系的分析器做法搭配協作流程，讓規範能由編譯與 CI 階段的工具提供可重複、可追溯的檢查證據。這次的進一步投入，是把既有使用與研究累積發展成自己使用的套件與框架。
 
-目前產品化方向不是把課程內容逐項搬入套件，而是以課程帶來的問題意識與方法啟發為起點，再依 Roslyn Syntax／Semantic Model、AI Collaboration Framework 的規範，以及個人在 DDD、Clean Architecture、Hexagonal Architecture 與 .NET 專案中的實務經驗，重新定義規則邊界、Diagnostic 語意、角色辨識及測試策略。
+目前產品化結合課程帶來的 AI 協作方法啟發、既有 Roslyn Syntax／Semantic Model 使用經驗、AI Collaboration Framework 的規範，以及個人在 DDD、Clean Architecture、Hexagonal Architecture 與 .NET 專案中的實務經驗，定義規則邊界、Diagnostic 語意、角色辨識及測試策略。
 
 ### 14.2 來源揭露與授權處理原則
+
+2026-10-19 決策：ArchPrecept 自有內容採 Apache-2.0。負責人確認 Framework、distributed architecture Lab 與 webapi Lab 為自有知識累積來源，並補充課程為 AI 協作方法啟發，套件與分析器來自既有 .NET 使用及研究累積。固定上游逐檔比對、依賴條款檢查及來源聲明已記錄於[來源檢查結果](../releases/licensing-assessment.md)，本次來源待確認項目已完成；registry 發布另行安排，開關仍關閉。此決策更新先前 License 未選定的狀態，不更動舊版快照的歷史記錄。
 
 - 對外文件應清楚揭露課程對產品構想的啟發關係，避免把課程貢獻描述成不存在。
 - 本 repo 應擁有後續自行設計與實作的 Roslyn Analyzer 原始碼、Rule Catalog、Diagnostic 定義、測試及文件。

@@ -1,0 +1,50 @@
+name: Package CI
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build, test and inspect packages
+        shell: pwsh
+        run: ./eng/Build-Packages.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: preview-packages
+          path: artifacts/packages/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: artifacts/test-results/
+  consumer:
+    needs: package
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [8, 10]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '${{ matrix.sdk }}.0.x'
+      - uses: actions/download-artifact@v4
+        with:
+          name: preview-packages
+          path: artifacts/packages
+      - name: Install and run package consumers with the selected SDK
+        shell: pwsh
+        run: ./eng/Test-PackageConsumer.ps1 -SdkMajor ${{ matrix.sdk }}

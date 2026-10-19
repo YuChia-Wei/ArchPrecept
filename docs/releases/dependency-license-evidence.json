@@ -1,0 +1,407 @@
+[
+  {
+    "Package": "Microsoft.CodeAnalysis.Analyzers/3.11.0",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "850da5e84e8f3b89bb8be66c7c5944c7ef7752c2cfa38218df00e4346d75fd2c",
+    "NuspecSha256": "31c6ec28ccfa9c00455a855945399de887affdf21f4609a49c14c3515c90a8be",
+    "LegalFiles": [
+      {
+        "Path": "ThirdPartyNotices.txt",
+        "Sha256": "0eabe2880daf9bfb25ac160b1e779c5da95a88406dd06cdb570ec7edb5eabb76"
+      }
+    ]
+  },
+  {
+    "Package": "Microsoft.CodeAnalysis.Analyzers/4.14.0",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "ce64d223beea78129399bd26efd99b55a5b7ffde2dec058f3b50364dc868c278",
+    "NuspecSha256": "f1289d20464c61600d74790908e1a7708585bfc26c6ecf8c38204135c5b3053a",
+    "LegalFiles": [
+      {
+        "Path": "ThirdPartyNotices.txt",
+        "Sha256": "0eabe2880daf9bfb25ac160b1e779c5da95a88406dd06cdb570ec7edb5eabb76"
+      }
+    ]
+  },
+  {
+    "Package": "Microsoft.CodeAnalysis.Common/4.8.0",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "dc81229d54d9abafda6a331503c5d344edcb4c812dd0fba11b22131892edab3e",
+    "NuspecSha256": "e4fd91c91e17f4e35cbd96f8e69513326a27f50af4eade20a33c64deb60d6b48",
+    "LegalFiles": [
+      {
+        "Path": "ThirdPartyNotices.rtf",
+        "Sha256": "ef4678850e7e3aaf9297f07e5c4060d477854e545ccf8e2ef8452d65a7b2efaf"
+      }
+    ]
+  },
+  {
+    "Package": "Microsoft.CodeAnalysis.Common/5.0.0",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "83800bbc148dc8712649bd65e5316d596ef31248919a1a8bc785d666ef6caf65",
+    "NuspecSha256": "24fd902eda4088d56a760589e556fa04ca65cf0c695f73b04fd55b40473899f3",
+    "LegalFiles": [
+      {
+        "Path": "ThirdPartyNotices.rtf",
+        "Sha256": "ef4678850e7e3aaf9297f07e5c4060d477854e545ccf8e2ef8452d65a7b2efaf"
+      }
+    ]
+  },
+  {
+    "Package": "Microsoft.CodeAnalysis.CSharp/4.8.0",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "3263a75c9bddfdecece543dcab218b9db673e66f9579da517c1fa415979eaa45",
+    "NuspecSha256": "0bb9543bcbb528c3c414b5e7596b11fb839abcef01a1867a10a85eb76a9a1a83",
+    "LegalFiles": [
+      {
+        "Path": "ThirdPartyNotices.rtf",
+        "Sha256": "ef4678850e7e3aaf9297f07e5c4060d477854e545ccf8e2ef8452d65a7b2efaf"
+      }
+    ]
+  },
+  {
+    "Package": "Microsoft.CodeAnalysis.CSharp/5.0.0",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "72d042910185a47ff14f9ad1137c626eef58c4f0f5d3c46e0b86b8676e64a06f",
+    "NuspecSha256": "4e78ec1b7278ec71c3b7c3f2144da74467e4e59b40de37cb5bb7ab19b16fb823",
+    "LegalFiles": [
+      {
+        "Path": "ThirdPartyNotices.rtf",
+        "Sha256": "ef4678850e7e3aaf9297f07e5c4060d477854e545ccf8e2ef8452d65a7b2efaf"
+      }
+    ]
+  },
+  {
+    "Package": "Microsoft.CodeCoverage/18.0.1",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "1bacb98b21d9dd1dac8652c25bfb93bac8a8fd4a9c9d64fbf57f9401bc6f0d06",
+    "NuspecSha256": "74de7a528b43919fc9bb6825ffe804e78fcdb5ce3f43e11d00a6ed7b92fbd662",
+    "LegalFiles": [
+      {
+        "Path": "ThirdPartyNotices.txt",
+        "Sha256": "4fc4244935bbe3516164402c573f053a5d246571ed4d357e6cccd8ebec296bbc"
+      },
+      {
+        "Path": "build/netstandard2.0/ThirdPartyNotices.txt",
+        "Sha256": "4fc4244935bbe3516164402c573f053a5d246571ed4d357e6cccd8ebec296bbc"
+      }
+    ]
+  },
+  {
+    "Package": "Microsoft.Extensions.Configuration.Abstractions/8.0.0",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "e1e0690e47fb309a334d99cec10bf071f81129019c3577b42bf905fa1e5197ca",
+    "NuspecSha256": "93dee1a923d8435a77fb5020f0de7c2949b678f65b7d354f82190ad06a084eb1",
+    "LegalFiles": [
+      {
+        "Path": "LICENSE.TXT",
+        "Sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+      },
+      {
+        "Path": "THIRD-PARTY-NOTICES.TXT",
+        "Sha256": "19c19dcac9f3ee6302cfbc6745bb8e79f08efc4c933eb8dc5509bf14b88347ec"
+      }
+    ]
+  },
+  {
+    "Package": "Microsoft.Extensions.Primitives/8.0.0",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "154f2a8f70d1f1b0dd73573e59e199c7f3c265eaaa9ddc1e64cf5ea5ca578d2a",
+    "NuspecSha256": "4045fa8f5cf63fca91cb0da0cea90b2a00236ad50796da7ac5dc65984cf253e1",
+    "LegalFiles": [
+      {
+        "Path": "LICENSE.TXT",
+        "Sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+      },
+      {
+        "Path": "THIRD-PARTY-NOTICES.TXT",
+        "Sha256": "19c19dcac9f3ee6302cfbc6745bb8e79f08efc4c933eb8dc5509bf14b88347ec"
+      }
+    ]
+  },
+  {
+    "Package": "Microsoft.NET.Test.Sdk/18.0.1",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "d1cdffae9f5d8b4c3b1395267d187a3ebae6dc07b28bc34e8f96e6da2ea3021d",
+    "NuspecSha256": "2dd29606329ec4f855d243329f56fad96b71cd315897a1f721eeb57f38f85290",
+    "LegalFiles": []
+  },
+  {
+    "Package": "Microsoft.NETCore.Platforms/1.1.0",
+    "License": "Microsoft .NET Library terms",
+    "Basis": "bundled dotnet_library_license.txt",
+    "NupkgSha256": "15e338d24b5c39b4099389cc612841eb51ff13c07bb4829f97d39b27420e7023",
+    "NuspecSha256": "20fa15a4509e2dff05d0bf2fc1f9ec4f59dd948f2c327e7f92d7c12ce3414b88",
+    "LegalFiles": [
+      {
+        "Path": "dotnet_library_license.txt",
+        "Sha256": "f1db688d8481c91a452fabcea5060a23da9ea5088329b58c478a040e2e426297"
+      },
+      {
+        "Path": "ThirdPartyNotices.txt",
+        "Sha256": "0684b2349427ee28e392ae8914645832e59731dba8a38a984f72b3fb8769c76b"
+      }
+    ]
+  },
+  {
+    "Package": "Microsoft.TestPlatform.ObjectModel/18.0.1",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "a096d2ed2678e91cf2390fa00b2b16eea251cbb57c4654156b977cb9a8dbf753",
+    "NuspecSha256": "7e1022c4905b928b562395bd14a8a1c042c199efb6746715a2acf100a6604acc",
+    "LegalFiles": []
+  },
+  {
+    "Package": "Microsoft.TestPlatform.TestHost/18.0.1",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "39761fe6f838a620ebd74bded1b6766526fe9dbdf23a21dac8957772ee6c315e",
+    "NuspecSha256": "57c5be863cc4a2c19a0a597c9ded5a474ddefb9fccdc1253e8fd6f01899e8165",
+    "LegalFiles": [
+      {
+        "Path": "ThirdPartyNotices.txt",
+        "Sha256": "e2ce7628e0f67d0d724eea9d9286a6938bf1eedd253fc84b23d72ae54778a5f7"
+      }
+    ]
+  },
+  {
+    "Package": "NETStandard.Library/2.0.3",
+    "License": "MIT",
+    "Basis": "bundled LICENSE.TXT",
+    "NupkgSha256": "3eb87644f79bcffb3c0331dbdac3c7837265f2cdf58a7bfd93e431776f77c9ba",
+    "NuspecSha256": "be3eb47978bc0dcff6109c6706bfee6315792dcb83dc6c59998f9ccc4e1ab270",
+    "LegalFiles": [
+      {
+        "Path": "LICENSE.TXT",
+        "Sha256": "fc95de1436a321aadbfafd21f8a8506a2f4678bfc003bd806d6b59d3088efadc"
+      },
+      {
+        "Path": "THIRD-PARTY-NOTICES.TXT",
+        "Sha256": "0684b2349427ee28e392ae8914645832e59731dba8a38a984f72b3fb8769c76b"
+      }
+    ]
+  },
+  {
+    "Package": "Newtonsoft.Json/13.0.3",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "872fc189e638ab1056555b03aaa38f68bcb54286e221aa646eb1129babf63c77",
+    "NuspecSha256": "64aeffca22289eeb3bd32cbe72722ac878d2eadcee9f8885f17daa2e8357c518",
+    "LegalFiles": [
+      {
+        "Path": "LICENSE.md",
+        "Sha256": "b98a397897ff55f76cddc380041507a95a896b2946e0188703bf0496793d6516"
+      }
+    ]
+  },
+  {
+    "Package": "System.Buffers/4.5.1",
+    "License": "MIT",
+    "Basis": "bundled LICENSE.TXT",
+    "NupkgSha256": "c30b3dd2c7e2f4cee4b823d692fd42118309b42ab1f5007f923d329a5b0d6b12",
+    "NuspecSha256": "353a5c2810bfb22de50b87616f426d4d2c8aac2040802c68e2caadedbfe66b8e",
+    "LegalFiles": [
+      {
+        "Path": "LICENSE.TXT",
+        "Sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+      },
+      {
+        "Path": "THIRD-PARTY-NOTICES.TXT",
+        "Sha256": "7864a01e2fdef7e8fdf81b906efb1466f083206affea7ba7e6dadea429754765"
+      }
+    ]
+  },
+  {
+    "Package": "System.Collections.Immutable/7.0.0",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "f5a9f6c1bc6e7b6aabb6e818112f5ac2c85083e29f26a6a386786ce3991021d9",
+    "NuspecSha256": "071112f2c4544948177381fb915c079229ca62f3c9def84a1f32b12208c44374",
+    "LegalFiles": [
+      {
+        "Path": "LICENSE.TXT",
+        "Sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+      },
+      {
+        "Path": "THIRD-PARTY-NOTICES.TXT",
+        "Sha256": "e5263d73f2fcb1ee8fa2d4e5439cc0052d02f8a4910816977b8834359e3fe689"
+      }
+    ]
+  },
+  {
+    "Package": "System.Memory/4.5.5",
+    "License": "MIT",
+    "Basis": "bundled LICENSE.TXT",
+    "NupkgSha256": "10f43da352a29fb2b3188e4edd4dcf5100194c8b526e4f61fe2e2b5623775a22",
+    "NuspecSha256": "745bfa574a0fe397559dad595fd0b73a38d7dde40703bb8f0f1eba82edf99aa7",
+    "LegalFiles": [
+      {
+        "Path": "LICENSE.TXT",
+        "Sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+      },
+      {
+        "Path": "THIRD-PARTY-NOTICES.TXT",
+        "Sha256": "7864a01e2fdef7e8fdf81b906efb1466f083206affea7ba7e6dadea429754765"
+      }
+    ]
+  },
+  {
+    "Package": "System.Numerics.Vectors/4.4.0",
+    "License": "MIT",
+    "Basis": "bundled LICENSE.TXT",
+    "NupkgSha256": "6ae5d02b67e52ff2699c1feb11c01c526e2f60c09830432258e0809486aabb65",
+    "NuspecSha256": "4d3f87dc61b56fd70778c13b0d69e12ca02ef1f3485e3789486bab4ea1732167",
+    "LegalFiles": [
+      {
+        "Path": "LICENSE.TXT",
+        "Sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+      },
+      {
+        "Path": "THIRD-PARTY-NOTICES.TXT",
+        "Sha256": "0ef4dce1f4e8965f19a3b8b2f984f337d5c35e5aaf7f8a36b95aec66c301963a"
+      }
+    ]
+  },
+  {
+    "Package": "System.Reflection.Metadata/7.0.0",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "1b000a4219213c1613aa645d1bd73db5aaab292283c325203848562cac5634f2",
+    "NuspecSha256": "6db8b20fc990aafe03f8ef7ee89436396d523a9e23a64beab68f753adeb73a30",
+    "LegalFiles": [
+      {
+        "Path": "LICENSE.TXT",
+        "Sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+      },
+      {
+        "Path": "THIRD-PARTY-NOTICES.TXT",
+        "Sha256": "e5263d73f2fcb1ee8fa2d4e5439cc0052d02f8a4910816977b8834359e3fe689"
+      }
+    ]
+  },
+  {
+    "Package": "System.Runtime.CompilerServices.Unsafe/6.0.0",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "6c41b53e70e9eee298cff3a02ce5acdd15b04125589be0273f0566026720a762",
+    "NuspecSha256": "edaccfd50eebadf418188db5a19cb7b24c887fbbc638f2e4d402ff94bbcc14dc",
+    "LegalFiles": [
+      {
+        "Path": "LICENSE.TXT",
+        "Sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+      },
+      {
+        "Path": "THIRD-PARTY-NOTICES.TXT",
+        "Sha256": "a6344bfb229bc08d1071cec400eea216e307439f961c5943ec1b56d2245acb95"
+      }
+    ]
+  },
+  {
+    "Package": "System.Text.Encoding.CodePages/7.0.0",
+    "License": "MIT",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "782293570ba60f4e7564472825c0d54469c8180b04bcaa5f1f7c9d2a5b87c66a",
+    "NuspecSha256": "3bbb23aa1c7a2b79bbe6b8b0c8ce24706e37df486ef78264af88d0a1debefa7c",
+    "LegalFiles": [
+      {
+        "Path": "LICENSE.TXT",
+        "Sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+      },
+      {
+        "Path": "THIRD-PARTY-NOTICES.TXT",
+        "Sha256": "e5263d73f2fcb1ee8fa2d4e5439cc0052d02f8a4910816977b8834359e3fe689"
+      }
+    ]
+  },
+  {
+    "Package": "System.Threading.Tasks.Extensions/4.5.4",
+    "License": "MIT",
+    "Basis": "bundled LICENSE.TXT",
+    "NupkgSha256": "a304a963cc0796c5179f9c6b7d8022bbce3b2fa7c029eb6196f631f7b462d678",
+    "NuspecSha256": "942bd07aa8206c8a2b4923dfe013fd617b28d89130eebabc802d86491bf2fc6f",
+    "LegalFiles": [
+      {
+        "Path": "LICENSE.TXT",
+        "Sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+      },
+      {
+        "Path": "THIRD-PARTY-NOTICES.TXT",
+        "Sha256": "7864a01e2fdef7e8fdf81b906efb1466f083206affea7ba7e6dadea429754765"
+      }
+    ]
+  },
+  {
+    "Package": "xunit.abstractions/2.0.3",
+    "License": "Apache-2.0",
+    "Basis": "2.0.3 tag 489a2b3949a9ae8587201a22a8ecfc1d791fa1f3; nuspec licenseUrl points to xunit/xunit/license.txt; historical license 8d0cdc1cf585f5cf285d221e0c8ff793e6aeea30 (Apache-2.0); tag has no bundled license file",
+    "NupkgSha256": "d03d72fc2df8880448f7a81bddb00e1bcb5c18f323c7e7cc69b4cfa727469403",
+    "NuspecSha256": "e59191df9e3047dd953b695c886597786ac2771f66897baa40877f643da9f7b1",
+    "LegalFiles": []
+  },
+  {
+    "Package": "xunit.analyzers/1.18.0",
+    "License": "Apache-2.0",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "0ce81a98b9df8bd51ae480e6dc9566f4c68e15b4926e6ab997c8f634f3b7a9dd",
+    "NuspecSha256": "270ffb0dce41126154f16bad2ee025da605185fb5308247877745e5eef97689e",
+    "LegalFiles": []
+  },
+  {
+    "Package": "xunit.assert/2.9.3",
+    "License": "Apache-2.0",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "bc760e75ef1b775d293a6afb89301836d3e5a87cec265e31dedd430ee61d0c20",
+    "NuspecSha256": "e3f99045088c262b14a62dd93cf025912e9e653f5ce1d77e7f858238e0bcb508",
+    "LegalFiles": []
+  },
+  {
+    "Package": "xunit.core/2.9.3",
+    "License": "Apache-2.0",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "aa4550f09c3f2d95a6c62ae43cec22af2edbbd99f722e691ceefeca761fc6a7c",
+    "NuspecSha256": "08c844d40924a386d7600e2523c57f1a2a1d6a77c03b8c0001501831944a0691",
+    "LegalFiles": []
+  },
+  {
+    "Package": "xunit.extensibility.core/2.9.3",
+    "License": "Apache-2.0",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "99ca555fe9b447b1747aff426819db6a2f60b6ee0655caa28c4b91a9ef3d0f48",
+    "NuspecSha256": "0c5886e9320c6dd828e50048c27cf355314fe20e2d8d4026b4a3a9fe42d4a359",
+    "LegalFiles": []
+  },
+  {
+    "Package": "xunit.extensibility.execution/2.9.3",
+    "License": "Apache-2.0",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "dabc4cb360ede1c01c98e14cc0fe587774693f40679a22fc71794acac5d8d23c",
+    "NuspecSha256": "9c5498549b5200b65ba0c7e0d4597c269c6bbb2e374ea8f1c28d76dc3f3a0bdd",
+    "LegalFiles": []
+  },
+  {
+    "Package": "xunit.runner.visualstudio/3.1.5",
+    "License": "Apache-2.0",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "3b9eb9efcf3840695db33b045901420d14d7562141999e06182fb8894faeb124",
+    "NuspecSha256": "0e34c46e1420cea8e5260772ff19bcb3d3faa7709136d2d3ba157f48a97362ba",
+    "LegalFiles": []
+  },
+  {
+    "Package": "xunit/2.9.3",
+    "License": "Apache-2.0",
+    "Basis": "nuspec SPDX expression",
+    "NupkgSha256": "04fae949b8e5201ecfa07fa8702baca8c0eb3198114194b3793789cc72bf23d7",
+    "NuspecSha256": "8f3373c5260b2acec2874a280640e0fbb9ac538d754880d7abaa4473c3497d25",
+    "LegalFiles": []
+  }
+]

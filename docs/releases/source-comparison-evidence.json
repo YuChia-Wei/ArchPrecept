@@ -1,0 +1,335 @@
+[
+  {
+    "ImportedPath": "analyzers/DotnetBackendAnalyzers/AggregateInfrastructureDependencyAnalyzer.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers/AggregateInfrastructureDependencyAnalyzer.cs",
+    "ImportedBlob": "3d6df586bc4869aea37b8cec6d73011fb28b69fd",
+    "SourceBlob": "3d6df586bc4869aea37b8cec6d73011fb28b69fd",
+    "Match": true
+  },
+  {
+    "ImportedPath": "analyzers/DotnetBackendAnalyzers/ControllerComplianceAnalyzer.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers/ControllerComplianceAnalyzer.cs",
+    "ImportedBlob": "fc7f2b1bf36e18c9a892e8bdcb953c22acb4d5f4",
+    "SourceBlob": "fc7f2b1bf36e18c9a892e8bdcb953c22acb4d5f4",
+    "Match": true
+  },
+  {
+    "ImportedPath": "analyzers/DotnetBackendAnalyzers/DiagnosticCategories.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers/DiagnosticCategories.cs",
+    "ImportedBlob": "53899cf2de634fc48c262e872b2a7ecf702ea01f",
+    "SourceBlob": "53899cf2de634fc48c262e872b2a7ecf702ea01f",
+    "Match": true
+  },
+  {
+    "ImportedPath": "analyzers/DotnetBackendAnalyzers/EventSourcedAggregateMutationAnalyzer.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers/EventSourcedAggregateMutationAnalyzer.cs",
+    "ImportedBlob": "6ff374a2ee6ac5ca143915bfb06cef24a2d433bd",
+    "SourceBlob": "6ff374a2ee6ac5ca143915bfb06cef24a2d433bd",
+    "Match": true
+  },
+  {
+    "ImportedPath": "analyzers/DotnetBackendAnalyzers/MapperComplianceAnalyzer.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers/MapperComplianceAnalyzer.cs",
+    "ImportedBlob": "3604ff4269065abfb132ef57c57d8d4e3b0f3325",
+    "SourceBlob": "3604ff4269065abfb132ef57c57d8d4e3b0f3325",
+    "Match": true
+  },
+  {
+    "ImportedPath": "analyzers/DotnetBackendAnalyzers/ProjectionReadOnlyAnalyzer.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers/ProjectionReadOnlyAnalyzer.cs",
+    "ImportedBlob": "ed2b89c99c6ddea98b2c19712ac2009c5317f011",
+    "SourceBlob": "ed2b89c99c6ddea98b2c19712ac2009c5317f011",
+    "Match": true
+  },
+  {
+    "ImportedPath": "analyzers/DotnetBackendAnalyzers/README.md",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers/README.md",
+    "ImportedBlob": "c1b3713b1c9a0a6c11351615a9812b0e762d0983",
+    "SourceBlob": "72d7c4209e0207ece8304f07a4b259d6be18a602",
+    "Match": false
+  },
+  {
+    "ImportedPath": "analyzers/DotnetBackendAnalyzers/RepositoryQueryMethodAnalyzer.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers/RepositoryQueryMethodAnalyzer.cs",
+    "ImportedBlob": "48d5c90873e650d21aa0f6ce017e3ec119887189",
+    "SourceBlob": "48d5c90873e650d21aa0f6ce017e3ec119887189",
+    "Match": true
+  },
+  {
+    "ImportedPath": "analyzers/DotnetBackendAnalyzers/RuleDescriptors.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers/RuleDescriptors.cs",
+    "ImportedBlob": "e97aac02b030a7545f27be3faabef5f15ea292ce",
+    "SourceBlob": "e97aac02b030a7545f27be3faabef5f15ea292ce",
+    "Match": true
+  },
+  {
+    "ImportedPath": "analyzers/DotnetBackendAnalyzers/UseCaseServiceProviderInjectionAnalyzer.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers/UseCaseServiceProviderInjectionAnalyzer.cs",
+    "ImportedBlob": "ec505d9e05b3a66343d586e66881703a6463a321",
+    "SourceBlob": "ec505d9e05b3a66343d586e66881703a6463a321",
+    "Match": true
+  },
+  {
+    "ImportedPath": "analyzers/DotnetBackendAnalyzers/templates/Directory.Build.props.snippet",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers/templates/Directory.Build.props.snippet",
+    "ImportedBlob": "389356acf7230ee141da9ef2413e0aebf8938869",
+    "SourceBlob": "d67b997182e8a2b1d119b7af37a69b4c429047f5",
+    "Match": false
+  },
+  {
+    "ImportedPath": "analyzers/DotnetBackendAnalyzers/templates/analyzer-severity.editorconfig",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers/templates/analyzer-severity.editorconfig",
+    "ImportedBlob": "156be97156a2be9d0aa80dc6746a7230fc059f9a",
+    "SourceBlob": "156be97156a2be9d0aa80dc6746a7230fc059f9a",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Application/IAggregateRepository.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Application/IAggregateRepository.cs",
+    "ImportedBlob": "9cfe6d224f2df502d7e40364628e964dc83e472d",
+    "SourceBlob": "9cfe6d224f2df502d7e40364628e964dc83e472d",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Application/IDomainEventDispatcher.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Application/IDomainEventDispatcher.cs",
+    "ImportedBlob": "e5fd6fc5b5815ba50d6810ae8b76cde2597b2573",
+    "SourceBlob": "e5fd6fc5b5815ba50d6810ae8b76cde2597b2573",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Application/IQueryRepository.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Application/IQueryRepository.cs",
+    "ImportedBlob": "0b248f3f4a9df8ec020b128d4918893e4a99c532",
+    "SourceBlob": "0b248f3f4a9df8ec020b128d4918893e4a99c532",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Application/PageResult.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Application/PageResult.cs",
+    "ImportedBlob": "c6e1f5a230a3e536ddf368d26e6a594c6c61fe60",
+    "SourceBlob": "c6e1f5a230a3e536ddf368d26e6a594c6c61fe60",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Application/Result.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Application/Result.cs",
+    "ImportedBlob": "6b00b7fd4458f95456ae54b44e8937e768772d88",
+    "SourceBlob": "6b00b7fd4458f95456ae54b44e8937e768772d88",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Domains/AggregateRoot.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Domains/AggregateRoot.cs",
+    "ImportedBlob": "c02fde8da3dc04b6d96249c1cd864a66c4e8e1ae",
+    "SourceBlob": "c02fde8da3dc04b6d96249c1cd864a66c4e8e1ae",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Domains/DomainEntity.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Domains/DomainEntity.cs",
+    "ImportedBlob": "d02387eae8465a4822c6540e084662e3c1ff2ed5",
+    "SourceBlob": "d02387eae8465a4822c6540e084662e3c1ff2ed5",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Domains/EsAggregateRoot.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Domains/EsAggregateRoot.cs",
+    "ImportedBlob": "c38ab9d222ac436681fa239d66abdcf67b76ee0b",
+    "SourceBlob": "c38ab9d222ac436681fa239d66abdcf67b76ee0b",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Domains/IAggregateRoot.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Domains/IAggregateRoot.cs",
+    "ImportedBlob": "e0632bb7c07d26ddde012acf4be921a9edd5b421",
+    "SourceBlob": "e0632bb7c07d26ddde012acf4be921a9edd5b421",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Domains/IDomainEntity.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Domains/IDomainEntity.cs",
+    "ImportedBlob": "6ea46b3af93a9b487a1e0ab5f764259c4ef6a66d",
+    "SourceBlob": "6ea46b3af93a9b487a1e0ab5f764259c4ef6a66d",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Domains/IDomainEvent.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Domains/IDomainEvent.cs",
+    "ImportedBlob": "6604e73de6f68dad1712559441216744249f421c",
+    "SourceBlob": "6604e73de6f68dad1712559441216744249f421c",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Domains/ValueObject.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Domains/ValueObject.cs",
+    "ImportedBlob": "23a15d1c95f696e76ed3fda568fe8ba69b0a0ff0",
+    "SourceBlob": "23a15d1c95f696e76ed3fda568fe8ba69b0a0ff0",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Integrations/Configuration/MessagingTransportOptions.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Integrations/Configuration/MessagingTransportOptions.cs",
+    "ImportedBlob": "760982fcf6aafe64f143e93329871f465d485869",
+    "SourceBlob": "760982fcf6aafe64f143e93329871f465d485869",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Integrations/IIntegrationEvent.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Integrations/IIntegrationEvent.cs",
+    "ImportedBlob": "3ed6640deec80f5621f55549972d9b69a90e5064",
+    "SourceBlob": "3ed6640deec80f5621f55549972d9b69a90e5064",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Integrations/IIntegrationEventPublisher.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Integrations/IIntegrationEventPublisher.cs",
+    "ImportedBlob": "973a29f6262d85192d7ef05107ed4d5e233a551f",
+    "SourceBlob": "973a29f6262d85192d7ef05107ed4d5e233a551f",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Integrations/IRequestContract.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Integrations/IRequestContract.cs",
+    "ImportedBlob": "139f2c3e8ba683e6e113e728fb87c479ea8c62af",
+    "SourceBlob": "139f2c3e8ba683e6e113e728fb87c479ea8c62af",
+    "Match": true
+  },
+  {
+    "ImportedPath": "src/Lab.BuildingBlocks.Integrations/IntegrationMessageDelivery.cs",
+    "SourceRepo": "dotnet-distributed-architecture-lab",
+    "SourceCommit": "203b1775885fa2872c4ca649326691729358a5a0",
+    "SourcePath": "src/BuildingBlocks/Lab.BuildingBlocks.Integrations/IntegrationMessageDelivery.cs",
+    "ImportedBlob": "3e25de5d2ec1fcd833f25f81b70840764c175fd8",
+    "SourceBlob": "3e25de5d2ec1fcd833f25f81b70840764c175fd8",
+    "Match": true
+  },
+  {
+    "ImportedPath": "tests/DotnetBackendAnalyzers.Tests/AggregateInfrastructureDependencyAnalyzerTests.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers.Tests/AggregateInfrastructureDependencyAnalyzerTests.cs",
+    "ImportedBlob": "cc7f426de30e13695d2305484a78ba1b9e1b83b6",
+    "SourceBlob": "cc7f426de30e13695d2305484a78ba1b9e1b83b6",
+    "Match": true
+  },
+  {
+    "ImportedPath": "tests/DotnetBackendAnalyzers.Tests/AnalyzerTestHelper.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers.Tests/AnalyzerTestHelper.cs",
+    "ImportedBlob": "0a99de8e6d4a27b9fe3ab7215f0db07235a8e893",
+    "SourceBlob": "0a99de8e6d4a27b9fe3ab7215f0db07235a8e893",
+    "Match": true
+  },
+  {
+    "ImportedPath": "tests/DotnetBackendAnalyzers.Tests/ControllerComplianceAnalyzerTests.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers.Tests/ControllerComplianceAnalyzerTests.cs",
+    "ImportedBlob": "cfb568fd50f5ca9f1ffaa52eae64e3c4d83c29ad",
+    "SourceBlob": "cfb568fd50f5ca9f1ffaa52eae64e3c4d83c29ad",
+    "Match": true
+  },
+  {
+    "ImportedPath": "tests/DotnetBackendAnalyzers.Tests/EventSourcedAggregateMutationAnalyzerTests.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers.Tests/EventSourcedAggregateMutationAnalyzerTests.cs",
+    "ImportedBlob": "fe35e4afcc5baff12ad71fe78eaaa219b559fb69",
+    "SourceBlob": "fe35e4afcc5baff12ad71fe78eaaa219b559fb69",
+    "Match": true
+  },
+  {
+    "ImportedPath": "tests/DotnetBackendAnalyzers.Tests/MapperComplianceAnalyzerTests.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers.Tests/MapperComplianceAnalyzerTests.cs",
+    "ImportedBlob": "9868e60dcd32eb9e4a0d238ab9598c74d236e407",
+    "SourceBlob": "9868e60dcd32eb9e4a0d238ab9598c74d236e407",
+    "Match": true
+  },
+  {
+    "ImportedPath": "tests/DotnetBackendAnalyzers.Tests/ProjectionReadOnlyAnalyzerTests.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers.Tests/ProjectionReadOnlyAnalyzerTests.cs",
+    "ImportedBlob": "cdca4e88ca437c94a7d00c1cb987f46f4c51ce68",
+    "SourceBlob": "cdca4e88ca437c94a7d00c1cb987f46f4c51ce68",
+    "Match": true
+  },
+  {
+    "ImportedPath": "tests/DotnetBackendAnalyzers.Tests/RepositoryQueryMethodAnalyzerTests.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers.Tests/RepositoryQueryMethodAnalyzerTests.cs",
+    "ImportedBlob": "11adedd19ed3540069f95d6e1e7279f25344b935",
+    "SourceBlob": "11adedd19ed3540069f95d6e1e7279f25344b935",
+    "Match": true
+  },
+  {
+    "ImportedPath": "tests/DotnetBackendAnalyzers.Tests/UseCaseServiceProviderInjectionAnalyzerTests.cs",
+    "SourceRepo": "ai-collaboration-framework",
+    "SourceCommit": "0587f359c4710440c440353c969a18c7b203b4d4",
+    "SourcePath": "tools/DotnetBackendAnalyzers.Tests/UseCaseServiceProviderInjectionAnalyzerTests.cs",
+    "ImportedBlob": "fd4aaa920b84ea0a3b1b0a29f0397b5c42a689d8",
+    "SourceBlob": "fd4aaa920b84ea0a3b1b0a29f0397b5c42a689d8",
+    "Match": true
+  }
+]
