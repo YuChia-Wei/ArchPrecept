@@ -25,9 +25,11 @@
 
 IIntegrationEvent 的 Medium 連結已按觀念參考保留：目前 interface 的成員與文章範例不同，沒有發現直接複製該範例的證據。它不額外形成一個泛泛的作者確認要求。
 
-## 發布仍保持關閉
+## 發布與可見性狀態
 
-負責人要求來源檢查完成後再安排 GitHub Packages 發布。來源確認已完成；本次更新來源紀錄，不設定 PREVIEW_PUBLISH_ENABLED、不建立 tag/Release、不上傳 registry、不合併 PR。後續發布工作仍包含 Environment／存取權／配額檢查、固定 commit 的 CI 與發布後 registry restore。
+2026-10-19 負責人要求接續完成發布。PR #2 已合併，四個 `0.0.1-preview` 已由固定提交 `54b6a88fe373107f85a52caf79d129d396209cd4` 上傳 GitHub Packages，.NET 8／10 registry 安裝、執行與 Analyzer 診斷驗證通過。四套件版本與 repository linkage 皆已讀回。
+
+實際可見性為 public，與原先 private 預期不同，因此發布及後續唯讀驗證工作流程的可見性斷言失敗。`PREVIEW_PUBLISH_ENABLED` 已設回 false，保留既有套件，等待負責人決定公開範圍；不將工作流程整體標為成功。來源與依賴授權檢查已完成，這項未決事項屬於發布存取範圍。完整證據見 [preview.md](preview.md)。
 
 nuget.org 留到正式版前準備；新手入門另以本機 HTML 交付，位於 Git 忽略的 artifacts/handouts，不納入本 PR。
 
