@@ -15,18 +15,20 @@
 
 逐檔證據：[source-inventory.md](source-inventory.md)、[source-comparison-evidence.json](source-comparison-evidence.json)。依賴證據：[dependency-licenses.md](dependency-licenses.md)、[dependency-license-evidence.json](dependency-license-evidence.json)。
 
-## 僅需負責人補充確認
+## 負責人來源補充已完成
 
 已接受負責人對三個來源專案為自有知識累積的說明，不再重複要求一般 ownership 證明。
 
-仍有一個無法靠公開來源自行結案的具體問題：Teddysoft 私人教材／課程練習是否有直接帶入本產品的文字、程式或完整範例，還是僅受觀念啟發後自行實作？若只有後者，記錄此確認即可關閉這個來源缺口；若有直接帶入，請指出檔案與可適用的授權條款，再逐項處理，不能以致謝取代許可。
+2026-10-19 負責人補充：Teddysoft 課程主要採用 Java，啟發的是與 AI 協作的模式。套件與分析器原本已在使用，也曾研究相關工具；看到課程以純文字比較處理這類需求後，想到將既有 .NET 生態系的分析器做法用於 AI 協作，以可執行的檢查支援規範，並進一步發展自己的套件與框架。
+
+依此補充，課程關係記錄為 AI 協作方法的啟發；.NET 套件與分析器的技術來源為負責人既有使用、研究及實作累積。本次私人教材來源待確認項目已依負責人說明結案，沒有新增需要負責人確認的授權項目。此項為來源聲明，並非取得私人教材後的逐檔比對證據。
 
 IIntegrationEvent 的 Medium 連結已按觀念參考保留：目前 interface 的成員與文章範例不同，沒有發現直接複製該範例的證據。它不額外形成一個泛泛的作者確認要求。
 
 ## 發布仍保持關閉
 
-負責人要求來源檢查完成後再安排 GitHub Packages 發布。本次不設定 PREVIEW_PUBLISH_ENABLED、不建立 tag/Release、不上傳 registry、不合併 PR。來源最後確認完成後，再安排 Environment／存取權／配額檢查、固定 commit 的 CI 與發布後 registry restore。
+負責人要求來源檢查完成後再安排 GitHub Packages 發布。來源確認已完成；本次更新來源紀錄，不設定 PREVIEW_PUBLISH_ENABLED、不建立 tag/Release、不上傳 registry、不合併 PR。後續發布工作仍包含 Environment／存取權／配額檢查、固定 commit 的 CI 與發布後 registry restore。
 
 nuget.org 留到正式版前準備；新手入門另以本機 HTML 交付，位於 Git 忽略的 artifacts/handouts，不納入本 PR。
 
-Source Link 可取回、symbols 決策、完整 public API baseline、依賴弱點查詢是其他發布品質工作，不混稱為本次授權已驗證事項；授權清查不等於弱點掃描。私人教材未取得，所以目前不宣告所有來源已最終結案。
+Source Link 可取回、symbols 決策、完整 public API baseline、依賴弱點查詢是其他發布品質工作，不混稱為本次授權已驗證事項；授權清查不等於弱點掃描。本次來源與依賴授權檢查範圍已完成，結論結合固定上游比對、依賴條款及負責人來源聲明，不宣稱完成未知外部資料的全面相似性檢索。

@@ -794,17 +794,17 @@ rules/
 
 ## 14. 來源、授權與 Ownership 規劃
 
-### 14.1 Analyzer 的課程啟發與產品化起點
+### 14.1 AI 協作的課程啟發與既有 .NET 工具的產品化
 
-本產品的 Analyzer 構想，起於完成 Teddysoft 課程後，受到課程內容與實作方式的啟發。課程網址：[Teddysoft AI Coding 課程頁面](https://teddysoft.tw/courses/ai-coding-pl/)。
+依負責人於 2026-10-19 的補充，Teddysoft 課程主要採用 Java，啟發的是與 AI 協作的模式。ArchPrecept 的套件與分析器在此之前已在使用，負責人也曾研究這類工具；課程不是 .NET 套件與分析器技術的起點。課程網址：[Teddysoft AI Coding 課程頁面](https://teddysoft.tw/courses/ai-coding-pl/)。
 
-在後續整理 AI Collaboration Framework 的過程中，逐步確認僅依靠 Prompt、規範文件、AI 自我檢查或人工 Code Review，仍可能因理解差異、上下文遺漏與執行不一致而偏離架構規範。因此開始利用 .NET 的 Roslyn Analyzer 開發配套靜態分析器，讓人與 AI 之外的第三方工具能在編譯與 CI 階段提供可重複、可追溯的架構檢查證據。
+為了與 AI 協作，並在看到課程以純文字比較處理這類需求後，負責人想到將既有 .NET 生態系的分析器做法搭配協作流程，讓規範能由編譯與 CI 階段的工具提供可重複、可追溯的檢查證據。這次的進一步投入，是把既有使用與研究累積發展成自己使用的套件與框架。
 
-目前產品化方向不是把課程內容逐項搬入套件，而是以課程帶來的問題意識與方法啟發為起點，再依 Roslyn Syntax／Semantic Model、AI Collaboration Framework 的規範，以及個人在 DDD、Clean Architecture、Hexagonal Architecture 與 .NET 專案中的實務經驗，重新定義規則邊界、Diagnostic 語意、角色辨識及測試策略。
+目前產品化結合課程帶來的 AI 協作方法啟發、既有 Roslyn Syntax／Semantic Model 使用經驗、AI Collaboration Framework 的規範，以及個人在 DDD、Clean Architecture、Hexagonal Architecture 與 .NET 專案中的實務經驗，定義規則邊界、Diagnostic 語意、角色辨識及測試策略。
 
 ### 14.2 來源揭露與授權處理原則
 
-2026-10-19 決策：ArchPrecept 自有內容採 Apache-2.0。負責人確認 Framework、distributed architecture Lab 與 webapi Lab 為自有知識累積來源；固定上游逐檔比對及依賴條款檢查已記錄於[來源檢查結果](../releases/licensing-assessment.md)。私人教材是否直接帶入仍待確認，尚未核准啟用 registry 發布。此決策更新先前 License 未選定的狀態，不更動舊版快照的歷史記錄。
+2026-10-19 決策：ArchPrecept 自有內容採 Apache-2.0。負責人確認 Framework、distributed architecture Lab 與 webapi Lab 為自有知識累積來源，並補充課程為 AI 協作方法啟發，套件與分析器來自既有 .NET 使用及研究累積。固定上游逐檔比對、依賴條款檢查及來源聲明已記錄於[來源檢查結果](../releases/licensing-assessment.md)，本次來源待確認項目已完成；registry 發布另行安排，開關仍關閉。此決策更新先前 License 未選定的狀態，不更動舊版快照的歷史記錄。
 
 - 對外文件應清楚揭露課程對產品構想的啟發關係，避免把課程貢獻描述成不存在。
 - 本 repo 應擁有後續自行設計與實作的 Roslyn Analyzer 原始碼、Rule Catalog、Diagnostic 定義、測試及文件。
