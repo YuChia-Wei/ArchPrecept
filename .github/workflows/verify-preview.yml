@@ -1,0 +1,46 @@
+name: Verify published GitHub preview
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: read
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read package metadata
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_OWNER: ${{ github.repository_owner }}
+          EXPECTED_REPOSITORY: ${{ github.repository }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          $failed = $false
+          foreach ($id in @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging.Abstractions')) {
+            $path = "users/$env:PACKAGE_OWNER/packages/nuget/$id"
+            $package = gh api $path | ConvertFrom-Json
+            $versions = gh api "$path/versions" | ConvertFrom-Json
+            $record = [ordered]@{name=$package.name; visibility=$package.visibility; repository=$package.repository.full_name; versions=@($versions.name); url=$package.html_url}
+            $record | ConvertTo-Json -Compress | Tee-Object -Variable summary
+            $summary | Add-Content $env:GITHUB_STEP_SUMMARY
+            if ($package.visibility -ne 'private' -or $package.repository.full_name -ne $env:EXPECTED_REPOSITORY -or '0.0.1-preview' -notin $versions.name) { $failed = $true }
+          }
+          if ($failed) { throw 'Published metadata differs from expected private preview configuration; see read-back records.' }
+  consumer:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [8, 10]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '${{ matrix.sdk }}.0.x'
+      - name: Restore and exercise existing registry packages
+        shell: pwsh
+        env:
+          NuGetPackageSourceCredentials_local: Username=${{ github.actor }};Password=${{ secrets.GITHUB_TOKEN }};ValidAuthenticationTypes=Basic
+        run: ./eng/Test-PackageConsumer.ps1 -SdkMajor ${{ matrix.sdk }} -RegistrySource 'https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json'
