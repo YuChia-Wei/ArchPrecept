@@ -60,3 +60,42 @@ jobs:
           for package in *.nupkg; do
             dotnet nuget push "$package" --source "https://nuget.pkg.github.com/$PACKAGE_OWNER/index.json" --api-key "$GH_PACKAGES_TOKEN" --no-symbols
           done
+      - name: Read back package visibility, repository and version
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_OWNER: ${{ github.repository_owner }}
+          EXPECTED_REPOSITORY: ${{ github.repository }}
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          foreach ($id in @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging.Abstractions')) {
+            $path = "users/$env:PACKAGE_OWNER/packages/nuget/$id"
+            $package = gh api $path | ConvertFrom-Json
+            if ($package.visibility -ne 'private') { throw "Unexpected visibility for $id" }
+            if ($package.repository.full_name -ne $env:EXPECTED_REPOSITORY) { throw "Repository linkage mismatch for $id" }
+            $versions = gh api "$path/versions" | ConvertFrom-Json
+            if ($env:EXPECTED_VERSION -notin $versions.name) { throw "Published version missing for $id" }
+            Write-Host "$id $env:EXPECTED_VERSION private repository=$($package.repository.full_name)"
+          }
+  registry-consumer:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [8, 10]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '${{ matrix.sdk }}.0.x'
+      - name: Restore and exercise published packages with a fresh cache
+        shell: pwsh
+        env:
+          NuGetPackageSourceCredentials_local: Username=${{ github.actor }};Password=${{ secrets.GITHUB_TOKEN }};ValidAuthenticationTypes=Basic
+        run: ./eng/Test-PackageConsumer.ps1 -SdkMajor ${{ matrix.sdk }} -RegistrySource 'https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json'

@@ -1,11 +1,12 @@
 param(
     [ValidateSet(8, 10)][int]$SdkMajor = 8,
-    [string]$PackageDirectory = 'artifacts/packages'
+    [string]$PackageDirectory = 'artifacts/packages',
+    [string]$RegistrySource
 )
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
 $root = Split-Path $PSScriptRoot
-$feed = (Resolve-Path (Join-Path $root $PackageDirectory)).Path
+$feed = if ($RegistrySource) { $RegistrySource } else { (Resolve-Path (Join-Path $root $PackageDirectory)).Path }
 $version = ([xml](Get-Content (Join-Path $root 'Directory.Build.props') -Raw)).Project.PropertyGroup.Version
 # A fresh cache proves this run consumes these nupkg bytes, not an older 0.0.1-preview.
 $work = Join-Path $root "artifacts/consumer-$SdkMajor-$([guid]::NewGuid().ToString('N'))"
