@@ -194,7 +194,7 @@ related_documents:
 
 本次將 `EngineeringGuardrails.*` 改為 `ArchPrecept.*`，並將 `EngineeringGuardrails.slnx` 改為 `ArchPrecept.slnx`。既有使用端需同步更新 ProjectReference、Assembly 引用、using 與完整型別名稱並重新建置；Assembly 與公開型別身分會改變，不能視為二進位相容的更名。既有 Diagnostic ID `DBA1001`～`DBA1017`、嚴重性與規則行為不變。
 
-DEC-015 的改名階段只處理 Repository 內部與文件。2026-10-18 後續發布準備已確認 GitHub Repository 為 `YuChia-Wei/ArchPrecept`，本機目錄 `dotnet-architecture-kit` 保留。負責人允許準備 GitHub Packages preview、CI/CD 與 PR；四個既有產品專案已 opt in 封裝為 `0.0.1-preview`。License／來源檢查尚未完成，依本次授權備案暫不實際發布；詳見[發布準備](../releases/preview.md)。未來版本政策仍待審查。
+DEC-015 的改名階段只處理 Repository 內部與文件。2026-10-18 後續發布準備已確認 GitHub Repository 為 `YuChia-Wei/ArchPrecept`，本機目錄 `dotnet-architecture-kit` 保留。負責人允許準備 GitHub Packages preview、CI/CD 與 PR；四個既有產品專案已 opt in 封裝為 `0.0.1-preview`。2026-10-19 License／來源檢查已完成，四套件已發布 GitHub Packages 並通過 .NET 8／10 registry 消費驗證；實際 public 可見性與原先 private 預期不符，等待負責人決定公開範圍，後續發布已停用。詳見[發布紀錄](../releases/preview.md)。未來版本政策仍待審查。
 
 ## 4. 產品設計原則
 
@@ -732,7 +732,7 @@ rules/
 
 ### 12.6 Package ID 命名候選
 
-下表保留能力命名規劃。2026-10-18 後續發布準備採用前四個已有實作的 ID 作 GitHub preview 封裝識別，詳見[套件 inventory](../releases/preview.md#套件-inventory)；其他能力仍是候選。nuget.org ID 可用性尚未確認，實際 registry 發布仍停用。
+下表保留能力命名規劃。2026-10-18 後續發布準備採用前四個已有實作的 ID 作 GitHub preview 封裝識別，詳見[套件 inventory](../releases/preview.md#套件-inventory)；其他能力仍是候選。nuget.org ID 可用性尚未確認；四個已實作套件已發布 GitHub Packages，後續發布因可見性確認而停用。
 
 | 能力 | Package ID 候選 | 實作狀態 |
 |---|---|---|
@@ -804,7 +804,7 @@ rules/
 
 ### 14.2 來源揭露與授權處理原則
 
-2026-10-19 決策：ArchPrecept 自有內容採 Apache-2.0。負責人確認 Framework、distributed architecture Lab 與 webapi Lab 為自有知識累積來源，並補充課程為 AI 協作方法啟發，套件與分析器來自既有 .NET 使用及研究累積。固定上游逐檔比對、依賴條款檢查及來源聲明已記錄於[來源檢查結果](../releases/licensing-assessment.md)，本次來源待確認項目已完成；registry 發布另行安排，開關仍關閉。此決策更新先前 License 未選定的狀態，不更動舊版快照的歷史記錄。
+2026-10-19 決策：ArchPrecept 自有內容採 Apache-2.0。負責人確認 Framework、distributed architecture Lab 與 webapi Lab 為自有知識累積來源，並補充課程為 AI 協作方法啟發，套件與分析器來自既有 .NET 使用及研究累積。固定上游逐檔比對、依賴條款檢查及來源聲明已記錄於[來源檢查結果](../releases/licensing-assessment.md)，本次來源待確認項目已完成；四個 preview 套件已發布並通過 registry 消費測試，public 可見性與原先 private 預期不符，後續發布開關已關閉。此決策更新先前 License 未選定的狀態，不更動舊版快照的歷史記錄。
 
 - 對外文件應清楚揭露課程對產品構想的啟發關係，避免把課程貢獻描述成不存在。
 - 本 repo 應擁有後續自行設計與實作的 Roslyn Analyzer 原始碼、Rule Catalog、Diagnostic 定義、測試及文件。
