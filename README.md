@@ -15,7 +15,7 @@ stable-release planning. Current supported consumers are .NET 8 and 10; .NET 11
 will be evaluated after a later release. See the
 [License and provenance assessment](docs/releases/licensing-assessment.md) for the completed review and its scope.
 
-The current source prepares **0.0.2-preview** with six packages. It is not published yet.
+All six current packages are published to GitHub Packages as **0.0.2-preview** with public visibility.
 CT-005 adds the optional `ArchPrecept.Contracts.Domain.EventSourcing` package.
 CT-004 separates `ArchPrecept.Contracts.Messaging` message contracts from the
 `ArchPrecept.Contracts.Application.Messaging` publisher port. Transport configuration

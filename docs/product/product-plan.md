@@ -736,7 +736,7 @@ rules/
 
 ### 12.6 Package ID 命名候選
 
-下表區分現行實作與未來能力。初始四個 ID 已發布 `0.0.1-preview`，詳見[歷史套件 inventory](../releases/preview.md#套件-inventory)。2026-10-21 依 CT-004／CT-005 拆分 Messaging 並新增 Domain.EventSourcing，現行六套件以 `0.0.2-preview` 作本機候選，尚未發布；舊 Messaging.Abstractions ID 不在此次成品中。nuget.org ID 可用性尚未確認，發布狀態與來源實作分開記錄。
+下表區分現行實作與未來能力。初始四個 ID 已發布 `0.0.1-preview`，詳見[歷史套件 inventory](../releases/preview.md#套件-inventory)。2026-10-21 依 CT-004／CT-005 拆分 Messaging 並新增 Domain.EventSourcing，現行六套件已依 DEC-019 公開發布為 `0.0.2-preview`，見[發布證據](../releases/0.0.2-preview.md)；舊 Messaging.Abstractions ID 不在此次成品中。nuget.org ID 可用性尚未確認，發布狀態與來源實作分開記錄。
 
 | 能力 | Package ID 候選 | 實作狀態 |
 |---|---|---|
@@ -809,7 +809,7 @@ rules/
 
 ### 14.2 來源揭露與授權處理原則
 
-2026-10-19 決策：ArchPrecept 自有內容採 Apache-2.0。負責人確認 Framework、distributed architecture Lab 與 webapi Lab 為自有知識累積來源，並補充課程為 AI 協作方法啟發，套件與分析器來自既有 .NET 使用及研究累積。固定上游逐檔比對、依賴條款檢查及來源聲明已記錄於[來源檢查結果](../releases/licensing-assessment.md)，本次來源待確認項目已完成；四個 preview 套件已發布並通過 registry 消費測試，public 可見性與原先 private 預期不符，後續發布開關已關閉。此決策更新先前 License 未選定的狀態，不更動舊版快照的歷史記錄。
+2026-10-19 決策：ArchPrecept 自有內容採 Apache-2.0。負責人確認 Framework、distributed architecture Lab 與 webapi Lab 為自有知識累積來源，並補充課程為 AI 協作方法啟發，套件與分析器來自既有 .NET 使用及研究累積。固定上游逐檔比對、依賴條款檢查及來源聲明已記錄於[來源檢查結果](../releases/licensing-assessment.md)，來源待確認項目已完成。當時四個 preview 套件的 public 與 private 預期不符，故暫停後續發布；2026-10-21 DEC-019 已明確決定六套件採 public 並重新啟用 main push 發布。此決策更新先前 License 未選定的狀態，不更動舊版快照的歷史記錄。
 
 - 對外文件應清楚揭露課程對產品構想的啟發關係，避免把課程貢獻描述成不存在。
 - 本 repo 應擁有後續自行設計與實作的 Roslyn Analyzer 原始碼、Rule Catalog、Diagnostic 定義、測試及文件。

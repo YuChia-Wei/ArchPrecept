@@ -72,7 +72,7 @@ supersedes: "0.5"
 | 需求治理 | Requirement ID 穩定；需求變更需同步驗收標準、測試及相容性影響 |
 | 本版排除 | NuGet Package ID 核准、商標權利確認、最終定價與商業化策略 |
 
-既有品牌與程式碼命名前綴依 DEC-015／DEC-016 採 ArchPrecept，本機目錄 `dotnet-architecture-kit` 保留。四套件已發布的歷史證據見 [0.0.1-preview 紀錄](../releases/preview.md)。本版依 CT-004／CT-005 與 DEC-017／DEC-018 拆分 Messaging 並新增獨立 Domain.EventSourcing，六個產品專案可封裝為 `0.0.2-preview` 本機候選；尚未發布。公開型別搬移不具來源／二進位相容性，見 [ES 遷移](event-sourcing-contract.md)與 [Messaging 遷移](messaging-contract.md)。所有 Requirement ID 保持不變。
+既有品牌與程式碼命名前綴依 DEC-015／DEC-016 採 ArchPrecept，本機目錄 `dotnet-architecture-kit` 保留。四套件已發布的歷史證據見 [0.0.1-preview 紀錄](../releases/preview.md)。本版依 CT-004／CT-005 與 DEC-017／DEC-018 拆分 Messaging 並新增獨立 Domain.EventSourcing，六套件已依 DEC-019 公開發布為 `0.0.2-preview`，見[發布證據](../releases/0.0.2-preview.md)。公開型別搬移不具來源／二進位相容性，見 [ES 遷移](event-sourcing-contract.md)與 [Messaging 遷移](messaging-contract.md)。所有 Requirement ID 保持不變。
 
 # 執行摘要
 
