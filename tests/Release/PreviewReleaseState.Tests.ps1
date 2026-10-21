@@ -1,4 +1,6 @@
 $ErrorActionPreference = 'Stop'
+# The HTTP cmdlet is mocked below, so explicitly load its exception type in fresh pwsh sessions.
+Import-Module Microsoft.PowerShell.Utility
 $scriptUnderTest = Join-Path $PSScriptRoot '../../eng/Get-PreviewReleaseState.ps1'
 $oldToken = $env:GH_TOKEN
 $env:GH_TOKEN = 'synthetic-test-token'
