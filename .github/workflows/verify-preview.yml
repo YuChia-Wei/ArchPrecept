@@ -8,6 +8,7 @@ jobs:
   metadata:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Read package metadata
         shell: pwsh
         env:
@@ -18,14 +19,15 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $PSNativeCommandUseErrorActionPreference = $true
           $failed = $false
-          foreach ($id in @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging.Abstractions')) {
+          $version = ([xml](Get-Content Directory.Build.props -Raw)).Project.PropertyGroup.Version
+          foreach ($id in @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging', 'ArchPrecept.Contracts.Application.Messaging', 'ArchPrecept.Contracts.Domain.EventSourcing')) {
             $path = "users/$env:PACKAGE_OWNER/packages/nuget/$id"
             $package = gh api $path | ConvertFrom-Json
             $versions = gh api "$path/versions" | ConvertFrom-Json
             $record = [ordered]@{name=$package.name; visibility=$package.visibility; repository=$package.repository.full_name; versions=@($versions.name); url=$package.html_url}
             $record | ConvertTo-Json -Compress | Tee-Object -Variable summary
             $summary | Add-Content $env:GITHUB_STEP_SUMMARY
-            if ($package.visibility -ne 'private' -or $package.repository.full_name -ne $env:EXPECTED_REPOSITORY -or '0.0.1-preview' -notin $versions.name) { $failed = $true }
+            if ($package.visibility -ne 'private' -or $package.repository.full_name -ne $env:EXPECTED_REPOSITORY -or $version -notin $versions.name) { $failed = $true }
           }
           if ($failed) { throw 'Published metadata differs from expected private preview configuration; see read-back records.' }
   consumer:

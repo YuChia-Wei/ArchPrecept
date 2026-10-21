@@ -39,7 +39,7 @@ public abstract class DomainEntity<TId>
     /// 將領域事件加入待處理集合。
     /// </summary>
     /// <param name="domainEvent">要加入的領域事件。</param>
-    public void AddDomainEvent(IDomainEvent domainEvent)
+    public virtual void AddDomainEvent(IDomainEvent domainEvent)
     {
         _domainEvents.Add(domainEvent);
     }
@@ -48,7 +48,7 @@ public abstract class DomainEntity<TId>
     /// 從待處理集合移除指定領域事件。
     /// </summary>
     /// <param name="domainEvent">要移除的領域事件。</param>
-    public void RemoveDomainEvent(IDomainEvent domainEvent)
+    public virtual void RemoveDomainEvent(IDomainEvent domainEvent)
     {
         _domainEvents.Remove(domainEvent);
     }
@@ -56,7 +56,7 @@ public abstract class DomainEntity<TId>
     /// <summary>
     /// 清除所有待處理的領域事件。
     /// </summary>
-    public void ClearDomainEvents()
+    public virtual void ClearDomainEvents()
     {
         _domainEvents.Clear();
     }

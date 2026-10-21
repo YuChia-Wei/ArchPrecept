@@ -2,12 +2,12 @@
 title: "ArchPrecept"
 subtitle: "產品規劃書"
 author: "產品負責人：YuChia Wei"
-date: "2026-10-18"
+date: "2026-10-21"
 lang: "zh-TW"
 document_id: "DOC-PRODUCT-PLAN"
-document_version: "0.5"
+document_version: "0.7"
 status: "draft"
-last_reviewed: "2026-10-18"
+last_reviewed: "2026-10-21"
 canonical_path: "docs/product/product-plan.md"
 canonical: true
 source_format: "markdown"
@@ -55,8 +55,8 @@ related_documents:
 # 文件控制
 
 > **文件狀態：決策基線草案（Decision Baseline Draft）**<br>
-> **目標 GitHub Repository：** `dotnet-engineering-guardrails`<br>
-> **版本：** `0.4`<br>
+> **目標 GitHub Repository：** `YuChia-Wei/ArchPrecept`<br>
+> **版本：** `0.7`<br>
 > **重要排除事項：** 產品品牌與 Project／Assembly／Namespace 前綴已核准為 ArchPrecept；本文件不核准 NuGet Package ID、套件發布與商標權利。
 
 | 欄位 | 內容 |
@@ -67,7 +67,7 @@ related_documents:
 | 文件目的 | 匯總產品定位、能力邊界、Git repo 策略與結構、採用模式、發布成品、治理原則及演進路線 |
 | 適用對象 | 產品負責人、維護者、貢獻者、AI Collaboration Framework 維護者、試用團隊及潛在採用者 |
 | 工作名稱 | `ArchPrecept` |
-| Repository 名稱 | `dotnet-engineering-guardrails` |
+| Repository 名稱 | `YuChia-Wei/ArchPrecept` |
 | Repository 模式 | 單一儲存庫（monorepo），輸出多個可獨立採用的成品 |
 | 目前階段 | 初始抽取、產品邊界定義、公開契約硬化與 Analyzer 架構重整前 |
 | 本版納入 | 產品背景、定位、決策、設計原則、使用者、能力架構、責任邊界、repo 結構、文件治理與追溯、發布治理、來源與 Ownership、Roadmap、風險及待決策事項 |
@@ -189,6 +189,8 @@ related_documents:
 | DEC-013 | 工程規範、PRD Requirement、Rule、執行機制、實作、測試與證據必須雙向可追溯 | 已確認 | 可識別「規範沒有工具」與「工具缺少正式規範依據」兩種治理缺口 |
 | DEC-015 | 產品採 ArchPrecept；Solution 採 `ArchPrecept.slnx`；Project、預設 Assembly Name 與 Namespace 採 `ArchPrecept.<Capability>` | 已確認，2026-10-18 生效 | 取代 DEC-002 與 DEC-014 的命名；保留能力分層、公開型別簡名、Diagnostic ID 與規則行為；不核准套件發布 |
 | DEC-016 | GitHub Repository 改名另行安排，本機目錄保留 `dotnet-architecture-kit` | 已確認，2026-10-18 生效 | DEC-001 仍記錄目前遠端名稱；本機目錄保留以維持 chat/Codex session 連續性，不要求與線上名稱一致 |
+| DEC-017 | CT-005 的 ES 核心採同 repository、獨立 `.csproj`／NuGet 套件，ES Analyzer 留在 Core | 負責人同意，2026-10-21 | [核心契約與遷移](event-sourcing-contract.md)；完整 ES runtime 是否獨立產品另案評估；本次沒有發布授權 |
+| DEC-018 | 契約按責任與能力命名；ES 採 `Contracts.Domain.EventSourcing`，Messaging 拆成訊息契約與 `Contracts.Application.Messaging` port | 負責人同意，2026-10-21 | [Messaging 邊界與遷移](messaging-contract.md)；組態由 host／adapter 擁有，只保留不發布的範例 |
 
 ### 3.1 改名與採用端遷移
 
@@ -343,7 +345,7 @@ ArchPrecept
 ├─ Reference Contract Libraries（選配）
 │  ├─ Domain Model Contracts and Base Types
 │  ├─ Application Ports and Contracts
-│  ├─ Messaging Abstractions
+│  ├─ Messaging Contracts 與 Application Messaging Ports
 │  └─ Event Sourcing Support
 │
 ├─ Conformance
@@ -547,8 +549,9 @@ dotnet-engineering-guardrails/
 │  ├─ Contracts/
 │  │  ├─ ArchPrecept.Contracts.Domain/
 │  │  ├─ ArchPrecept.Contracts.Application/
-│  │  ├─ ArchPrecept.Contracts.Messaging.Abstractions/
-│  │  └─ ArchPrecept.Contracts.EventSourcing/
+│  │  ├─ ArchPrecept.Contracts.Messaging/
+│  │  ├─ ArchPrecept.Contracts.Application.Messaging/
+│  │  └─ ArchPrecept.Contracts.Domain.EventSourcing/
 │  ├─ Analyzers/
 │  │  └─ ArchPrecept.Analyzers.Core/
 │  │     ├─ Classification/
@@ -691,8 +694,8 @@ rules/
 
 - Domain Model Contracts and Base Types
 - Application Ports and Contracts
-- Messaging Abstractions
-- Event Sourcing Support（可選擇初期合併或後續拆分）
+- Messaging Contracts 與 Application Messaging Ports
+- Event Sourcing Support（依 DEC-017 拆為同 repository 的獨立選配套件）
 
 ### 12.2 Guardrails
 
@@ -732,15 +735,16 @@ rules/
 
 ### 12.6 Package ID 命名候選
 
-下表保留能力命名規劃。2026-10-18 後續發布準備採用前四個已有實作的 ID 作 GitHub preview 封裝識別，詳見[套件 inventory](../releases/preview.md#套件-inventory)；其他能力仍是候選。nuget.org ID 可用性尚未確認；四個已實作套件已發布 GitHub Packages，後續發布因可見性確認而停用。
+下表區分現行實作與未來能力。初始四個 ID 已發布 `0.0.1-preview`，詳見[歷史套件 inventory](../releases/preview.md#套件-inventory)。2026-10-21 依 CT-004／CT-005 拆分 Messaging 並新增 Domain.EventSourcing，現行六套件以 `0.0.2-preview` 作本機候選，尚未發布；舊 Messaging.Abstractions ID 不在此次成品中。nuget.org ID 可用性尚未確認，發布狀態與來源實作分開記錄。
 
 | 能力 | Package ID 候選 | 實作狀態 |
 |---|---|---|
 | Domain Contracts | `ArchPrecept.Contracts.Domain` | 已有對應專案 |
 | Application Contracts | `ArchPrecept.Contracts.Application` | 已有對應專案 |
-| Messaging Abstractions | `ArchPrecept.Contracts.Messaging.Abstractions` | 已有對應專案 |
+| Messaging Contracts | `ArchPrecept.Contracts.Messaging` | 共用訊息契約，不依賴 port 或 Configuration |
+| Application Messaging Ports | `ArchPrecept.Contracts.Application.Messaging` | 發布 port 與傳遞 metadata，只依賴 Messaging；見[責任邊界](messaging-contract.md) |
 | 核心 Analyzer | `ArchPrecept.Analyzers.Core` | 已有對應專案 |
-| Event Sourcing Contracts | `ArchPrecept.Contracts.EventSourcing` | 規劃中；目前 `EsAggregateRoot` 仍位於 Domain，不因改名拆分 |
+| Event Sourcing Contracts | `ArchPrecept.Contracts.Domain.EventSourcing` | CT-005 已有對應專案；`EsAggregateRoot` 已移入，待發布；見[行為與遷移契約](event-sourcing-contract.md) |
 | Architecture Testing | `ArchPrecept.ArchitectureTesting` | 尚未建立專案 |
 | Conformance CLI／.NET Tool | `ArchPrecept.Conformance` | 尚未建立專案，CLI 命令名稱另行決策 |
 
@@ -981,7 +985,7 @@ rules/
 | P0 | Supported Roslyn／Compiler Matrix | Phase 1 |
 | P0 | Reference Contracts 的最低 Target Framework | Phase 2 |
 | P1 | `IUseCase`、Aggregate Version、Result 與 Event Sourcing Public API | Phase 2 |
-| P1 | Event Sourcing 是否獨立成品 | Phase 2 |
+| P1 | 完整 Event Sourcing runtime 是否另立產品／repository；核心套件拆分已由 DEC-017 決定 | 實際 storage／projection 等需求確立後 |
 | P1 | ASP.NET Core／Messaging Analyzer 是否初期拆分 | Phase 3 |
 | P1 | 共同版本或獨立版本策略 | Phase 3 |
 | P1 | GitHub Packages、nuget.org 或其他初始 Feed | Phase 3 |
@@ -998,13 +1002,17 @@ src/
 ├─ Contracts/
 │  ├─ ArchPrecept.Contracts.Domain
 │  ├─ ArchPrecept.Contracts.Application
-│  └─ ArchPrecept.Contracts.Messaging.Abstractions
+│  ├─ ArchPrecept.Contracts.Messaging
+│  ├─ ArchPrecept.Contracts.Application.Messaging
+│  └─ ArchPrecept.Contracts.Domain.EventSourcing
 └─ Analyzers/
    └─ ArchPrecept.Analyzers.Core
 
 tests/
-└─ Analyzers/
-   └─ ArchPrecept.Analyzers.Core.Tests
+├─ Analyzers/
+│  └─ ArchPrecept.Analyzers.Core.Tests
+└─ Contracts/
+   └─ ArchPrecept.Contracts.Domain.EventSourcing.Tests
 
 docs/
 samples/
@@ -1012,9 +1020,9 @@ samples/
 
 已知基線：
 
-- Domain、Application 與 Messaging Abstractions 抽取專案；
+- Domain、Application 與 Messaging Contracts 與 Application Messaging Ports 抽取專案；
 - Roslyn Analyzer 初始實作；
-- 17 個 Diagnostic 與 49 個通過測試的規劃紀錄；
+- 17 個 Diagnostic；本輪 51 個 Analyzer 測試、.NET 8／10 各 21 個 ES 測試與六種 consumer 模式，見[候選驗證](../releases/0.0.2-preview.md)；
 - Analyzer 目前主要依簡單型別名稱、Suffix 與方法形狀判定角色；
 - Project 仍為 `IsPackable=false`；
 - Project、預設 Assembly Name 與根 Namespace 已核准採 `ArchPrecept.<Capability>`；公開 Package ID、License 與相容性策略尚未核准。

@@ -8,9 +8,17 @@ try {
     dotnet test ArchPrecept.slnx -c Release --no-build --logger trx --results-directory artifacts/test-results
     dotnet pack ArchPrecept.slnx -c Release --no-build -o $OutputDirectory
     $version = ([xml](Get-Content Directory.Build.props -Raw)).Project.PropertyGroup.Version
-    $ids = @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging.Abstractions')
+    $ids = @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging', 'ArchPrecept.Contracts.Application.Messaging', 'ArchPrecept.Contracts.Domain.EventSourcing')
+    $expectedDependencies = @{
+        'ArchPrecept.Analyzers.Core' = @()
+        'ArchPrecept.Contracts.Domain' = @()
+        'ArchPrecept.Contracts.Application' = @('ArchPrecept.Contracts.Domain')
+        'ArchPrecept.Contracts.Messaging' = @()
+        'ArchPrecept.Contracts.Application.Messaging' = @('ArchPrecept.Contracts.Messaging')
+        'ArchPrecept.Contracts.Domain.EventSourcing' = @('ArchPrecept.Contracts.Domain')
+    }
     $packages = @(Get-ChildItem $OutputDirectory -Filter *.nupkg)
-    if ($packages.Count -ne $ids.Count) { throw 'Expected exactly four packages; use a fresh output directory.' }
+    if ($packages.Count -ne $ids.Count) { throw "Expected exactly $($ids.Count) packages; use a fresh output directory." }
     foreach ($id in $ids) {
         $file = Join-Path $OutputDirectory "$id.$version.nupkg"
         $zip = [IO.Compression.ZipFile]::OpenRead((Resolve-Path $file))
@@ -22,6 +30,12 @@ try {
             $reader = [IO.StreamReader]::new($zip.GetEntry("$id.nuspec").Open())
             try { [xml]$spec = $reader.ReadToEnd() } finally { $reader.Dispose() }
             if ($spec.package.metadata.version -ne $version -or $spec.package.metadata.id -ne $id) { throw 'Package identity mismatch.' }
+            $dependencies = @($spec.package.metadata.dependencies.group.dependency | Where-Object { $_ })
+            $expected = $expectedDependencies[$id]
+            if ($dependencies.Count -ne $expected.Count) { throw "Unexpected runtime dependency count: $id" }
+            foreach ($dependency in $dependencies) {
+                if ($dependency.id -notin $expected -or $dependency.version -ne $version) { throw "Unexpected runtime dependency for $id : $($dependency.id) $($dependency.version)" }
+            }
             if ($spec.package.metadata.repository.url -ne 'https://github.com/YuChia-Wei/ArchPrecept') { throw 'Repository metadata mismatch.' }
             if ($spec.package.metadata.license.type -ne 'expression' -or $spec.package.metadata.license.InnerText -ne 'Apache-2.0') { throw 'Expected Apache-2.0 SPDX license.' }
             foreach ($notice in @('LICENSE', 'NOTICE', 'THIRD-PARTY-NOTICES.md')) {

@@ -1,7 +1,7 @@
-﻿namespace ArchPrecept.Contracts.Messaging.Abstractions;
+namespace ArchPrecept.Contracts.Messaging;
 
 /// <summary>
-/// 整合事件，也可稱 application event，主要為 application 層的業務邏輯執行完後要發出的事件
+/// 表示跨系統或有界上下文交換的整合事件契約，不包含發布或傳輸設定。
 /// </summary>
 /// <remarks>
 /// ref:

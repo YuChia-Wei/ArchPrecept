@@ -1,13 +1,20 @@
 <Solution>
   <Folder Name="/src/Contracts/">
+    <Project Path="src/Contracts/ArchPrecept.Contracts.Domain.EventSourcing/ArchPrecept.Contracts.Domain.EventSourcing.csproj" />
     <Project Path="src/Contracts/ArchPrecept.Contracts.Domain/ArchPrecept.Contracts.Domain.csproj" />
     <Project Path="src/Contracts/ArchPrecept.Contracts.Application/ArchPrecept.Contracts.Application.csproj" />
-    <Project Path="src/Contracts/ArchPrecept.Contracts.Messaging.Abstractions/ArchPrecept.Contracts.Messaging.Abstractions.csproj" />
+    <Project Path="src/Contracts/ArchPrecept.Contracts.Messaging/ArchPrecept.Contracts.Messaging.csproj" />
+    <Project Path="src/Contracts/ArchPrecept.Contracts.Application.Messaging/ArchPrecept.Contracts.Application.Messaging.csproj" />
   </Folder>
+  <Folder Name="/src/" />
   <Folder Name="/src/Analyzers/">
     <Project Path="src/Analyzers/ArchPrecept.Analyzers.Core/ArchPrecept.Analyzers.Core.csproj" />
   </Folder>
+  <Folder Name="/tests/" />
   <Folder Name="/tests/Analyzers/">
     <Project Path="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ArchPrecept.Analyzers.Core.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Contracts/">
+    <Project Path="tests/Contracts/ArchPrecept.Contracts.Domain.EventSourcing.Tests/ArchPrecept.Contracts.Domain.EventSourcing.Tests.csproj" />
   </Folder>
 </Solution>

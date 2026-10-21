@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 
-namespace ArchPrecept.Contracts.Messaging.Abstractions.Configuration;
+namespace MessagingSample.Host;
 
 /// <summary>
 /// 定義組合根可選擇的訊息傳輸設定檔。
@@ -24,7 +24,7 @@ public enum MessagingTransportProfile
 }
 
 /// <summary>
-/// 提供經驗證的訊息代理選擇與連線設定契約。
+/// 示範由 host 擁有的訊息代理選擇與連線設定；不隨 ArchPrecept 契約套件發布。
 /// </summary>
 public sealed class MessagingTransportOptions
 {

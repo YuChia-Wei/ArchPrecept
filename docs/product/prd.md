@@ -2,12 +2,12 @@
 title: "ArchPrecept"
 subtitle: "產品需求文件（PRD）"
 author: "產品負責人：YuChia Wei"
-date: "2026-10-18"
+date: "2026-10-21"
 lang: "zh-TW"
 document_id: "DOC-PRD"
-document_version: "0.4"
+document_version: "0.6"
 status: "draft"
-last_reviewed: "2026-10-18"
+last_reviewed: "2026-10-21"
 canonical_path: "docs/product/prd.md"
 canonical: true
 source_format: "markdown"
@@ -16,7 +16,7 @@ owners:
 related_documents:
   - "DOC-PRODUCT-PLAN"
   - "DOC-GOV-TRACEABILITY"
-supersedes: "0.3"
+supersedes: "0.5"
 ---
 
 # 目錄
@@ -53,8 +53,8 @@ supersedes: "0.3"
 # 文件控制
 
 > **文件狀態：需求基線草案（Requirements Baseline Draft）**<br>
-> **目標 GitHub Repository：** `dotnet-engineering-guardrails`<br>
-> **版本：** `0.4`<br>
+> **目標 GitHub Repository：** `YuChia-Wei/ArchPrecept`<br>
+> **版本：** `0.6`<br>
 > **上游文件：** 《ArchPrecept 產品規劃書》<br>
 > **重要排除事項：** 產品品牌與 Project／Assembly／Namespace 前綴已核准為 ArchPrecept；本文件不核准 NuGet Package ID、套件發布與商標權利。
 
@@ -66,13 +66,13 @@ supersedes: "0.3"
 | 文件目的 | 將產品規劃轉換為可追蹤、可測試且具有明確驗收標準的產品需求 |
 | 適用對象 | 產品負責人、維護者、開發者、Reviewer、測試與 Release 維護者 |
 | 工作名稱 | `ArchPrecept` |
-| Repository 名稱 | `dotnet-engineering-guardrails` |
+| Repository 名稱 | `YuChia-Wei/ArchPrecept` |
 | 需求範圍 | Rule Model、Role Classification、Analyzer、Reference Contracts、Architecture Testing、Conformance、設定、文件治理、雙向追溯、打包與 Release |
 | 關聯治理文件 | 《ArchPrecept 文件治理與規則追溯規範》 |
 | 需求治理 | Requirement ID 穩定；需求變更需同步驗收標準、測試及相容性影響 |
 | 本版排除 | NuGet Package ID 核准、商標權利確認、最終定價與商業化策略 |
 
-本版依產品規劃書 DEC-015／DEC-016 更新品牌與程式碼命名前綴，並保留所有 Requirement ID。既有使用端需由 `EngineeringGuardrails.*` 遷移至 `ArchPrecept.*`、更新引用並重新建置；不宣稱二進位相容。GitHub Repository 改名另行安排，本機目錄 `dotnet-architecture-kit` 固定保留。Package ID 僅有命名候選，所有專案維持不可封裝。
+既有品牌與程式碼命名前綴依 DEC-015／DEC-016 採 ArchPrecept，本機目錄 `dotnet-architecture-kit` 保留。四套件已發布的歷史證據見 [0.0.1-preview 紀錄](../releases/preview.md)。本版依 CT-004／CT-005 與 DEC-017／DEC-018 拆分 Messaging 並新增獨立 Domain.EventSourcing，六個產品專案可封裝為 `0.0.2-preview` 本機候選；尚未發布。公開型別搬移不具來源／二進位相容性，見 [ES 遷移](event-sourcing-contract.md)與 [Messaging 遷移](messaging-contract.md)。所有 Requirement ID 保持不變。
 
 # 執行摘要
 
@@ -201,8 +201,8 @@ Architecture Testing 與完整 Conformance CLI 可在 MVP 後續里程碑完成�
 | CT-001 | Reference Contracts 必須是選配能力 | P0 | Analyzer-only Consumer 可完整 restore／build |
 | CT-002 | Domain Contracts 應提供穩定的 Entity、Aggregate Root、Value Object 與 Domain Event 語意 | P1 | Public API Review、Unit Tests 與文件完成 |
 | CT-003 | Application Contracts 應提供 Use Case、Repository Port、Query Port 與必要結果型別 | P1 | 不引用 Transport／UI Framework 型別 |
-| CT-004 | Messaging Abstractions 必須維持 Transport-neutral | P1 | 不公開 Wolverine、Kafka、RabbitMQ 或 ASP.NET 型別 |
-| CT-005 | Event Sourcing 支援必須明確定義 Replay、Pending Event、Version 與 Commit 語意 | P1 | 行為測試涵蓋重播、不重複記錄與版本檢查 |
+| CT-004 | 訊息契約與 Application 發布 port 必須維持 Transport-neutral | P1 | 不公開 Wolverine、Kafka、RabbitMQ 或 ASP.NET 型別；[責任、相依與遷移](messaging-contract.md) |
+| CT-005 | Event Sourcing 支援必須明確定義 Replay、Pending Event、Version 與 Commit 語意 | P1 | 行為測試涵蓋重播、不重複記錄與版本檢查；[核心契約與驗收案例](event-sourcing-contract.md) |
 | CT-006 | Contracts 不得相依 Analyzer、Architecture Testing 或 Conformance | P0 | Dependency Graph 驗證通過 |
 | CT-007 | Core Contracts 不得成為完整 Runtime Framework | P0 | 不包含 Outbox、ORM、Bus、DI Scanning 等具體實作 |
 | CT-008 | Public API 變更必須進行相容性比較 | P1 | Candidate Release 產生 API Compatibility Report |
@@ -539,13 +539,17 @@ src/
 ├─ Contracts/
 │  ├─ ArchPrecept.Contracts.Domain
 │  ├─ ArchPrecept.Contracts.Application
-│  └─ ArchPrecept.Contracts.Messaging.Abstractions
+│  ├─ ArchPrecept.Contracts.Messaging
+│  ├─ ArchPrecept.Contracts.Application.Messaging
+│  └─ ArchPrecept.Contracts.Domain.EventSourcing
 └─ Analyzers/
    └─ ArchPrecept.Analyzers.Core
 
 tests/
-└─ Analyzers/
-   └─ ArchPrecept.Analyzers.Core.Tests
+├─ Analyzers/
+│  └─ ArchPrecept.Analyzers.Core.Tests
+└─ Contracts/
+   └─ ArchPrecept.Contracts.Domain.EventSourcing.Tests
 
 docs/
 samples/
@@ -553,9 +557,9 @@ samples/
 
 已知基線：
 
-- Domain、Application 與 Messaging Abstractions 抽取專案；
+- Domain、Application、Domain.EventSourcing、Messaging 與 Application.Messaging 契約專案；
 - Roslyn Analyzer 初始實作；
-- 17 個 Diagnostic 與 49 個通過測試的規劃紀錄；
+- 17 個 Diagnostic；本輪 51 個 Analyzer 測試、.NET 8／10 各 21 個 ES 測試與六種 consumer 模式，見[候選驗證](../releases/0.0.2-preview.md)；
 - Analyzer 目前主要依簡單型別名稱、Suffix 與方法形狀判定角色；
 - Project 仍為 `IsPackable=false`；
 - Project、預設 Assembly Name 與根 Namespace 已核准採 `ArchPrecept.<Capability>`；公開 Package ID、License 與相容性策略尚未核准。
