@@ -191,6 +191,7 @@ related_documents:
 | DEC-016 | GitHub Repository 改名另行安排，本機目錄保留 `dotnet-architecture-kit` | 已確認，2026-10-18 生效 | DEC-001 仍記錄目前遠端名稱；本機目錄保留以維持 chat/Codex session 連續性，不要求與線上名稱一致 |
 | DEC-017 | CT-005 的 ES 核心採同 repository、獨立 `.csproj`／NuGet 套件，ES Analyzer 留在 Core | 負責人同意，2026-10-21 | [核心契約與遷移](event-sourcing-contract.md)；完整 ES runtime 是否獨立產品另案評估；本次沒有發布授權 |
 | DEC-018 | 契約按責任與能力命名；ES 採 `Contracts.Domain.EventSourcing`，Messaging 拆成訊息契約與 `Contracts.Application.Messaging` port | 負責人同意，2026-10-21 | [Messaging 邊界與遷移](messaging-contract.md)；組態由 host／adapter 擁有，只保留不發布的範例 |
+| DEC-019 | 六套件採 public、目前維持 `0.0.2-preview`；初期以 `--ff-only` 合併回 main 後直接推送，由 main push 建置與發布 | 負責人同意，2026-10-21 | [初期 CI/CD](../releases/cicd-plan.md)；tag 與其他觸發方式留待後期，不新增 PR／reviewer 門檻 |
 
 ### 3.1 改名與採用端遷移
 

@@ -1,11 +1,7 @@
 name: Publish GitHub preview
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Exact preview version in Directory.Build.props'
-        required: true
-        default: '0.0.2-preview'
+  push:
+    branches: [main]
 
 permissions:
   contents: read
@@ -17,30 +13,48 @@ concurrency:
 jobs:
   gate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      version: ${{ steps.state.outputs.version }}
+      should-publish: ${{ steps.state.outputs.should-publish }}
     steps:
       - uses: actions/checkout@v4
       - name: Check publication readiness and immutable source
         shell: pwsh
         env:
           ENABLED: ${{ vars.PREVIEW_PUBLISH_ENABLED }}
-          REQUESTED_VERSION: ${{ inputs.version }}
         run: |
           if ($env:ENABLED -ne 'true') { throw 'Publication disabled: complete License/provenance and visibility review first.' }
           if ($env:GITHUB_REF -ne 'refs/heads/main') { throw 'Publish from main only.' }
           $version = ([xml](Get-Content Directory.Build.props -Raw)).Project.PropertyGroup.Version
-          if ($version -ne $env:REQUESTED_VERSION -or $version -notmatch '^\d+\.\d+\.\d+-preview(?:\.\d+)?$') { throw 'Preview version mismatch.' }
+          if ($version -notmatch '^\d+\.\d+\.\d+-preview(?:\.\d+)?$') { throw 'Invalid preview version.' }
           if (!(Test-Path LICENSE)) { throw 'Approved LICENSE is required before publication.' }
+      - name: Inspect all package IDs before any upload
+        id: state
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXPECTED_REPOSITORY: ${{ github.repository }}
+        run: |
+          $state = ./eng/Get-PreviewReleaseState.ps1 -Repository $env:EXPECTED_REPOSITORY
+          "version=$($state.version)" >> $env:GITHUB_OUTPUT
+          "should-publish=$($state.shouldPublish.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          $state | ConvertTo-Json -Depth 5 >> $env:GITHUB_STEP_SUMMARY
   validate:
     needs: gate
     uses: ./.github/workflows/ci.yml
   publish:
-    needs: validate
+    needs: [gate, validate]
+    if: needs.gate.outputs.should-publish == 'true'
     runs-on: ubuntu-latest
     environment: github-packages-preview
     permissions:
       contents: read
       packages: write
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: preview-packages
@@ -60,27 +74,26 @@ jobs:
           for package in *.nupkg; do
             dotnet nuget push "$package" --source "https://nuget.pkg.github.com/$PACKAGE_OWNER/index.json" --api-key "$GH_PACKAGES_TOKEN" --no-symbols
           done
+  verify:
+    needs: [gate, validate, publish]
+    if: always() && needs.gate.result == 'success' && needs.validate.result == 'success' && (needs.publish.result == 'success' || needs.publish.result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
       - name: Read back package visibility, repository and version
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PACKAGE_OWNER: ${{ github.repository_owner }}
           EXPECTED_REPOSITORY: ${{ github.repository }}
-          EXPECTED_VERSION: ${{ inputs.version }}
         run: |
-          $ErrorActionPreference = 'Stop'
-          $PSNativeCommandUseErrorActionPreference = $true
-          foreach ($id in @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging', 'ArchPrecept.Contracts.Application.Messaging', 'ArchPrecept.Contracts.Domain.EventSourcing')) {
-            $path = "users/$env:PACKAGE_OWNER/packages/nuget/$id"
-            $package = gh api $path | ConvertFrom-Json
-            if ($package.visibility -ne 'private') { throw "Unexpected visibility for $id" }
-            if ($package.repository.full_name -ne $env:EXPECTED_REPOSITORY) { throw "Repository linkage mismatch for $id" }
-            $versions = gh api "$path/versions" | ConvertFrom-Json
-            if ($env:EXPECTED_VERSION -notin $versions.name) { throw "Published version missing for $id" }
-            Write-Host "$id $env:EXPECTED_VERSION private repository=$($package.repository.full_name)"
-          }
+          ./eng/Get-PreviewReleaseState.ps1 -Repository $env:EXPECTED_REPOSITORY -RequirePublished |
+            ConvertTo-Json -Depth 5 | Tee-Object -FilePath $env:GITHUB_STEP_SUMMARY -Append
   registry-consumer:
-    needs: publish
+    needs: [verify, publish]
+    if: always() && needs.verify.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -94,8 +107,17 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '${{ matrix.sdk }}.0.x'
+      - uses: actions/download-artifact@v4
+        if: needs.publish.result == 'success'
+        with:
+          name: preview-packages
+          path: artifacts/packages
       - name: Restore and exercise published packages with a fresh cache
         shell: pwsh
         env:
           NuGetPackageSourceCredentials_local: Username=${{ github.actor }};Password=${{ secrets.GITHUB_TOKEN }};ValidAuthenticationTypes=Basic
-        run: ./eng/Test-PackageConsumer.ps1 -SdkMajor ${{ matrix.sdk }} -RegistrySource 'https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json'
+          VERIFY_ARTIFACT: ${{ needs.publish.result == 'success' }}
+        run: |
+          $arguments = @{ SdkMajor = ${{ matrix.sdk }}; RegistrySource = 'https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json' }
+          if ($env:VERIFY_ARTIFACT -eq 'true') { $arguments.ExpectedPackageDirectory = 'artifacts/packages' }
+          ./eng/Test-PackageConsumer.ps1 @arguments

@@ -1,7 +1,7 @@
 name: Package CI
 on:
   push:
-    branches: [main, 'codex/**']
+    branches: ['codex/**']
   pull_request:
   workflow_call:
 
@@ -19,7 +19,9 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Build, test and inspect packages
         shell: pwsh
-        run: ./eng/Build-Packages.ps1
+        run: |
+          ./tests/Release/PreviewReleaseState.Tests.ps1
+          ./eng/Build-Packages.ps1
       - uses: actions/upload-artifact@v4
         with:
           name: preview-packages

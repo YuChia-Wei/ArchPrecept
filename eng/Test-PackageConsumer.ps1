@@ -1,13 +1,15 @@
 param(
     [ValidateSet(8, 10)][int]$SdkMajor = 8,
     [string]$PackageDirectory = 'artifacts/packages',
-    [string]$RegistrySource
+    [string]$RegistrySource,
+    [string]$ExpectedPackageDirectory
 )
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
 $root = Split-Path $PSScriptRoot
 $feed = if ($RegistrySource) { $RegistrySource } else { (Resolve-Path (Join-Path $root $PackageDirectory)).Path }
 $version = ([xml](Get-Content (Join-Path $root 'Directory.Build.props') -Raw)).Project.PropertyGroup.Version
+$expectedFeed = if ($ExpectedPackageDirectory) { (Resolve-Path (Join-Path $root $ExpectedPackageDirectory)).Path } else { $null }
 # A fresh cache proves this run consumes these nupkg bytes, not an older local build.
 $work = Join-Path $root "artifacts/consumer-$SdkMajor-$([guid]::NewGuid().ToString('N'))"
 New-Item -ItemType Directory -Path $work -Force | Out-Null
@@ -108,6 +110,17 @@ public sealed class InvalidAggregate : EsAggregateRoot<string>
             if ($code -eq 0 -or $diagnostics -notmatch 'error DBA1009' -or $diagnostics -match 'CS8032|CS9057|AD0001') { throw "EventSourcing analyzer smoke failed: $diagnostics" }
             $global:LASTEXITCODE = 0
         }
+    }
+    if ($expectedFeed) {
+        foreach ($id in $packageIds) {
+            $cacheFolder = Join-Path $env:NUGET_PACKAGES "$($id.ToLowerInvariant())/$version"
+            $cached = Join-Path $cacheFolder "$($id.ToLowerInvariant()).$version.nupkg"
+            $expected = Join-Path $expectedFeed "$id.$version.nupkg"
+            if ((Get-FileHash $cached -Algorithm SHA256).Hash -ne (Get-FileHash $expected -Algorithm SHA256).Hash) { throw "Restored bytes differ from tested artifact: $id" }
+            $metadata = Get-Content (Join-Path $cacheFolder '.nupkg.metadata') -Raw | ConvertFrom-Json
+            if ($metadata.source.TrimEnd('/') -ne $feed.TrimEnd('/')) { throw "Unexpected restore source: $id" }
+        }
+        Write-Host 'All six restored nupkg hashes and cache sources match the tested artifact and selected feed.'
     }
     Write-Host "Package consumers passed on SDK $selected (net$SdkMajor.0): six adoption modes including standalone messages, publisher and host-owned configuration; DBA1001/DBA1009 verified."
 } finally {

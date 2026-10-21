@@ -24,8 +24,8 @@ See the [candidate changes](docs/releases/0.0.2-preview.md),
 [ES contract](docs/product/event-sourcing-contract.md), and
 [Messaging boundaries and migration](docs/product/messaging-contract.md).
 Domain and Analyzer users do not need either optional capability.
-The [release rules and CI/CD plan](docs/releases/cicd-plan.md) distinguish the
-implemented workflows, verified repository settings, and proposed publication gates.
+The [release rules and CI/CD guide](docs/releases/cicd-plan.md) define the initial
+fast-forward merge to main and main-push build/publication flow for six public packages.
 
 The product was renamed from .NET Engineering Guardrails to ArchPrecept on
 2026-10-18. Existing consumers must replace the `EngineeringGuardrails.*` project,
@@ -54,10 +54,10 @@ verification and adoption assets rather than product artifacts.
 Only the six implemented product projects are packable. Tests and samples do not
 ship. ArchPrecept's own code and documentation are licensed under
 [Apache-2.0](LICENSE); dependencies retain their respective licenses.
-The four published packages currently have public visibility. Registry consumption
-passed on .NET 8 and 10. This differs from the initial private visibility expectation;
-further publication is disabled pending the owner's visibility decision. See the
-[publication record](docs/releases/preview.md) for exact source and verification runs.
+All six current package IDs are approved for public publication. The initial flow
+publishes an unshipped version after main-push CI and verifies public metadata and
+registry consumption on .NET 8 and 10. See the [current release record](docs/releases/0.0.2-preview.md)
+for actual publication results and the [previous release record](docs/releases/preview.md) for history.
 
 Analyzer Diagnostic 的觸發條件、範例、修正與 suppression 指引，請見
 [`docs/diagnostics/README.md`](docs/diagnostics/README.md)。
