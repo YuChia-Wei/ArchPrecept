@@ -737,7 +737,7 @@ rules/
 
 ### 12.6 Package ID 命名候選
 
-下表區分現行實作與未來能力。初始四個 ID 已發布 `0.0.1-preview`，詳見[歷史套件 inventory](../releases/preview.md#套件-inventory)。2026-10-21 依 CT-004／CT-005 拆分 Messaging 並新增 Domain.EventSourcing，現行六套件已依 DEC-019 公開發布為 `0.0.2-preview`，見[發布證據](../releases/0.0.2-preview.md)；舊 Messaging.Abstractions ID 不在此次成品中。nuget.org ID 可用性尚未確認，發布狀態與來源實作分開記錄。
+下表區分現行實作與未來能力。初始四個 ID 已發布 `0.0.1-preview`，詳見[歷史套件 inventory](../releases/preview.md#套件-inventory)。2026-10-21 依 CT-004／CT-005 拆分 Messaging 並新增 Domain.EventSourcing；六套件先依 DEC-019 發布 `0.0.2-preview`，再依 DEC-020 發布 [0.0.3-preview](../releases/0.0.3-preview.md)。舊 Messaging.Abstractions ID 不在現行成品中。nuget.org ID 可用性尚未確認，發布狀態與來源實作分開記錄。
 
 | 能力 | Package ID 候選 | 實作狀態 |
 |---|---|---|

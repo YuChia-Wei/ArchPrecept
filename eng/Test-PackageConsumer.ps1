@@ -110,12 +110,18 @@ public sealed class MixedUseCase(IConflictingDispatcher dispatcher)
 {
     public Task ExecuteAsync(CancellationToken ct) => Task.CompletedTask;
 }
+namespace Other { public interface IDomainEventDispatcher { } }
+public sealed class UnrelatedPortUseCase(Other.IDomainEventDispatcher dispatcher)
+{
+    public Task ExecuteAsync(CancellationToken ct) => Task.CompletedTask;
+}
 '@ | Set-Content "$mode/Violation.cs"
             $PSNativeCommandUseErrorActionPreference = $false
             $diagnostics = dotnet build "$mode/Consumer.csproj" -c Release --no-restore 2>&1 | Out-String
             $code = $LASTEXITCODE
             $PSNativeCommandUseErrorActionPreference = $true
             if ($code -eq 0 -or $diagnostics -notmatch 'error DBA1016' -or $diagnostics -match 'CS8032|CS9057|AD0001|error CS\d+') { throw "Mixed port bypass regression: $diagnostics" }
+            if ($diagnostics -notmatch "DBA1016.*MixedUseCase" -or $diagnostics -notmatch "DBA1016.*UnrelatedPortUseCase") { throw "Mixed or unrelated same-name port was incorrectly exempted: $diagnostics" }
             $global:LASTEXITCODE = 0
         }
         if ($mode -eq 'event-sourcing') {
@@ -167,6 +173,7 @@ public sealed class InvalidAggregate : EsAggregateRoot<string>
         $PSNativeCommandUseErrorActionPreference = $true
         $diagnostics | Set-Content "policy/$severity.log"
         if ($diagnostics -match 'CS8032|CS9057|AD0001|error CS\d+') { throw "Invalid policy fixture or analyzer load failure: $diagnostics" }
+        if ($diagnostics -match 'DBA101[89].*UnrelatedValueObject') { throw "Unrelated same-name marker acquired an explicit role: $diagnostics" }
         if (($severity -eq 'error') -ne ($code -ne 0)) { throw "Unexpected $severity exit code $code : $diagnostics" }
         foreach ($id in $ruleIds) {
             if ($severity -eq 'none') { if ($diagnostics -match "(?:error|warning) $id") { throw "Disabled rule still reported: $id" } }

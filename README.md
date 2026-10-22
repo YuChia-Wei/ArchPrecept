@@ -15,8 +15,8 @@ stable-release planning. Current supported consumers are .NET 8 and 10; .NET 11
 will be evaluated after a later release. See the
 [License and provenance assessment](docs/releases/licensing-assessment.md) for the completed review and its scope.
 
-The previous **0.0.2-preview** release contains six public GitHub Packages.
-**0.0.3-preview** adds selectable rule profiles, shared role mapping/evidence,
+The current **0.0.3-preview** release contains six public GitHub Packages.
+It adds selectable rule profiles, shared role mapping/evidence,
 the domain-event dispatcher correction, two opt-in ValueObject rules and a Products API sample.
 Start with the [installation and usage guide](docs/getting-started.md),
 [analyzer policy](docs/product/analyzer-policy.md), and [0.0.3 release record](docs/releases/0.0.3-preview.md)
@@ -25,7 +25,7 @@ CT-005 adds the optional `ArchPrecept.Contracts.Domain.EventSourcing` package.
 CT-004 separates `ArchPrecept.Contracts.Messaging` message contracts from the
 `ArchPrecept.Contracts.Application.Messaging` publisher port. Transport configuration
 belongs to the consuming host; a non-shipping migration example lives under `samples/Messaging/Host`.
-See the [candidate changes](docs/releases/0.0.2-preview.md),
+See the [0.0.2 release history](docs/releases/0.0.2-preview.md),
 [ES contract](docs/product/event-sourcing-contract.md), and
 [Messaging boundaries and migration](docs/product/messaging-contract.md).
 Domain and Analyzer users do not need either optional capability.

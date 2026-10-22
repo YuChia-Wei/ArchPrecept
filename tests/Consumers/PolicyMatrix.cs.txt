@@ -11,6 +11,15 @@ public sealed class Money : IValue
     public int Amount { get; set; }
     public Account Account { get; init; } = new();
 }
+namespace Other
+{
+    public interface IValue { }
+    public sealed class UnrelatedValueObject : IValue
+    {
+        public int Mutable { get; set; }
+        public Account Entity { get; set; } = new();
+    }
+}
 public interface IRepository<TEntity, TId> { }
 public class DbContext { public void SaveChanges() { } }
 public sealed class OrderAggregate { public DbContext Storage { get; } = new(); }
