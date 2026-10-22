@@ -5,7 +5,7 @@
 ## 已決定的規則
 
 - 六個現行套件均採 **public**；舊 Messaging.Abstractions 不新增轉接版本。
-- 此次維持 `0.0.2-preview`，不自動升版。Gate 必須讀回 registry，確認該版本是否存在；不能只依本機判斷未發布。
+- 版號不自動遞增。2026-10-22 負責人明確核准核心工作使用 `0.0.3-preview`；前次為 `0.0.2-preview`。Gate 必須讀回 registry，確認選定版本是否存在；不能只依本機判斷未發布。
 - 初期在工作分支完成 review 與必要驗證，使用 `git merge --ff-only` 回 main，然後直接推送 main。
 - **main push 觸發完整建置、測試、封裝、發布與 registry 驗證**。不另要求 PR、required reviewers 或新增 branch protection。
 - 暫不建立 tag／GitHub Release，也不以 tag 觸發；後期再評估其他觸發與治理方式。
@@ -75,6 +75,6 @@ GitHub NuGet 的 public 套件安裝仍需要驗證；Actions 使用具存取權
 ## 證據邊界與後期評估
 
 合併前本機驗證、main hosted CI、push 成功、public metadata、registry consumer 是分開的結果。
-本文件描述執行規則；實際本次 run 與版本結果記於 [0.0.2-preview 發布紀錄](0.0.2-preview.md)。
+本文件描述執行規則；實際版本結果分別記於 [0.0.3-preview 發布紀錄](0.0.3-preview.md) 與 [0.0.2-preview 歷史紀錄](0.0.2-preview.md)。
 後期才評估 tag／Release、PR 與 branch protection、required reviewers、nuget.org 及正式版維護線；
 這些不作為目前初期發布的前置條件。

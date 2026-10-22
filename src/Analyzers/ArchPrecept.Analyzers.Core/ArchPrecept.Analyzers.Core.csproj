@@ -17,6 +17,11 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="../../../rules/catalog.xml" LogicalName="ArchPrecept.catalog.xml" />
+    <EmbeddedResource Include="../../../rules/configuration.xsd" LogicalName="ArchPrecept.configuration.xsd" />
+    <None Include="../../../rules/configuration.xsd" Pack="true" PackagePath="schemas/" />
+    <None Include="../../../rules/catalog.xsd" Pack="true" PackagePath="schemas/" />
+    <None Include="../../../rules/catalog.xml" Pack="true" PackagePath="rules/" />
     <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" />
   </ItemGroup>
 </Project>

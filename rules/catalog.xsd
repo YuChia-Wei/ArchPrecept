@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="nonempty"><xs:restriction base="xs:token"><xs:minLength value="1" /></xs:restriction></xs:simpleType>
+  <xs:simpleType name="severity"><xs:restriction base="xs:string"><xs:enumeration value="Error" /><xs:enumeration value="Warning" /><xs:enumeration value="Info" /></xs:restriction></xs:simpleType>
+  <xs:element name="RuleCatalog"><xs:complexType><xs:sequence>
+    <xs:element name="Rule" minOccurs="1" maxOccurs="unbounded"><xs:complexType>
+      <xs:attribute name="id" type="nonempty" use="required" /><xs:attribute name="diagnostic" type="nonempty" use="required" />
+      <xs:attribute name="title" type="nonempty" use="required" /><xs:attribute name="message" type="nonempty" use="required" />
+      <xs:attribute name="severity" type="severity" use="required" /><xs:attribute name="profiles" type="nonempty" use="required" />
+      <xs:attribute name="roles" type="nonempty" use="required" /><xs:attribute name="kind" use="required"><xs:simpleType><xs:restriction base="xs:string"><xs:enumeration value="boundary" /><xs:enumeration value="convention" /></xs:restriction></xs:simpleType></xs:attribute>
+      <xs:attribute name="mechanism" use="required" fixed="roslyn-analyzer" /><xs:attribute name="coverage" use="required" fixed="machine-enforced" />
+      <xs:attribute name="document" type="nonempty" use="required" /><xs:attribute name="source" type="nonempty" use="required" />
+      <xs:attribute name="implementation" type="nonempty" use="required" /><xs:attribute name="tests" type="nonempty" use="required" />
+      <xs:attribute name="description" type="nonempty" use="required" />
+    </xs:complexType></xs:element>
+  </xs:sequence><xs:attribute name="version" use="required" fixed="1" /></xs:complexType>
+    <xs:unique name="uniqueRule"><xs:selector xpath="Rule" /><xs:field xpath="@id" /></xs:unique>
+    <xs:unique name="uniqueDiagnostic"><xs:selector xpath="Rule" /><xs:field xpath="@diagnostic" /></xs:unique>
+  </xs:element>
+</xs:schema>

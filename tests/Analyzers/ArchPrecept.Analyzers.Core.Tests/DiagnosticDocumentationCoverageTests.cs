@@ -21,18 +21,16 @@ public sealed class DiagnosticDocumentationCoverageTests
     public void Every_analyzer_diagnostic_has_a_complete_zh_tw_manual()
     {
         var repositoryRoot = FindRepositoryRoot();
-        var descriptorPath = Path.Combine(
-            repositoryRoot,
-            "src",
-            "Analyzers",
-            "ArchPrecept.Analyzers.Core",
-            "RuleDescriptors.cs");
-        var diagnosticIds = Regex.Matches(File.ReadAllText(descriptorPath), "id:\\s*\\\"(DBA\\d{4})\\\"")
-            .Select(match => match.Groups[1].Value)
+        var descriptors = typeof(RepositoryQueryMethodAnalyzer).Assembly.GetTypes()
+            .Where(type => !type.IsAbstract && typeof(Microsoft.CodeAnalysis.Diagnostics.DiagnosticAnalyzer).IsAssignableFrom(type))
+            .Select(type => (Microsoft.CodeAnalysis.Diagnostics.DiagnosticAnalyzer)Activator.CreateInstance(type)!)
+            .SelectMany(analyzer => analyzer.SupportedDiagnostics).GroupBy(descriptor => descriptor.Id)
+            .Select(group => group.First()).ToArray();
+        var diagnosticIds = descriptors.Select(descriptor => descriptor.Id)
             .Order()
             .ToArray();
 
-        Assert.Equal(17, diagnosticIds.Length);
+        Assert.Equal(21, diagnosticIds.Length);
         Assert.Equal(diagnosticIds.Length, diagnosticIds.Distinct(StringComparer.Ordinal).Count());
 
         var documentationDirectory = Path.Combine(repositoryRoot, "docs", "diagnostics");
@@ -41,7 +39,7 @@ public sealed class DiagnosticDocumentationCoverageTests
 
         var index = File.ReadAllText(indexPath);
         AssertMetadataField(index, "document_id", "DOC-DIAGNOSTICS");
-        AssertMetadataField(index, "document_version", "0.2");
+        Assert.Matches("(?m)^document_version: \"?[0-9]+\\.[0-9]+\"?", index);
         AssertMetadataField(index, "status", "draft");
         AssertMetadataField(index, "lang", "zh-TW");
         AssertMetadataField(index, "canonical_path", "docs/diagnostics/README.md");
@@ -59,7 +57,7 @@ public sealed class DiagnosticDocumentationCoverageTests
 
             var document = File.ReadAllText(documentPath);
             AssertMetadataField(document, "diagnostic_id", diagnosticId);
-            AssertMetadataField(document, "document_version", "0.2");
+            Assert.Matches("(?m)^document_version: \"?[0-9]+\\.[0-9]+\"?", document);
             AssertMetadataField(document, "status", "draft");
             AssertMetadataField(document, "lang", "zh-TW");
             AssertMetadataField(document, "canonical_path", $"docs/diagnostics/{diagnosticId}.md");
@@ -70,6 +68,8 @@ public sealed class DiagnosticDocumentationCoverageTests
             }
 
             Assert.Contains($"[{diagnosticId}]({diagnosticId}.md)", index, StringComparison.Ordinal);
+            Assert.Equal($"https://github.com/YuChia-Wei/ArchPrecept/blob/main/docs/diagnostics/{diagnosticId}.md",
+                descriptors.Single(descriptor => descriptor.Id == diagnosticId).HelpLinkUri);
         }
     }
 
@@ -79,9 +79,9 @@ public sealed class DiagnosticDocumentationCoverageTests
         Assert.Matches(pattern, document);
     }
 
-    private static string FindRepositoryRoot()
+    internal static string FindRepositoryRoot([System.Runtime.CompilerServices.CallerFilePath] string sourcePath = "")
     {
-        foreach (var startPath in new[] { AppContext.BaseDirectory, Directory.GetCurrentDirectory() })
+        foreach (var startPath in new[] { Path.GetDirectoryName(sourcePath)!, AppContext.BaseDirectory, Directory.GetCurrentDirectory() })
         {
             for (var directory = new DirectoryInfo(startPath); directory is not null; directory = directory.Parent)
             {

@@ -34,7 +34,7 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        context.RegisterSyntaxNodeAction(AnalyzeController, SyntaxKind.ClassDeclaration);
+        context.RegisterSyntaxNodeAction(AnalyzeController, SyntaxKind.ClassDeclaration, SyntaxKind.RecordDeclaration);
     }
 
     /// <summary>
@@ -42,14 +42,9 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static void AnalyzeController(SyntaxNodeAnalysisContext context)
     {
-        var declaration = (ClassDeclarationSyntax)context.Node;
-        if (!declaration.Identifier.ValueText.EndsWith("Controller", StringComparison.Ordinal))
-        {
-            return;
-        }
-
+        var declaration = (TypeDeclarationSyntax)context.Node;
         var controllerSymbol = context.SemanticModel.GetDeclaredSymbol(declaration, context.CancellationToken);
-        if (controllerSymbol is null || controllerSymbol.IsAbstract)
+        if (controllerSymbol is null || controllerSymbol.IsAbstract || !RoleClassifier.For(context.Compilation, context.Options).Is(controllerSymbol, "controller"))
         {
             return;
         }
@@ -71,17 +66,17 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
         {
             foreach (var parameter in constructor.Parameters)
             {
-                if (!IsForbiddenControllerDependency(parameter.Type))
+                if (!IsForbiddenControllerDependency(parameter.Type, RoleClassifier.For(context.Compilation, context.Options)))
                 {
                     continue;
                 }
 
                 var location = parameter.Locations.FirstOrDefault() ?? controllerSymbol.Locations[0];
-                context.ReportDiagnostic(Diagnostic.Create(
+                DiagnosticReporting.Report(context,
                     RuleDescriptors.ControllerForbiddenDependency,
                     location,
                     controllerSymbol.Name,
-                    parameter.Type.Name));
+                    parameter.Type.Name);
             }
         }
     }
@@ -89,24 +84,11 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
     /// <summary>
     /// 判斷注入型別是否違反 Controller 應依賴 Use Case 邊界的規則。
     /// </summary>
-    private static bool IsForbiddenControllerDependency(ITypeSymbol type)
+    private static bool IsForbiddenControllerDependency(ITypeSymbol type, RoleClassifier classifier)
     {
-        var name = type.Name;
-        if (name.EndsWith("Handler", StringComparison.Ordinal)
-            || name is "IMessageBus" or "IMediator" or "IDispatcher"
-            || name.EndsWith("Dispatcher", StringComparison.Ordinal)
-            || name.EndsWith("DomainService", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        if (!name.EndsWith("Repository", StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        return !name.EndsWith("QueryRepository", StringComparison.Ordinal)
-            && !type.AllInterfaces.Any(contract => contract.Name == "IQueryRepository");
+        return classifier.Is(type, "handler") || classifier.Is(type, "bus")
+            || classifier.Is(type, "domain-event-dispatcher") || classifier.Is(type, "domain-service")
+            || (classifier.Is(type, "repository") && !classifier.Is(type, "query-repository"));
     }
 
     /// <summary>
@@ -114,7 +96,7 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static void AnalyzeApiControllerAttribute(
         SyntaxNodeAnalysisContext context,
-        ClassDeclarationSyntax declaration,
+        TypeDeclarationSyntax declaration,
         INamedTypeSymbol controllerSymbol)
     {
         var hasApiControllerAttribute = controllerSymbol
@@ -127,10 +109,10 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        context.ReportDiagnostic(Diagnostic.Create(
+        DiagnosticReporting.Report(context,
             RuleDescriptors.ControllerApiAttribute,
             declaration.Identifier.GetLocation(),
-            controllerSymbol.Name));
+            controllerSymbol.Name);
     }
 
     /// <summary>
@@ -138,21 +120,21 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static void AnalyzePersistenceAccess(
         SyntaxNodeAnalysisContext context,
-        ClassDeclarationSyntax declaration)
+        TypeDeclarationSyntax declaration)
     {
         foreach (var typeSyntax in declaration.DescendantNodes().OfType<TypeSyntax>())
         {
             var type = context.SemanticModel.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
-            if (!IsDbContext(type))
+            if (!RoleClassifier.For(context.Compilation, context.Options).Is(type, "db-context"))
             {
                 continue;
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(
+            DiagnosticReporting.Report(context,
                 RuleDescriptors.ControllerPersistenceAccess,
                 typeSyntax.GetLocation(),
                 declaration.Identifier.ValueText,
-                type?.Name ?? typeSyntax.ToString()));
+                type?.Name ?? typeSyntax.ToString());
         }
 
         foreach (var invocation in declaration.DescendantNodes().OfType<InvocationExpressionSyntax>())
@@ -164,11 +146,11 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
                 continue;
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(
+            DiagnosticReporting.Report(context,
                 RuleDescriptors.ControllerPersistenceAccess,
                 invocation.GetLocation(),
                 declaration.Identifier.ValueText,
-                methodName));
+                methodName);
         }
     }
 
@@ -177,40 +159,24 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static void AnalyzeDirectConstruction(
         SyntaxNodeAnalysisContext context,
-        ClassDeclarationSyntax declaration)
+        TypeDeclarationSyntax declaration)
     {
         foreach (var creation in declaration.DescendantNodes().OfType<ObjectCreationExpressionSyntax>())
         {
             var type = context.SemanticModel.GetTypeInfo(creation, context.CancellationToken).Type;
             var typeName = type?.Name ?? creation.Type.ToString();
-            if (!typeName.EndsWith("Handler", StringComparison.Ordinal)
-                && !typeName.EndsWith("UseCase", StringComparison.Ordinal))
+            if (!RoleClassifier.For(context.Compilation, context.Options).Is(type, "handler")
+                && !RoleClassifier.For(context.Compilation, context.Options).Is(type, "use-case"))
             {
                 continue;
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(
+            DiagnosticReporting.Report(context,
                 RuleDescriptors.ControllerDirectConstruction,
                 creation.Type.GetLocation(),
                 declaration.Identifier.ValueText,
-                typeName));
+                typeName);
         }
-    }
-
-    /// <summary>
-    /// 判斷型別或其基底型別是否為 <c>DbContext</c>。
-    /// </summary>
-    private static bool IsDbContext(ITypeSymbol? type)
-    {
-        for (var current = type as INamedTypeSymbol; current is not null; current = current.BaseType)
-        {
-            if (current.Name == "DbContext")
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /// <summary>

@@ -3,7 +3,7 @@
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
-    <Version>0.0.2-preview</Version>
+    <Version>0.0.3-preview</Version>
     <!-- Only explicitly opted-in product projects ship. -->
     <IsPackable>false</IsPackable>
     <Authors>YuChia-Wei</Authors>

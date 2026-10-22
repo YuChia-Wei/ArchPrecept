@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <PackageReference Include="ArchPrecept.Contracts.Application" Version="[$(ArchPreceptVersion)]" />
+    <PackageReference Include="ArchPrecept.Analyzers.Core" Version="[$(ArchPreceptVersion)]" PrivateAssets="all" />
+    <AdditionalFiles Include="archprecept.project.xml" />
+  </ItemGroup>
+</Project>

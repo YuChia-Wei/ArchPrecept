@@ -1,12 +1,18 @@
-param([string]$OutputDirectory = 'artifacts/packages')
+param([string]$OutputDirectory = 'artifacts/packages', [string]$ScratchRoot)
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
 Push-Location (Split-Path $PSScriptRoot)
 try {
-    dotnet restore ArchPrecept.slnx
-    dotnet build ArchPrecept.slnx -c Release --no-restore
-    dotnet test ArchPrecept.slnx -c Release --no-build --logger trx --results-directory artifacts/test-results
-    dotnet pack ArchPrecept.slnx -c Release --no-build -o $OutputDirectory
+    $buildArguments = @()
+    $resultsDirectory = 'artifacts/test-results'
+    if ($ScratchRoot) {
+        $buildArguments += @('--artifacts-path', (Join-Path $ScratchRoot 'build'))
+        $resultsDirectory = Join-Path $ScratchRoot 'test-results'
+    }
+    dotnet restore ArchPrecept.slnx @buildArguments
+    dotnet build ArchPrecept.slnx -c Release --no-restore @buildArguments
+    dotnet test ArchPrecept.slnx -c Release --no-build --logger trx --results-directory $resultsDirectory @buildArguments
+    dotnet pack ArchPrecept.slnx -c Release --no-build -o $OutputDirectory @buildArguments
     $version = ([xml](Get-Content Directory.Build.props -Raw)).Project.PropertyGroup.Version
     $ids = @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging', 'ArchPrecept.Contracts.Application.Messaging', 'ArchPrecept.Contracts.Domain.EventSourcing')
     $expectedDependencies = @{

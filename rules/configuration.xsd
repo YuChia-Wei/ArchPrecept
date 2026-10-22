@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="nonempty"><xs:restriction base="xs:token"><xs:minLength value="1" /></xs:restriction></xs:simpleType>
+  <xs:simpleType name="severity"><xs:restriction base="xs:string">
+    <xs:enumeration value="error" /><xs:enumeration value="warning" /><xs:enumeration value="suggestion" /><xs:enumeration value="silent" /><xs:enumeration value="none" />
+  </xs:restriction></xs:simpleType>
+  <xs:element name="ArchPrecept">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="Role"><xs:complexType>
+          <xs:attribute name="name" type="nonempty" use="required" />
+          <xs:attribute name="metadataName" type="nonempty" use="required" />
+          <xs:attribute name="assembly" type="nonempty" use="required" />
+        </xs:complexType></xs:element>
+        <xs:element name="Convention"><xs:complexType>
+          <xs:attribute name="role" type="nonempty" use="required" />
+          <xs:attribute name="suffix" type="nonempty" /><xs:attribute name="namespace" type="nonempty" />
+        </xs:complexType></xs:element>
+        <xs:element name="Expected"><xs:complexType>
+          <xs:attribute name="type" type="nonempty" use="required" /><xs:attribute name="role" type="nonempty" use="required" />
+        </xs:complexType></xs:element>
+        <xs:element name="Rule"><xs:complexType>
+          <xs:attribute name="id" type="nonempty" use="required" /><xs:attribute name="enabled" type="xs:boolean" />
+          <xs:attribute name="severity" type="severity" />
+        </xs:complexType></xs:element>
+      </xs:choice>
+      <xs:attribute name="version" use="required" fixed="1" />
+      <xs:attribute name="profiles" type="nonempty" />
+      <xs:attribute name="namingConventions" type="xs:boolean" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

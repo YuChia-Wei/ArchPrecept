@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RuleCatalog version="1">
+  <Rule id="AP-REPOSITORY-001" diagnostic="DBA1001" title="Repository contract violation" message="{0}"
+    severity="Error" profiles="legacy,core" roles="aggregate-repository,query-repository,compatibility-repository,generic-repository" kind="convention" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1001.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/RepositoryQueryMethodAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/RepositoryQueryMethodAnalyzerTests.cs"
+    description="Aggregate repositories, query repositories, and compatibility contracts must preserve their distinct semantic boundaries." />
+  <Rule id="AP-APPLICATION-001" diagnostic="DBA1002" title="Use case or handler should not inject IServiceProvider" message="Use case or handler '{0}' injects IServiceProvider; inject explicit dependencies instead"
+    severity="Error" profiles="legacy,core" roles="use-case,handler" kind="boundary" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1002.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/UseCaseServiceProviderInjectionAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/UseCaseServiceProviderInjectionAnalyzerTests.cs"
+    description="Use cases should declare explicit dependencies and avoid service locator style access." />
+  <Rule id="AP-DOMAIN-001" diagnostic="DBA1003" title="Aggregate should not depend on infrastructure types" message="Aggregate/entity '{0}' references infrastructure type '{1}'"
+    severity="Warning" profiles="legacy,core" roles="aggregate,entity" kind="boundary" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1003.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/AggregateInfrastructureDependencyAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/AggregateInfrastructureDependencyAnalyzerTests.cs"
+    description="Domain aggregates and entities must remain independent from infrastructure concerns such as EF Core DbContext." />
+  <Rule id="AP-HTTP-001" diagnostic="DBA1004" title="Controller should declare ApiControllerAttribute" message="Controller '{0}' does not declare ApiControllerAttribute"
+    severity="Warning" profiles="legacy,web-api" roles="controller" kind="convention" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1004.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/ControllerComplianceAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ControllerComplianceAnalyzerTests.cs"
+    description="ASP.NET Core API controllers should use ApiControllerAttribute for consistent API behavior and validation." />
+  <Rule id="AP-HTTP-002" diagnostic="DBA1005" title="Controller should not access persistence directly" message="Controller '{0}' directly references persistence member or type '{1}'"
+    severity="Error" profiles="legacy,web-api" roles="controller" kind="boundary" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1005.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/ControllerComplianceAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ControllerComplianceAnalyzerTests.cs"
+    description="Controllers should delegate application behavior and must not use DbContext or SaveChanges directly." />
+  <Rule id="AP-HTTP-003" diagnostic="DBA1006" title="Controller should not construct handlers or use cases" message="Controller '{0}' directly constructs '{1}'; inject a Use Case interface instead"
+    severity="Error" profiles="legacy,web-api" roles="controller" kind="boundary" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1006.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/ControllerComplianceAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ControllerComplianceAnalyzerTests.cs"
+    description="Controllers should receive explicit Use Case interfaces through dependency injection." />
+  <Rule id="AP-MAPPER-001" diagnostic="DBA1007" title="Mapper should be static" message="Mapper '{0}' must be a static class"
+    severity="Warning" profiles="legacy,framework" roles="mapper" kind="convention" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1007.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/MapperComplianceAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/MapperComplianceAnalyzerTests.cs"
+    description="Object mappers are deterministic pure transformations and must not have instance state or an injection graph." />
+  <Rule id="AP-MAPPER-002" diagnostic="DBA1008" title="Mapper should not depend on application or persistence services" message="Mapper '{0}' references forbidden dependency type '{1}'"
+    severity="Warning" profiles="legacy,core" roles="mapper" kind="boundary" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1008.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/MapperComplianceAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/MapperComplianceAnalyzerTests.cs"
+    description="Object mappers must not depend on repositories, use cases, or handlers." />
+  <Rule id="AP-EVENTSOURCING-001" diagnostic="DBA1009" title="Event-sourced aggregate state should change through event transitions" message="Event-sourced aggregate '{0}' mutates member '{1}' outside a When transition"
+    severity="Warning" profiles="legacy,event-sourcing" roles="event-sourced-aggregate" kind="convention" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1009.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/EventSourcedAggregateMutationAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/EventSourcedAggregateMutationAnalyzerTests.cs"
+    description="EsAggregateRoot state changes must be applied by event transition methods so replay produces the same state." />
+  <Rule id="AP-APPLICATION-002" diagnostic="DBA1010" title="Use case should not use service locator or attribute injection" message="Use case or handler '{0}' uses forbidden dependency resolution '{1}'"
+    severity="Error" profiles="legacy,core" roles="use-case,handler" kind="boundary" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1010.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/UseCaseServiceProviderInjectionAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/UseCaseServiceProviderInjectionAnalyzerTests.cs"
+    description="Use cases must declare explicit constructor dependencies and must not use service locator or attribute-based injection." />
+  <Rule id="AP-HANDLER-001" diagnostic="DBA1011" title="Handler should not mix command and query responsibilities" message="Handler '{0}' handles both command and query marker types"
+    severity="Error" profiles="legacy,messaging" roles="handler,dispatch-handler" kind="convention" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1011.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/UseCaseServiceProviderInjectionAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/UseCaseServiceProviderInjectionAnalyzerTests.cs"
+    description="CQRS handlers must keep command and query responsibilities separate." />
+  <Rule id="AP-APPLICATION-003" diagnostic="DBA1012" title="Use case should not construct repositories" message="Use case or handler '{0}' directly constructs repository type '{1}'"
+    severity="Error" profiles="legacy,core" roles="use-case,handler" kind="boundary" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1012.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/UseCaseServiceProviderInjectionAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/UseCaseServiceProviderInjectionAnalyzerTests.cs"
+    description="Repository ports must be injected into use cases; concrete repository construction belongs in the composition root." />
+  <Rule id="AP-PROJECTION-001" diagnostic="DBA1013" title="Projection should not perform persistence writes" message="Projection '{0}' calls persistence write operation '{1}'"
+    severity="Warning" profiles="legacy,core" roles="projection" kind="boundary" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1013.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/ProjectionReadOnlyAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ProjectionReadOnlyAnalyzerTests.cs"
+    description="Projection services are read-side ports and must not call DbContext or DbSet write operations." />
+  <Rule id="AP-HTTP-004" diagnostic="DBA1014" title="Controller must depend on a Use Case boundary" message="Controller '{0}' injects forbidden dependency '{1}'; inject a Use Case interface instead"
+    severity="Error" profiles="legacy,framework" roles="controller" kind="convention" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1014.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/ControllerComplianceAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ControllerComplianceAnalyzerTests.cs"
+    description="Controllers must not inject handlers, buses, dispatchers, write repositories, or Domain services. Query repositories and query services are reserved for explicitly selected pure-query endpoints." />
+  <Rule id="AP-USECASE-001" diagnostic="DBA1015" title="Use Case contract shape is invalid" message="Use Case '{0}' violates the canonical contract: {1}"
+    severity="Error" profiles="legacy,framework" roles="use-case" kind="convention" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1015.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/UseCaseServiceProviderInjectionAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/UseCaseServiceProviderInjectionAnalyzerTests.cs"
+    description="Use Cases use ExecuteAsync, a non-optional CancellationToken, and transport-neutral input/output contracts, and must not expose Handler entry points." />
+  <Rule id="AP-USECASE-002" diagnostic="DBA1016" title="Use Case dependency is forbidden" message="Use Case '{0}' depends on forbidden type '{1}'"
+    severity="Error" profiles="legacy,framework" roles="use-case" kind="convention" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1016.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/UseCaseServiceProviderInjectionAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/UseCaseServiceProviderInjectionAnalyzerTests.cs"
+    description="Use Cases must not depend directly on IMessageBus, mediators/dispatchers, transport contracts, or another Use Case." />
+  <Rule id="AP-HANDLER-002" diagnostic="DBA1017" title="Dispatch Handler must adapt to one Use Case" message="Dispatch Handler '{0}' violates the Handler boundary: {1}"
+    severity="Error" profiles="legacy,framework" roles="dispatch-handler" kind="convention" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1017.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/UseCaseServiceProviderInjectionAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/UseCaseServiceProviderInjectionAnalyzerTests.cs"
+    description="Command and Query dispatch handlers map delivery input and invoke exactly one Use Case without depending on repositories or Domain services." />
+  <Rule id="AP-VALUEOBJECT-001" diagnostic="DBA1018" title="Value Object must not expose mutable state" message="Value Object '{0}' has mutable state at '{1}': {2}"
+    severity="Warning" profiles="ddd" roles="value-object" kind="boundary" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1018.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/ValueObjectAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ValueObjectAnalyzerTests.cs"
+    description="Opt-in DDD policy rejects setters, mutable fields and known mutable containers; init alone is permitted." />
+  <Rule id="AP-VALUEOBJECT-002" diagnostic="DBA1019" title="Value Object must not reference an Entity" message="Value Object '{0}' references an Entity through '{1}'"
+    severity="Warning" profiles="ddd" roles="value-object" kind="boundary" mechanism="roslyn-analyzer" coverage="machine-enforced"
+    document="docs/diagnostics/DBA1019.md" source="docs/product/analyzer-policy.md" implementation="src/Analyzers/ArchPrecept.Analyzers.Core/ValueObjectAnalyzer.cs" tests="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ValueObjectAnalyzerTests.cs"
+    description="Opt-in DDD policy checks declared instance state and known container paths; it does not infer arbitrary wrapper storage." />
+</RuleCatalog>

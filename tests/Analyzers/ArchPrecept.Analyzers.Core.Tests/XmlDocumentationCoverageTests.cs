@@ -44,9 +44,9 @@ public sealed class XmlDocumentationCoverageTests
             + string.Join(Environment.NewLine, missingDocumentation));
     }
 
-    private static string FindRepositoryRoot()
+    private static string FindRepositoryRoot([System.Runtime.CompilerServices.CallerFilePath] string sourcePath = "")
     {
-        foreach (var startPath in new[] { AppContext.BaseDirectory, Directory.GetCurrentDirectory() })
+        foreach (var startPath in new[] { Path.GetDirectoryName(sourcePath)!, AppContext.BaseDirectory, Directory.GetCurrentDirectory() })
         {
             for (var directory = new DirectoryInfo(startPath); directory is not null; directory = directory.Parent)
             {

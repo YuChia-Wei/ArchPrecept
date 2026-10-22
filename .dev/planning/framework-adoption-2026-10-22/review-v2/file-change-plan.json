@@ -1,0 +1,178 @@
+{
+  "artifact_kind": "human-review-file-plan",
+  "status": "draft-complete-for-current-review",
+  "generated_at_utc": "2026-10-22T14:15:07.442131+00:00",
+  "target_root": "C:\\Github\\YuChia\\dotnet-architecture-kit",
+  "target_head": "20c82b731385e8f1c939b939fb86ae6bd5dcfc05",
+  "applied": false,
+  "installation_performed": false,
+  "source_code_changed": false,
+  "document_changes": [
+    {
+      "action": "add",
+      "target_path": "AGENTS.md",
+      "target_absolute_path": "C:\\Github\\YuChia\\dotnet-architecture-kit\\AGENTS.md",
+      "draft_path": "C:\\Users\\h4227\\.codex\\visualizations\\2026\\10\\22\\01a163aa-80d1-7f52-98f7-6a0aa5fa5389\\review-v2\\project\\AGENTS.md",
+      "before": null,
+      "after": {
+        "sha256": "82cb61833b9e559bf1f30384c434626c9c7c10d1c0a6d685284917a974c6eaec",
+        "size_bytes": 6094,
+        "line_count": 69,
+        "encoding": "utf-8-no-bom",
+        "line_ending": "LF"
+      },
+      "ownership": "target-owned",
+      "activation": "draft; not copied to target; no installation or normative adoption"
+    },
+    {
+      "action": "add",
+      "target_path": ".dev/README.MD",
+      "target_absolute_path": "C:\\Github\\YuChia\\dotnet-architecture-kit\\.dev\\README.MD",
+      "draft_path": "C:\\Users\\h4227\\.codex\\visualizations\\2026\\10\\22\\01a163aa-80d1-7f52-98f7-6a0aa5fa5389\\review-v2\\project\\.dev\\README.MD",
+      "before": null,
+      "after": {
+        "sha256": "af01a448a756376ce6ad690a9601e79fa3dca5be72898b1ec42eed3fdbd86336",
+        "size_bytes": 4944,
+        "line_count": 55,
+        "encoding": "utf-8-no-bom",
+        "line_ending": "LF"
+      },
+      "ownership": "target-owned",
+      "activation": "draft; not copied to target; no installation or normative adoption"
+    },
+    {
+      "action": "add",
+      "target_path": ".dev/standards/framework-adoption.md",
+      "target_absolute_path": "C:\\Github\\YuChia\\dotnet-architecture-kit\\.dev\\standards\\framework-adoption.md",
+      "draft_path": "C:\\Users\\h4227\\.codex\\visualizations\\2026\\10\\22\\01a163aa-80d1-7f52-98f7-6a0aa5fa5389\\review-v2\\project\\.dev\\standards\\framework-adoption.md",
+      "before": null,
+      "after": {
+        "sha256": "2f89af21949206879f475a26c75c820ad7b45b953b3dc2913059c1448c774579",
+        "size_bytes": 21752,
+        "line_count": 159,
+        "encoding": "utf-8-no-bom",
+        "line_ending": "LF"
+      },
+      "ownership": "target-owned",
+      "activation": "draft; not copied to target; no installation or normative adoption"
+    }
+  ],
+  "document_delta": {
+    "add": 3,
+    "modify": 0,
+    "remove": 0
+  },
+  "unchanged_source_pins": [
+    {
+      "path": "README.md",
+      "sha256": "644574bef4bb97c7f9dc1372419f23d9369d7ce18d0fd5c628dc844b5d6c478e"
+    },
+    {
+      "path": "docs/product/product-plan.md",
+      "sha256": "d84a3c6c9d0afc4a74d57b13bdfcbacc26cb8da23f2d2c10389edc79f15cbe16"
+    },
+    {
+      "path": "docs/product/prd.md",
+      "sha256": "01f811c9d35a0f52d023fd4c3934f0758cd1f241b6724a252e3087710fbec292"
+    },
+    {
+      "path": "docs/product/event-sourcing-contract.md",
+      "sha256": "93ea9e261d9d46ee369ee21f4a142ed0a2f9ffa617b1dc7d6f67ae24e8f6badb"
+    },
+    {
+      "path": "docs/product/messaging-contract.md",
+      "sha256": "3966e45694f8f59485a940d673d20d5a31d38cd17390ab9f2726c4d7c5ba0bbe"
+    },
+    {
+      "path": "docs/governance/document-governance-and-traceability.md",
+      "sha256": "fa4290b82a5ec8ccff1d700060c7074382617d994b6571d8da9d250c7d65b78b"
+    },
+    {
+      "path": "docs/releases/cicd-plan.md",
+      "sha256": "cda07f5c5d73df539e5bb767fb1b67a1f49309eebb51af6dd073bcdb31d9dad3"
+    },
+    {
+      "path": "docs/releases/0.0.2-preview.md",
+      "sha256": "523d8e2094de782e51165e0212db3644b25a59c0f1984db13303b63e0b4e4aea"
+    },
+    {
+      "path": "global.json",
+      "sha256": "b132d105648c7dbe49f2c391fe0b9898027e470ddc7cfd4d7239af5df63401fa"
+    },
+    {
+      "path": "Directory.Build.props",
+      "sha256": "d506ff99ebb33e04c9b16a72d839022508cc4e490d3893c93929c4455c76faf3"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "8ae9e2e3b6c34eaede72a7c7c3d1457fbd38972574656154a37428eafabc359c"
+    }
+  ],
+  "reference_pins_purpose": "本次審閱快照；不是新批准帳冊，不要求未來任務逐項重新接受既有決策。",
+  "pending_release_dependent_files": [
+    {
+      "path": ".ai/custom/installation.json",
+      "action": "add-after-release-pin-and-approval",
+      "content_status": "not-generated; selection-intent-v0.21.json is not installer input"
+    },
+    {
+      "path": ".ai/core/skills/**",
+      "action": "derive-from-public-v0.21.0",
+      "count": null
+    },
+    {
+      "path": ".ai/core/knowledge/**",
+      "action": "derive-from-public-v0.21.0",
+      "count": null
+    },
+    {
+      "path": ".agents/skills/<selected>/SKILL.md",
+      "action": "derive-from-public-v0.21.0",
+      "proposed_skill_count": 16,
+      "count_verified_in_release": false
+    },
+    {
+      "path": ".ai/framework.lock",
+      "action": "engine-generated-only-on-authorized-apply"
+    },
+    {
+      "path": ".ai/local/installation.guard",
+      "action": "engine-generated-only-on-authorized-apply"
+    }
+  ],
+  "transient_markers": [
+    ".ai/framework.operation",
+    ".ai/config-transition.operation"
+  ],
+  "excluded_changes": [
+    "src/**",
+    "tests/**",
+    "samples/**",
+    "docs/**",
+    "rules/**",
+    "README.md",
+    "build/CI configuration",
+    "existing custom agent/configuration",
+    "GitHub Issues/Projects",
+    "publication",
+    "memory/workflow store initialization",
+    "Claude/subagent/model settings"
+  ],
+  "prior_v0202_plan": "保留前輪 386-file managed payload 與選配作比較，不作 v0.21.0 final apply plan。",
+  "installer_plan_sha256": null,
+  "installer_plan_reason": "v0.21.0 未發布，完整 managed inventory 及實際 project_edits/authority pins 須在正式成品與文件核准後重新產生。",
+  "review_patch": "proposed-project-documents.patch",
+  "checks": {
+    "target_clean": true,
+    "relative_file_links_checked": 32,
+    "relative_file_links_valid": true,
+    "user_graph_block_preserved_exactly": true,
+    "json_valid": true,
+    "product_build_tests": "not-run; documentation-only review artifacts",
+    "installation_and_ai_runtime_acceptance": "not-performed",
+    "framework_source_paths_verified_at_pinned_commit": 14,
+    "git_apply_check_exit_code": 0,
+    "patch_was_applied": false,
+    "draft_hashes_read_back_match": true
+  }
+}

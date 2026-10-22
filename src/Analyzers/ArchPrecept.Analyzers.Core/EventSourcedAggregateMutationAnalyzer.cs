@@ -88,11 +88,8 @@ public sealed class EventSourcedAggregateMutationAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        var classDeclaration = target.FirstAncestorOrSelf<ClassDeclarationSyntax>();
-        var aggregateSymbol = classDeclaration is null
-            ? null
-            : context.SemanticModel.GetDeclaredSymbol(classDeclaration, context.CancellationToken);
-        if (aggregateSymbol is null || !InheritsFromEsAggregateRoot(aggregateSymbol))
+        var aggregateSymbol = context.ContainingSymbol?.ContainingType;
+        if (aggregateSymbol is null || !RoleClassifier.For(context.Compilation, context.Options).Is(aggregateSymbol, "event-sourced-aggregate"))
         {
             return;
         }
@@ -105,27 +102,11 @@ public sealed class EventSourcedAggregateMutationAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        context.ReportDiagnostic(Diagnostic.Create(
+        DiagnosticReporting.Report(context,
             RuleDescriptors.EventSourcedAggregateDirectMutation,
             target.GetLocation(),
             aggregateSymbol.Name,
-            member.Name));
-    }
-
-    /// <summary>
-    /// 判斷型別是否繼承自 <c>EsAggregateRoot</c>。
-    /// </summary>
-    private static bool InheritsFromEsAggregateRoot(INamedTypeSymbol symbol)
-    {
-        for (var current = symbol.BaseType; current is not null; current = current.BaseType)
-        {
-            if (current.Name == "EsAggregateRoot")
-            {
-                return true;
-            }
-        }
-
-        return false;
+            member.Name);
     }
 
     /// <summary>

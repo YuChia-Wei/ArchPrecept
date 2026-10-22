@@ -41,23 +41,23 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
     private static void AnalyzeNamedType(SymbolAnalysisContext context)
     {
         var type = (INamedTypeSymbol)context.Symbol;
-        if (type.TypeKind == TypeKind.Interface && type.Name.EndsWith("UseCase", System.StringComparison.Ordinal))
+        if (type.TypeKind == TypeKind.Interface && RoleClassifier.For(context.Compilation, context.Options).Is(type, "use-case"))
         {
             AnalyzeUseCaseContract(context, type);
             return;
         }
 
-        if (type.TypeKind != TypeKind.Class || !LooksLikeUseCaseOrHandler(type))
+        if (type.TypeKind is not (TypeKind.Class or TypeKind.Struct) || !(RoleClassifier.For(context.Compilation, context.Options).Is(type, "use-case") || RoleClassifier.For(context.Compilation, context.Options).Is(type, "handler")))
         {
             return;
         }
 
-        if (type.Name.EndsWith("UseCase", System.StringComparison.Ordinal))
+        if (RoleClassifier.For(context.Compilation, context.Options).Is(type, "use-case"))
         {
             AnalyzeUseCaseImplementation(context, type);
         }
 
-        if (IsDispatchHandler(type))
+        if (RoleClassifier.For(context.Compilation, context.Options).Is(type, "dispatch-handler"))
         {
             AnalyzeDispatchHandler(context, type);
         }
@@ -95,16 +95,16 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
                 continue;
             }
 
-            handlesCommand |= ImplementsMarker(method.Parameters[0].Type, "ICommand");
-            handlesQuery |= ImplementsMarker(method.Parameters[0].Type, "IQuery");
+            handlesCommand |= RoleClassifier.For(context.Compilation, context.Options).Is(method.Parameters[0].Type, "command");
+            handlesQuery |= RoleClassifier.For(context.Compilation, context.Options).Is(method.Parameters[0].Type, "query");
         }
 
         if (handlesCommand && handlesQuery)
         {
-            context.ReportDiagnostic(Diagnostic.Create(
+            DiagnosticReporting.Report(context,
                 RuleDescriptors.MixedCommandQueryHandler,
                 type.Locations[0],
-                type.Name));
+                type.Name);
         }
     }
 
@@ -164,16 +164,16 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
         {
             foreach (var parameter in constructor.Parameters)
             {
-                if (!IsForbiddenUseCaseDependency(parameter.Type))
+                if (!RoleClassifier.For(context.Compilation, context.Options).IsForbiddenUseCaseDependency(parameter.Type))
                 {
                     continue;
                 }
 
-                context.ReportDiagnostic(Diagnostic.Create(
+                DiagnosticReporting.Report(context,
                     RuleDescriptors.UseCaseForbiddenDependency,
                     parameter.Locations.FirstOrDefault() ?? type.Locations[0],
                     type.Name,
-                    parameter.Type.Name));
+                    parameter.Type.Name);
             }
         }
     }
@@ -212,7 +212,7 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (inputParameters.Any(parameter => IsTransportContract(parameter.Type)))
+        if (inputParameters.Any(parameter => IsTransportContract(parameter.Type, RoleClassifier.For(context.Compilation, context.Options))))
         {
             ReportUseCaseShape(context, type, "transport, Command, Query, Request, Message, or Contract input is forbidden");
             return;
@@ -237,27 +237,27 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             .Select(parameter => parameter.Type)
             .ToArray();
         var useCaseDependencies = dependencies
-            .Where(IsUseCaseType)
+            .Where(dependency => RoleClassifier.For(context.Compilation, context.Options).Is(dependency, "use-case"))
             .Select(dependency => dependency.ToDisplayString())
             .Distinct()
             .Count();
 
         if (useCaseDependencies != 1)
         {
-            context.ReportDiagnostic(Diagnostic.Create(
+            DiagnosticReporting.Report(context,
                 RuleDescriptors.DispatchHandlerBoundary,
                 type.Locations[0],
                 type.Name,
-                "depend on exactly one Use Case"));
+                "depend on exactly one Use Case");
         }
 
-        if (dependencies.Any(IsForbiddenHandlerDependency))
+        if (dependencies.Any(dependency => RoleClassifier.For(context.Compilation, context.Options).Is(dependency, "repository") || RoleClassifier.For(context.Compilation, context.Options).Is(dependency, "domain-service")))
         {
-            context.ReportDiagnostic(Diagnostic.Create(
+            DiagnosticReporting.Report(context,
                 RuleDescriptors.DispatchHandlerBoundary,
                 type.Locations[0],
                 type.Name,
-                "must not depend on repositories or Domain services"));
+                "must not depend on repositories or Domain services");
         }
     }
 
@@ -269,11 +269,11 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
         INamedTypeSymbol type,
         string detail)
     {
-        context.ReportDiagnostic(Diagnostic.Create(
+        DiagnosticReporting.Report(context,
             RuleDescriptors.UseCaseContractShape,
             type.Locations[0],
             type.Name,
-            detail));
+            detail);
     }
 
     /// <summary>
@@ -283,22 +283,22 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
     {
         var creation = (Microsoft.CodeAnalysis.CSharp.Syntax.ObjectCreationExpressionSyntax)context.Node;
         var containingType = context.ContainingSymbol?.ContainingType;
-        if (containingType is null || !LooksLikeUseCaseOrHandler(containingType))
+        if (containingType is null || !(RoleClassifier.For(context.Compilation, context.Options).Is(containingType, "use-case") || RoleClassifier.For(context.Compilation, context.Options).Is(containingType, "handler")))
         {
             return;
         }
 
         var createdType = context.SemanticModel.GetTypeInfo(creation, context.CancellationToken).Type;
-        if (createdType is null || !createdType.Name.EndsWith("Repository", System.StringComparison.Ordinal))
+        if (createdType is null || !RoleClassifier.For(context.Compilation, context.Options).Is(createdType, "repository"))
         {
             return;
         }
 
-        context.ReportDiagnostic(Diagnostic.Create(
+        DiagnosticReporting.Report(context,
             RuleDescriptors.UseCaseDirectRepositoryConstruction,
             creation.Type.GetLocation(),
             containingType.Name,
-            createdType.Name));
+            createdType.Name);
     }
 
     /// <summary>
@@ -314,18 +314,18 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
         var location = locations.Length > 0 ? locations[0] : containingType.Locations[0];
         if (memberType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::System.IServiceProvider")
         {
-            context.ReportDiagnostic(Diagnostic.Create(
+            DiagnosticReporting.Report(context,
                 RuleDescriptors.UseCaseServiceProviderInjection,
                 location,
-                containingType.Name));
+                containingType.Name);
         }
         else if (memberType.Name.EndsWith("ServiceLocator", System.StringComparison.Ordinal))
         {
-            context.ReportDiagnostic(Diagnostic.Create(
+            DiagnosticReporting.Report(context,
                 RuleDescriptors.UseCaseDependencyResolution,
                 location,
                 containingType.Name,
-                memberName));
+                memberName);
         }
     }
 
@@ -346,33 +346,12 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
                 continue;
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(
+            DiagnosticReporting.Report(context,
                 RuleDescriptors.UseCaseDependencyResolution,
                 property.Locations[0],
                 containingType.Name,
-                attributeName));
+                attributeName);
         }
-    }
-
-    /// <summary>
-    /// 判斷型別本身或其實作介面是否具有指定名稱的命令或查詢標記。
-    /// </summary>
-    private static bool ImplementsMarker(ITypeSymbol type, string markerPrefix)
-    {
-        if (type.TypeKind == TypeKind.Interface && type.Name == markerPrefix)
-        {
-            return true;
-        }
-
-        foreach (var contract in type.AllInterfaces)
-        {
-            if (contract.Name == markerPrefix)
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /// <summary>
@@ -418,7 +397,7 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
     /// <summary>
     /// 判斷型別是否為傳輸層的 Request、Command、Query、Message 或 Contract。
     /// </summary>
-    private static bool IsTransportContract(ITypeSymbol type)
+    private static bool IsTransportContract(ITypeSymbol type, RoleClassifier classifier)
     {
         var name = type.Name;
         return name.EndsWith("Request", System.StringComparison.Ordinal)
@@ -426,22 +405,7 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             || name.EndsWith("Query", System.StringComparison.Ordinal)
             || name.EndsWith("Message", System.StringComparison.Ordinal)
             || name.EndsWith("Contract", System.StringComparison.Ordinal)
-            || type.AllInterfaces.Any(contract => contract.Name is "ICommand" or "IQuery");
-    }
-
-    /// <summary>
-    /// 判斷型別是否為 Use Case 不可直接依賴的訊息、調度、傳輸或另一個 Use Case 型別。
-    /// </summary>
-    private static bool IsForbiddenUseCaseDependency(ITypeSymbol type)
-    {
-        var name = type.Name;
-        var namespaceName = type.ContainingNamespace?.ToDisplayString() ?? string.Empty;
-        return name is "IMessageBus" or "IMediator" or "IDispatcher"
-            || name.EndsWith("Dispatcher", System.StringComparison.Ordinal)
-            || IsUseCaseType(type)
-            || namespaceName.StartsWith("Wolverine", System.StringComparison.Ordinal)
-            || namespaceName.StartsWith("MediatR", System.StringComparison.Ordinal)
-            || namespaceName.StartsWith("Microsoft.AspNetCore", System.StringComparison.Ordinal);
+            || classifier.Is(type, "command") || classifier.Is(type, "query");
     }
 
     /// <summary>
@@ -458,42 +422,4 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             || namespaceName.StartsWith("Wolverine", System.StringComparison.Ordinal);
     }
 
-    /// <summary>
-    /// 判斷型別名稱是否以 <c>UseCase</c> 結尾。
-    /// </summary>
-    private static bool IsUseCaseType(ITypeSymbol type)
-    {
-        return type.Name.EndsWith("UseCase", System.StringComparison.Ordinal);
-    }
-
-    /// <summary>
-    /// 判斷型別名稱是否為 Command 或 Query 派送 Handler。
-    /// </summary>
-    private static bool IsDispatchHandler(INamedTypeSymbol type)
-    {
-        return type.Name.EndsWith("CommandHandler", System.StringComparison.Ordinal)
-            || type.Name.EndsWith("QueryHandler", System.StringComparison.Ordinal);
-    }
-
-    /// <summary>
-    /// 判斷型別是否為派送 Handler 不可直接依賴的儲存庫或領域服務。
-    /// </summary>
-    private static bool IsForbiddenHandlerDependency(ITypeSymbol type)
-    {
-        return type.Name.EndsWith("Repository", System.StringComparison.Ordinal)
-            || type.Name.EndsWith("DomainService", System.StringComparison.Ordinal);
-    }
-
-    /// <summary>
-    /// 判斷型別名稱是否呈現 Use Case 或 Handler 角色。
-    /// </summary>
-    private static bool LooksLikeUseCaseOrHandler(INamedTypeSymbol type)
-    {
-        var name = type.Name;
-        if (name.EndsWith("UseCase", System.StringComparison.Ordinal) || name.EndsWith("Handler", System.StringComparison.Ordinal))
-        {
-            return true;
-        }
-        return false;
-    }
 }

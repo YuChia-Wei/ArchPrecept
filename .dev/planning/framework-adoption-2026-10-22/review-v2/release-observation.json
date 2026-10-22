@@ -1,0 +1,22 @@
+{
+  "observed_at": "2026-10-22T14:13:22.324Z",
+  "latest_release": {
+    "tag": "v0.20.2",
+    "published_at": "2026-10-20T23:02:51Z",
+    "url": "https://github.com/YuChia-Wei/ai-collaboration-framework/releases/tag/v0.20.2"
+  },
+  "framework_merged_source": {
+    "commit": "1d9a42c80a0f0db2d69dc36d335a090bfb071281",
+    "pr": "https://github.com/YuChia-Wei/ai-collaboration-framework/pull/485",
+    "merged_at": "2026-10-22T12:52:40Z",
+    "status": "merged-not-published",
+    "planned_version": "v0.21.0",
+    "version_assignment_evidence": "PR #485 read-back states Issues #476–#480 Project Version=v0.21.0, Published=Not yet published"
+  },
+  "framework_local_source": {
+    "commit": "5d80f8cf939036d9a005a2af28496366937f5c6f",
+    "change": "#487 sub-agent task/model policy",
+    "status": "local commit observed; not included in the verified published release or the observed remote main 1d9a42c8; future inclusion not assumed"
+  },
+  "target_head": "20c82b731385e8f1c939b939fb86ae6bd5dcfc05"
+}

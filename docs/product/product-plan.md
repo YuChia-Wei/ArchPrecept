@@ -5,9 +5,9 @@ author: "產品負責人：YuChia Wei"
 date: "2026-10-21"
 lang: "zh-TW"
 document_id: "DOC-PRODUCT-PLAN"
-document_version: "0.7"
+document_version: "0.8"
 status: "draft"
-last_reviewed: "2026-10-21"
+last_reviewed: "2026-10-23"
 canonical_path: "docs/product/product-plan.md"
 canonical: true
 source_format: "markdown"
@@ -192,6 +192,7 @@ related_documents:
 | DEC-017 | CT-005 的 ES 核心採同 repository、獨立 `.csproj`／NuGet 套件，ES Analyzer 留在 Core | 負責人同意，2026-10-21 | [核心契約與遷移](event-sourcing-contract.md)；完整 ES runtime 是否獨立產品另案評估；本次沒有發布授權 |
 | DEC-018 | 契約按責任與能力命名；ES 採 `Contracts.Domain.EventSourcing`，Messaging 拆成訊息契約與 `Contracts.Application.Messaging` port | 負責人同意，2026-10-21 | [Messaging 邊界與遷移](messaging-contract.md)；組態由 host／adapter 擁有，只保留不發布的範例 |
 | DEC-019 | 六套件採 public、目前維持 `0.0.2-preview`；初期以 `--ff-only` 合併回 main 後直接推送，由 main push 建置與發布 | 負責人同意，2026-10-21 | [初期 CI/CD](../releases/cicd-plan.md)；tag 與其他觸發方式留待後期，不新增 PR／reviewer 門檻 |
+| DEC-020 | 執行全部不依賴 Framework 安裝的核心 Issues #6／#7／#8／#11／#1／#9，候選版本為 `0.0.3-preview`，沿用六套件 public 與 main-push 發布政策 | 負責人同意，2026-10-22 | [設定與角色政策](analyzer-policy.md)、[版本交付及證據](../releases/0.0.3-preview.md)；Framework 草案保存 [.dev/planning](../../.dev/planning/README.md)，待 0.21.0 正式發布後另行評估安裝；#5 採用端升級及 #10 P2 不擴入 |
 
 ### 3.1 改名與採用端遷移
 
@@ -1023,20 +1024,20 @@ samples/
 
 - Domain、Application 與 Messaging Contracts 與 Application Messaging Ports 抽取專案；
 - Roslyn Analyzer 初始實作；
-- 17 個 Diagnostic；本輪 51 個 Analyzer 測試、.NET 8／10 各 21 個 ES 測試與六種 consumer 模式，見[候選驗證](../releases/0.0.2-preview.md)；
-- Analyzer 目前主要依簡單型別名稱、Suffix 與方法形狀判定角色；
-- Project 仍為 `IsPackable=false`；
-- Project、預設 Assembly Name 與根 Namespace 已核准採 `ArchPrecept.<Capability>`；公開 Package ID、License 與相容性策略尚未核准。
+- 0.0.3-preview 候選包含 19 個產品 Diagnostic 與 2 個設定／範圍 Diagnostic；驗收數量與成品證據見[版本交付](../releases/0.0.3-preview.md)；
+- 所有既有 Analyzer 共用 Role Classifier：明確 mapping、內建／繼承契約與可選低信心命名慣例；
+- 六個可封裝專案已建立 nupkg 版面、相依方向與真實 consumer 驗證；
+- Project、Assembly、Namespace 與公開 Package ID 已核准採 `ArchPrecept.<Capability>`；Apache-2.0、public GitHub Packages 與 main-push 發布已由既有決策核准。
 
 目前尚未建立 `src/ArchitectureTesting/` 與 `src/Conformance/` 專案；兩者是已規劃但尚未實作的能力邊界，不以空目錄或空專案預先佔位。
 
 主要重構方向：
 
 - 維持 Project、Assembly 與 Namespace 的 `ArchPrecept.<Capability>` 階層，禁止重新引入 `Backend`、`Lab` 與 `BuildingBlocks` 產品身分；
-- 把分散於各 Analyzer 的角色判定抽成中央 Classifier；
-- 把 Source-included Analyzer 轉為正式 Analyzer 成品；
+- 維持中央 Classifier 與明確 applicability／not-evaluated 狀態；
+- 持續以正式 Analyzer 成品驗證實際 Compiler 行為；
 - 將 Reference Contracts 從複製來源轉為 Canonical Ownership；
-- 建立 Rule Catalog、Consumer Matrix 及 Release Governance。
+- 維護唯一 Rule Catalog、Consumer Matrix 與 Release Governance。
 
 # 附錄 B：詞彙表
 
@@ -1057,7 +1058,7 @@ samples/
 # 附錄 C：主要來源與參考
 
 - AI Collaboration Framework：`https://github.com/YuChia-Wei/ai-collaboration-prompts-dotnet-backend`
-- 目前 Repository：[dotnet-engineering-guardrails](https://github.com/YuChia-Wei/dotnet-engineering-guardrails)；GitHub 改名另行安排，本機目錄保留 `dotnet-architecture-kit`。
+- 目前 Repository：[ArchPrecept](https://github.com/YuChia-Wei/ArchPrecept)；GitHub 已完成改名，本機目錄保留 `dotnet-architecture-kit`。
 - Analyzer 構想的課程啟發：[Teddysoft 課程](https://teddysoft.tw/courses/ai-coding-pl/)
 - Domain Contract 來源之一：`https://github.com/YuChia-Wei/dotnet-webapi-lab/tree/main/src/dotnetLab.BuildingBlocks.Domain`
 - 分散式架構 Contract 來源：`https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/tree/main/src/BuildingBlocks`

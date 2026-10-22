@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <ArchPreceptVersion Condition="'$(ArchPreceptVersion)' == ''">0.0.3-preview</ArchPreceptVersion>
+    <SampleTargetFramework Condition="'$(SampleTargetFramework)' == ''">net8.0</SampleTargetFramework>
+    <TargetFramework>$(SampleTargetFramework)</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <WarningsAsErrors>CS8032;CS9057;AD0001</WarningsAsErrors>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,52 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+public interface IValue { }
+public interface IEntity { }
+public interface ILocalEvents { }
+public sealed class Account : IEntity { }
+public sealed class Money : IValue
+{
+    public int Amount { get; set; }
+    public Account Account { get; init; } = new();
+}
+public interface IRepository<TEntity, TId> { }
+public class DbContext { public void SaveChanges() { } }
+public sealed class OrderAggregate { public DbContext Storage { get; } = new(); }
+public sealed class SqlRepository { }
+public sealed class OrderMapper { public SqlRepository Storage { get; } = new(); }
+public class EsAggregateRoot { }
+public sealed class Stream : EsAggregateRoot
+{
+    private int state;
+    public void Change() { state++; }
+}
+public interface IProjection { }
+public sealed class ReadSide : IProjection { public void Read(DbContext store) => store.SaveChanges(); }
+public interface IMessageBus { }
+public sealed class EndpointController
+{
+    public EndpointController(IMessageBus bus) { }
+    public void Execute(DbContext store) { store.SaveChanges(); var handler = new SomeHandler(); }
+}
+public sealed class SomeHandler { }
+public sealed class BrokenUseCase
+{
+    public BrokenUseCase(IServiceProvider provider, IMessageBus bus) { }
+    public object Handle() => new SqlRepository();
+}
+public sealed class GoodUseCase(ILocalEvents events)
+{
+    public Task ExecuteAsync(CancellationToken ct) => Task.CompletedTask;
+}
+public sealed class ServiceLocator { }
+public sealed class LocatorHandler(ServiceLocator locator) { }
+public interface ICommand { }
+public interface IQuery { }
+public sealed class MixedHandler
+{
+    public void Handle(ICommand command) { }
+    public void Handle(IQuery query) { }
+}
+public sealed class BrokenCommandHandler(SqlRepository repository) { }

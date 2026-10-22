@@ -13,8 +13,6 @@ namespace ArchPrecept.Analyzers.Core;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AggregateInfrastructureDependencyAnalyzer : DiagnosticAnalyzer
 {
-    private static readonly string[] ForbiddenTypeSuffixes = { ".DbContext", "DbContext" };
-
     /// <summary>
     /// 取得此分析器支援的 Diagnostic 描述項目。
     /// </summary>
@@ -28,7 +26,7 @@ public sealed class AggregateInfrastructureDependencyAnalyzer : DiagnosticAnalyz
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        context.RegisterSyntaxNodeAction(AnalyzeClass, SyntaxKind.ClassDeclaration);
+        context.RegisterSyntaxNodeAction(AnalyzeClass, SyntaxKind.ClassDeclaration, SyntaxKind.RecordDeclaration, SyntaxKind.StructDeclaration, SyntaxKind.RecordStructDeclaration);
     }
 
     /// <summary>
@@ -36,10 +34,10 @@ public sealed class AggregateInfrastructureDependencyAnalyzer : DiagnosticAnalyz
     /// </summary>
     private static void AnalyzeClass(SyntaxNodeAnalysisContext context)
     {
-        var classDeclaration = (ClassDeclarationSyntax)context.Node;
+        var classDeclaration = (TypeDeclarationSyntax)context.Node;
         var classSymbol = context.SemanticModel.GetDeclaredSymbol(classDeclaration, context.CancellationToken);
 
-        if (classSymbol is null || !LooksLikeAggregateOrEntity(classSymbol))
+        if (classSymbol is null || !(RoleClassifier.For(context.Compilation, context.Options).Is(classSymbol, "aggregate") || RoleClassifier.For(context.Compilation, context.Options).Is(classSymbol, "entity")))
         {
             return;
         }
@@ -47,57 +45,17 @@ public sealed class AggregateInfrastructureDependencyAnalyzer : DiagnosticAnalyz
         foreach (var typeSyntax in classDeclaration.DescendantNodes().OfType<TypeSyntax>())
         {
             var type = context.SemanticModel.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
-            if (type is null || !IsForbiddenInfrastructureType(type))
+            if (type is null || !RoleClassifier.For(context.Compilation, context.Options).Is(type, "db-context"))
             {
                 continue;
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(
+            DiagnosticReporting.Report(context,
                 RuleDescriptors.AggregateInfrastructureDependency,
                 typeSyntax.GetLocation(),
                 classSymbol.Name,
-                type.Name));
+                type.Name);
         }
     }
 
-    /// <summary>
-    /// 判斷型別是否依名稱或繼承關係呈現聚合根或領域實體角色。
-    /// </summary>
-    private static bool LooksLikeAggregateOrEntity(INamedTypeSymbol symbol)
-    {
-        if (symbol.Name.EndsWith("Aggregate", System.StringComparison.Ordinal)
-            || symbol.Name.EndsWith("AggregateRoot", System.StringComparison.Ordinal)
-            || symbol.Name.EndsWith("Entity", System.StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        for (var current = symbol.BaseType; current is not null; current = current.BaseType)
-        {
-            var name = current.Name;
-            if (name == "AggregateRoot" || name == "Entity" || name.EndsWith("AggregateRoot", System.StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 判斷型別完整名稱是否符合受禁止的基礎設施型別尾碼。
-    /// </summary>
-    private static bool IsForbiddenInfrastructureType(ITypeSymbol type)
-    {
-        var fullName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-        foreach (var suffix in ForbiddenTypeSuffixes)
-        {
-            if (fullName.EndsWith(suffix, System.StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }

@@ -1,0 +1,301 @@
+diff --git a/AGENTS.md b/AGENTS.md
+new file mode 100644
+index 0000000..43f291d
+--- /dev/null
++++ b/AGENTS.md
+@@ -0,0 +1,69 @@
++# ArchPrecept 協作入口
++
++> 待檢核草案。預計位置為 repository 根目錄 `AGENTS.md`；目前保存在審閱資料夾，尚未成為專案生效指引。核准文件內容、安裝 Framework 與執行產品變更是分開的授權。
++
++ArchPrecept 提供可獨立採用的 .NET 架構分析器與選配參考契約。本機目錄保留 `dotnet-architecture-kit`，產品與遠端 repository 身分為 `ArchPrecept`。不得把這個套件產品當成一個待建立的 Backend Application。
++
++## 依任務讀取來源
++
++- 產品現況、已發布能力與目錄入口：[README](README.md)。
++- 已確認、暫定及被取代的產品決策：[產品規劃書第 3 節](docs/product/product-plan.md#3-已確認的關鍵決策)。
++- 需求及驗收：[PRD](docs/product/prd.md)，只讀與任務相關的 Requirement；文件為 draft 不代表其中已明確確認的個別決策都失效，也不代表整份文件已核准。
++- 開發工作與規範適用性：[開發導覽](.dev/README.MD)、[Framework 採納文件](.dev/standards/framework-adoption.md)。先看文件狀態及適用範圍。
++- Diagnostic 現行行為：[診斷目錄](docs/diagnostics/README.md)。現行限制與目標規則語意須分開判斷。
++- GitHub 工作入口：[ArchPrecept Issues](https://github.com/YuChia-Wei/ArchPrecept/issues)。既有工作優先，避免為同一缺口建立重複項目。
++
++## 程式探索
++
++<!-- codebase-memory-mcp:start -->
++# Codebase Knowledge Graph (codebase-memory-mcp)
++
++This project uses codebase-memory-mcp to maintain a knowledge graph of the codebase.
++ALWAYS prefer MCP graph tools over grep/glob/file-search for code discovery.
++
++## Priority Order
++1. `search_graph` — find functions, classes, routes, variables by pattern
++2. `trace_path` — trace who calls a function or what it calls
++3. `get_code_snippet` — read specific function/class source code
++4. `query_graph` — run Cypher queries for complex patterns
++5. `get_architecture` — high-level project summary
++
++## When to fall back to grep/glob
++- Searching for string literals, error messages, config values
++- Searching non-code files (Dockerfiles, shell scripts, configs)
++- When MCP tools return insufficient results
++
++## Examples
++- Find a handler: `search_graph(name_pattern=".*OrderHandler.*")`
++- Who calls it: `trace_path(function_name="OrderHandler", direction="inbound")`
++- Read source: `get_code_snippet(qualified_name="pkg/orders.OrderHandler")`
++<!-- codebase-memory-mcp:end -->
++
++先確認 graph 對應目前 checkout；未索引時先使用 `index_repository`。Graph 不足或不可用時說明範圍，再用有界的檔案搜尋，不把空結果當成程式不存在。
++
++## 規範與產品邊界
++
++1. 先判斷任務是在開發 ArchPrecept 本身、定義下游應用規則，或維護 consumer 範例。C# 副檔名不構成選用 `dotnet-backend` Profile 的理由。
++2. 引用已接受且適用的決策、Requirement 及規則來源。不要因 skill、範例或新版本提了另一做法，就重開已接受決策。
++3. Framework 知識包的存在、skill 的可讀資源、目標規範採納與實際執行證據分開呈現。沒有 verified installation 時，不聲稱 installed reader、runtime discovery 或規範覆蓋已通過。
++4. 同一適用範圍有真正衝突時，列出來源、狀態、影響及可選處置；只暫停受影響的判斷。不要用「專案一律優先」或「最新文件一律優先」掩蓋衝突。
++5. 保持 Analyzer 與 reference contracts 解耦，以及 analyzer-only／custom-contract 的產品方向。某項能力仍待完成時標明缺口，不強迫 consumer 遷移來隱藏限制。
++6. `docs/` 保存產品文件；`rules/` 是規劃中的機器規則責任位置，須先確認實際存在的內容；`.dev/` 保存開發治理及工作證據。不要複製第二份產品 Rule Catalog 或把產品文件搬入 `.dev/`。
++7. Domain、EventSourcing、Messaging 與 Application.Messaging 依各自契約維持能力邊界。事件 port、唯讀集合或測試替身不等於 broker 交付、深層不可變性或儲存交易保證。
++
++## 變更與驗證
++
++- 依當次授權與既有 Issue 範圍推進；計畫核准不自動擴張成安裝、產品實作、發布或清理授權。已授權的必要工作不重複索取許可。
++- 先重用 accepted inputs，再選需求、設計、實作、審查或驗證步驟。不為形式重建完整 SDLC 文件，也不重跑與本次變更無關的昂貴驗收。
++- 用能驗證受影響行為的檢查。文件草案以來源、連結、適用範圍與差異檢查為主；Analyzer 變更需考慮正例、反例、誤判及自有契約；套件邊界變更再選 package consumer 驗證。
++- 本機 SDK 依 [global.json](global.json)。完整建置／測試／封裝入口為 [eng/Build-Packages.ps1](eng/Build-Packages.ps1)；consumer 驗證入口為 [eng/Test-PackageConsumer.ps1](eng/Test-PackageConsumer.ps1)。這些入口有不同成本，不因文件或 SHA 改變就一律執行。
++- 暫存或可重建驗證資料先確認 RAM 磁碟映射與容量，再使用有界任務目錄；持久決策、憑證及正式安裝復原紀錄留在獲准的持久位置。不修改全機 TEMP/TMP。
++- 提交、合併與發布沿 [現行 CI/CD 規則](docs/releases/cicd-plan.md) 及當次授權。Framework 的 PR skill 不會替本專案新增必經 PR、required reviewer 或 branch protection。
++
++## Framework 與協作狀態
++
++本次選配方向為 common 與 .NET 知識、所選工程及 context skills、Codex adapter。建議等待 v0.21.0 正式發布後，按實際 catalog 更新版本與變更計畫；目前沒有安裝或自動升級。
++
++不把來源 repository 的 `.dev` 政策、provider、記憶服務、模型偏好或 sub-agent 設定移植到本專案。此選配未包含 Framework sub-agent profiles、Claude adapter 或 workflow-records store。若日後需要，另以具體用途評估。
++
++任務回報清楚區分：已修改、已驗證、已發布、未評估與建議。零 Diagnostic 不是整體合規證明；局部 suppression 也不是原規則已修復。
+diff --git a/.dev/README.MD b/.dev/README.MD
+new file mode 100644
+index 0000000..b515945
+--- /dev/null
++++ b/.dev/README.MD
+@@ -0,0 +1,55 @@
++# ArchPrecept 開發導覽
++
++> 待檢核草案。此目錄補上開發治理與接手入口；產品正式來源仍在既有 `docs/`。本次只形成文件與檔案計畫，尚未安裝或初始化 Framework。
++
++## 從工作目的開始
++
++| 要處理的工作 | 先讀來源 | 應得到的結果 |
++|---|---|---|
++| 產品範圍、能力與相依 | [產品決策](../docs/product/product-plan.md#3-已確認的關鍵決策)、[PRD](../docs/product/prd.md) | 明確的既有決策、Requirement 與尚未完成能力 |
++| DDD／CA／Hex Arch 規則或相容性 | [採納文件](standards/framework-adoption.md)、[Diagnostic 目錄](../docs/diagnostics/README.md) | 適用範圍、規範來源、現行行為、例外及缺口 |
++| Event Sourcing | [CT-005](../docs/product/event-sourcing-contract.md) | Replay／pending／version／commit 及基底行為限制 |
++| Messaging | [CT-004](../docs/product/messaging-contract.md) | 訊息契約、Application port、host／adapter 的責任邊界 |
++| 文件與規則追溯 | [治理規範](../docs/governance/document-governance-and-traceability.md) | 保留 `docs/`、`rules/` 與 `.dev/` 的不同 ownership |
++| 套件／發布 | [現行發布紀錄](../docs/releases/0.0.2-preview.md)、[CI/CD 規則](../docs/releases/cicd-plan.md) | 分清 build、package、registry publication 與 consumer 證據 |
++| 接手開發 | [GitHub Issues](https://github.com/YuChia-Wei/ArchPrecept/issues) | 以 live Issue 的 scope、驗收與當次授權開始，不將本頁當第二份 backlog |
++
++## 已知承接項目
++
++下表是來源索引，實際狀態以 GitHub 讀回為準，不在此同步維護完成百分比。
++
++| 工作 | Owner 與界線 |
++|---|---|
++| [#6 規則及 Profile](https://github.com/YuChia-Wei/ArchPrecept/issues/6) | ArchPrecept 的權威、適用性與規則映射 |
++| [#7 角色辨識及 DBA1016](https://github.com/YuChia-Wei/ArchPrecept/issues/7) | 合法領域事件 port 誤判、共用角色辨識及其驗收 |
++| [#8 測試責任](https://github.com/YuChia-Wei/ArchPrecept/issues/8) | 對應上述行為與採用邊界的測試，避免只驗證 helper 實作 |
++| [#11 ValueObject](https://github.com/YuChia-Wei/ArchPrecept/issues/11) | 不可變狀態與 Entity 參考兩項獨立規則，包含內建／自有契約 |
++| [#1 Diagnostic 文件](https://github.com/YuChia-Wei/ArchPrecept/issues/1) | 讓使用者能判斷原因、修正、限制與例外 |
++| [#5 採用回饋](https://github.com/YuChia-Wei/ArchPrecept/issues/5) | 保存真實 consumer 回饋及環境限制 |
++| [Framework #179](https://github.com/YuChia-Wei/ai-collaboration-framework/issues/179) | Framework 與 ArchPrecept Contracts 選配相容映射；不接管本產品 Analyzer 實作 |
++
++## 工作的最小交接
++
++每次只為所選工作補必要資訊：目標與授權、既有決策／Requirement、可觀察的 Given／When／Then、預計變更、驗證與未評估範圍。引用既有 Issue、產品文件與證據，不複製成第二份台帳。
++
++DDD 工作說明共同語言、Bounded Context、Aggregate 不變條件及例子；CA／Hex Arch 工作說明責任、依賴方向、port／adapter 與技術取捨。兩者相互約束，但不能用資料夾層次代替領域模型，也不能用領域物件名稱證明技術邊界已正確實作。
++
++先依目前範圍確認問題或行為，再選最小必要步驟。已接受的設計沒有新衝突時直接重用；只有新的證據、版本或變更要求才需要重開決策。實作前檢查已存在的工作項目，避免建立重複 Issue。
++
++## 驗證入口
++
++| 變更類型 | 選擇方式 |
++|---|---|
++| 文件／採納草案 | 核對狀態、來源、相對連結、版本及差異；不以產品 build 代替內容檢核 |
++| 受影響 .NET 專案 | 使用 [global.json](../global.json) 的 SDK，選定相應 build／tests |
++| 套件結構或相依 | [Build-Packages.ps1](../eng/Build-Packages.ps1)；執行前確認 output 及現有產物 |
++| SDK／安裝／公開 API 相容性 | [Test-PackageConsumer.ps1](../eng/Test-PackageConsumer.ps1) 的相關 consumer 情境 |
++| 合併與發布 | [CI/CD 規則](../docs/releases/cicd-plan.md)；驗證結果與發布授權分開 |
++
++## Framework 導入狀態
++
++- 選配方向已接受；目前建議等待 v0.21.0 正式成品，尚未授權安裝。
++- `AGENTS.md` 與本頁是導覽；[採納文件](standards/framework-adoption.md) 是範圍及差異草案。它們不證明 skill 已被 runtime 發現或執行。
++- 不建立 `project-config.yaml`、新的 backlog／SQLite store 或空的 ADR／Workflow 目錄。既有來源已足夠時直接引用。
++- v0.21.0 發布後核對已選 skill 的實際 ID、版本、知識依賴與讀取範圍，再產生新 candidate／file plan。舊 v0.20.2 的 386-file 預演僅供比較。
++- 文件核准後仍須依當次指示決定是否寫入正式位置；產品程式、NuGet、CI、GitHub Issues 及安裝狀態不隨文件草案自動改變。
+diff --git a/.dev/standards/framework-adoption.md b/.dev/standards/framework-adoption.md
+new file mode 100644
+index 0000000..3327698
+--- /dev/null
++++ b/.dev/standards/framework-adoption.md
+@@ -0,0 +1,159 @@
++---
++title: "ArchPrecept Framework 規範採納草案"
++document_id: "DOC-DEV-FRAMEWORK-ADOPTION"
++document_version: "0.1"
++status: "draft"
++date: "2026-10-22"
++owners:
++  - "YuChia Wei"
++proposed_path: ".dev/standards/framework-adoption.md"
++target_source_commit: "20c82b731385e8f1c939b939fb86ae6bd5dcfc05"
++installation_status: "not-performed"
++normative_binding_status: "not-adopted"
++---
++
++# ArchPrecept Framework 規範採納草案
++
++本文件整理 Framework 知識在 ArchPrecept 的適用範圍、既有產品決策、擬採納慣例與例外。選配方向已獲接受；本文件內容仍待 owner 檢核，尚未啟用規範、安裝 Framework 或修改產品程式。
++
++建議等待 Framework v0.21.0 正式發布後首次安裝。本文用已核對的 v0.20.2 作規範來源基線，並分開標示已合併、尚未發布的 skill 拆分。版本等待不改變 ArchPrecept 已確認決策的效力。
++
++## 適用範圍
++
++| 範圍 | 適用內容 | 不可推定的事 |
++|---|---|---|
++| 開發 ArchPrecept 產品 | 公開 API、套件與組件相依、Roslyn 分析、角色與規則模型、產品文件、測試及發布 | 本產品不是 Backend Application；不因選 dotnet-backend 就加入 Controller、MQ、資料庫、Outbox 或四層應用骨架 |
++| 定義及驗證下游應用規則 | 明選 DDD／CA／Hex Arch 慣例的語意、Profile、適用角色、例外與可機械檢查範圍 | 文件存在不代表全部 consumer 啟用該 Profile；不得把未辨識角色或未執行檢查報成通過 |
++| Consumer 範例及測試 fixture | 明列情境採用的契約、宿主、預期 Diagnostic 與相容性 | 故意不合規的反例不是產品規範例外；不得為使整個 tests 目錄零 Diagnostic 而改掉反例 |
++
++以上是工作適用範圍，不是新增的產品 Profile ID 或 installer selector。實際可用的 Profile／角色辨識／設定能力須由現行產品證據確認。只有特定工作明選 backend 語意，才使用相應 knowledge selector。
++
++## 來源與效力
++
++1. 先看當次使用者授權，再辨識來源的 owner、狀態與適用範圍；已接受的決策不因新 session 而失效。
++2. 產品決策由 [產品規劃書](../../docs/product/product-plan.md) 的 Decision Log 與其明確後續決定保存，需求及驗收在 [PRD](../../docs/product/prd.md)。本文件只引用，不另建產品決策正本。
++3. Framework 擁有通用規範及其原始版本；ArchPrecept 擁有將規範映射為 Rule／Diagnostic 的產品語意和機械化界線；consumer 擁有其業務事實、Profile、Role Mapping 及例外。
++4. 產品文件目前可為 draft，但其中有明列「已確認／負責人同意」的個別決策。不得把整份 draft 宣稱已核准，也不得因此忽略已確認決策。
++5. 實作及 Diagnostic 手冊描述現在會發生什麼；需求、規範及已接受決策描述應有行為。兩者不一致是待處理缺口，不是任一方可被默默刪除。
++6. 技術範例、Profile default、建議與已採納規範分開。新文件或較高版本不自動取代專案決策；取代須有可定位的 scope、理由及生效決定。
++7. 真正衝突發生在同一適用範圍內的兩項有效要求無法同時成立。不同範圍、已允許例外、暫定方案或現行缺陷，不先混成規範衝突。
++
++依 [文件治理規範](../../docs/governance/document-governance-and-traceability.md)，`docs/` 仍保存產品正式來源，`rules/` 承接機器規則資料，`.dev/` 保存開發治理及證據。目前對 `rules/` 的規劃不等於完整 catalog 已實作；本文件不補一份平行 catalog。
++
++## 已確認與暫定的產品決策
++
++下列是既有來源的索引及導入影響，不新增 Decision ID，也不重新批准歷史發布。
++
++| 既有來源 | 原有效力 | 對 Framework 採納的約束 |
++|---|---|---|
++| DEC-003 | 已確認 | 單一 repository、多成品共同演進，不為符合某個應用模板拆 repository |
++| DEC-004／DEC-005 | 已確認 | Analyzer 不依賴 reference contracts；核心規則應支援不採官方契約的 consumer。未完成的 classifier／custom mapping 仍是產品缺口 |
++| DEC-006 | 暫定 | Reference contracts 留在同 repo 且選配；後續已確認的 CT-004／CT-005 具體拆分另按 DEC-017／018 處理，不把暫定狀態隱去 |
++| DEC-007 | 已確認 | Core 宿主中立；ASP.NET Core、Messaging 等規則按 Profile 適用，不能對所有 .NET 庫套用 HTTP／broker 政策 |
++| DEC-008／DEC-009／DEC-013 | 已確認 | 規則資料與追溯有正式 owner；零 Diagnostic 不等於合規，缺少 Rule／來源／機制需揭露 |
++| DEC-011／DEC-012 | 已確認 | Markdown 為產品文件正本；保留 docs，以 .dev 補開發治理，不搬移產品文件或人工維護第二份標準 |
++| DEC-015／DEC-016 | 已確認 | ArchPrecept 品牌、Solution／Project／Assembly／Namespace；保留本機 dotnet-architecture-kit 目錄。遠端現況以 README／來源讀回為準 |
++| DEC-017、[CT-005](../../docs/product/event-sourcing-contract.md) | 負責人同意且已有公開成品證據 | EventSourcing 為同 repo 的獨立選配套件；一般 Domain 不反向依賴它；ES Analyzer 仍留 Core |
++| DEC-018、[CT-004](../../docs/product/messaging-contract.md) | 負責人同意且已有公開成品證據 | 訊息契約與 Application 發布 port 分離；組態、broker SDK、DI、重試及交付保證由 host／adapter 擁有 |
++| DEC-019、[CI/CD 規則](../../docs/releases/cicd-plan.md) | 負責人同意，2026-10-21 生效 | 初期使用 ff-only 整合與 main push CI／發布；不因選 pr-author 或 Framework source 政策新增 mandatory PR／reviewer 門檻。每次操作仍受當次授權限制 |
++| [License 與來源評估](../../docs/releases/licensing-assessment.md)、產品規劃書第 14 節 | 已有明確決定 | 自有內容採 Apache-2.0，第三方條款分開；不因 Framework 導入重開已完成選型 |
++
++產品規劃書仍保留 DEC-001 的舊遠端名稱、DEC-010 的早期套件命名待決記錄，以及舊版本停止發布的歷史段落。已有 README、DEC-019、現行 CI/CD 與 [0.0.2-preview 發布紀錄](../../docs/releases/0.0.2-preview.md) 說明後續狀態。接手時應沿這些明確演進讀取；本次不修改歷史產品文件，也不因舊段落重新要求決定已核准的六個套件 ID 或 public 範圍。
++
++## 擬採納的 DDD CA 與 Hex Arch 慣例
++
++下表是待核准的適用性對照。「產品約束」引用前節既有決策；「擬採納」表示本次尚未使它生效。Framework Rule ID 只列實際已登錄者，不由文件名稱產生新 ID；同一文件有 Rule ID 不代表整份內容都已登錄。
++
++| 主題與來源 | 擬採納語意及範圍 | 機械化與未決界線 |
++|---|---|---|
++| [DDD discovery／strategic／tactical][fw-ddd] | 用共同語言、Bounded Context、Aggregate 不變條件、Entity 身分與 VO 值語意說明模型；需求與規格可使用 DDD／BDD | 人工探索、設計及審查；不得用資料夾結構或 class suffix 代替語意 |
++| [CA 與 Hex 架構][fw-playbook] | Domain 保持 transport／ORM／broker 中立；Application 擁有 UseCase 與 ports，adapters 處理外部機制 | 對應產品部分診斷與未來架構驗證；Backend 四層目錄不套到 Analyzer 庫 |
++| [Controller／UseCase／Handler 關係][fw-relationship] | 同步 API 預設 Controller 直接呼叫 UseCase interface；不經一般派送 Handler 繞一層。不建立預設 ApplicationService 中介層 | DBA1004／1005／1006／1014 為目前相關診斷；完整角色文件的 skill 讀取仍有缺口 |
++| [UseCase 標準][fw-usecase]及[角色契約][fw-relationship] | `I…UseCase`／具體 `…UseCase`、`ExecuteAsync`、非 optional CancellationToken；transport-neutral Input／Output，無輸出可回 `Task` | DBA1015 為現行機制；規範與現行名稱式檢查的差異必須明列 |
++| [Handler 責任][fw-relationship] | 真正有 dispatcher／message delivery 才設 Handler；薄轉接至一個 UseCase，不在 Controller／Handler 編排多個 UseCase | DBA1011／1017；DomainEventHandler／Reactor 不直接等同派送 Handler |
++| [UseCase 相依][fw-usecase] | 以建構式注入 outbound ports；禁止 Service Locator、屬性注入、直接建立 Repository、transport framework 或另一個 UseCase 相依 | DBA1002／1010／1012／1016；合法 `IDomainEventDispatcher` 的名稱誤判交 #7，不把錯誤診斷當架構要求 |
++| [Repository][fw-repository] | Aggregate write port 與 read-only Query Port 分離；保留 FindById／Save、相容別名與單 Aggregate 語意；不公開預設可寫 generic CRUD | DBA1001 是部分機制；custom contract 與角色辨識仍須依 #6／#7 的範圍完成 |
++| [交易與一致性][fw-usecase] | 一個 Command 預設改一個 Aggregate；跨 Aggregate 用事件及最終一致性。多 Aggregate 強一致性是有條件例外 | `ARCH-UOW-001` 已登錄；不以一個 repository／UoW 介面推定交易已實作 |
++| [事件與交易訊息][fw-messaging] | Domain Event、Integration Event、Reactor 與 Outbox 責任分離；事件 port 不等於 broker，也不證明原子提交 | `MESSAGING-TX-001`；ArchPrecept 的實際 API 語意以 CT-004／CT-005 為準 |
++| [Aggregate／Building Blocks][fw-aggregate] | ES 為選定策略；一般狀態式 Aggregate 不需要 ES 機制。共享 base 是可選產品能力，不是所有 consumer 的採用條件 | `AGGREGATE-ES-001`、DBA1009；產品已發布 ES 行為不可為貼齊範例而無聲改寫 |
++| [ValueObject][fw-aggregate] | 擬採納建構完成後不可變、值相等、可使用 record／readonly record struct；另維持 #11 對 Entity 參考規則的獨立需求 | #11 尚待實作；public init、巢狀可變物件、集合、欄位、繼承與自有契約須明訂，未確認前標記未評估，不直接沿用舊 DDD001／DDD002 |
++| [DbC][fw-dbc] | 在適用的 domain 行為明列前置、後置與不變條件；以具體例子說明契約 | `CONTRACT-SEMANTICS-001`；guard/helper 存在不代表完整業務契約已驗證 |
++| [Mapper][fw-mapper]與[Projection][fw-projection] | Query 與 write 行為分離；Mapper 純轉換；產品定義的 query Projection port 不執行持久化寫入 | `MAP-EVENTS-001`、DBA1007／1008／1013；ES read-model projector 的不同責任見例外表 |
++| [跨 BC 與 DI 政策][fw-playbook] | 對明選此 backend Profile 的應用，保留 MQ-first、RabbitMQ／Kafka-only、避免跨 BC 直接 web API，以及明確 IServiceCollection 註冊 | 此政策不讓 ArchPrecept 核心依賴 broker／DI，不是所有 .NET 專案的通用真理；不同 consumer 政策需明列 |
++| [刪除生命週期][fw-aggregate] | 只對選定生命週期的 Aggregate 採納 Soft Delete／Purge；區分軟刪除與實體清除 | `DELETE-SOFT-001`／`DELETE-PURGE-001`；不替所有 reference contracts 加 `IsDeleted` |
++| [BDD][fw-bdd]與[測試規範][fw-tests] | Discovery／Formulation／Automation 分工；GWT 描述可觀察行為；xUnit、mocking、BDDfy 按真正選定技術及情境適用 | `TEST-GWT-001`／`TEST-MOCK-001`／`TEST-BDDFY-001`；不把測試寫法等同完整 BDD，也不無差別改寫 Roslyn harness |
++| [結構規範][fw-structure] | 下游 backend 結構按 Profile；ArchPrecept 自身遵守 PRD RL-009／RL-010 的能力分組、測試及命名 | `PROJECT-GRAMMAR-001` 不自動覆寫本產品的 src／Contracts／Analyzers 結構 |
++| [身分與追溯][fw-identity] | 保留來源版本、Requirement／Rule／Diagnostic 的不同身分；分清規範、安裝、角色辨識、執行及驗收 | 沿 RM-005、DG-005／006／007／011 與 #6／#7 承接；不新增平行 catalog 或以安裝成功宣稱合規 |
++
++## 明確例外與差異
++
++| 情況 | 目前分類 | 處置與有效範圍 |
++|---|---|---|
++| UseCase 沒有業務輸入，或只有單一 BCL scalar | Framework 已記錄的例外，擬隨此慣例採納 | 可無 Input 或直接傳單一 scalar；collection、tuple、自訂 record/class、多值仍應有專用 Input。不得擴成接受 HTTP Request／broker message |
++| Controller 直接查詢的 fast path | Framework 提及的顯式例外，不是本專案一律核准 | 預設仍經 UseCase；具體 consumer 需提供已接受決策與限制，不能由 AI 因簡單或效能想像自行開例外 |
++| 同 BC 多 Aggregate transaction | Framework 已明載的條件式例外 | 具名 all-or-nothing 不變條件、中間狀態不可接受且不可補償，先重查 Aggregate 邊界；跨 BC、減少 I/O、共享 DB／ORM 便利均不構成例外 |
++| ArchPrecept 提供 Entity／Aggregate／VO base | 適用範圍差異，非已證實衝突 | 提供選配能力與強迫所有 consumer 繼承不同；保留 DEC-004／005 的獨立採用方向 |
++| 自有契約或非 suffix 型別 | 已接受產品方向，機制有未完成部分 | 必須揭露 #7 的辨識及 coverage 缺口；不以「無 Diagnostic」宣稱 custom contract 通過，也不要求 consumer 為工具改名 |
++| 合法 `IDomainEventDispatcher` 觸發 DBA1016 | 已重現的 Analyzer 缺陷，不是規範例外 | #7 主責；不為消除診斷重構合法 port。若任務需要暫時 suppression，須以該任務已授權且有界的處置記錄理由／範圍；本草案不預先全域停用 |
++| ES 的 Domain mutator 與 commit | CT-005 已確認的產品行為限制 | ES 拒絕一般 Add／Remove／ClearDomainEvents，使用 Apply／append／commit；不能因一般 Aggregate API 可呼叫就當作可替換。產品行為不由 Framework 範例改寫 |
++| ES projector 更新 read model | CT-005 已確認的角色區別 | 不把它直接視為 DBA1013 的 read-only `IProjection` query port；釐清角色後再評估 |
++| `init` 或唯讀集合外觀 | 尚待語意與 coverage 決定，非已核准例外 | 建構期賦值與建構後可變性分開；readonly 引用不代表深層不可變。由 #11 明訂驗收，不在導入時擅自定案 |
++| 不使用 BDDfy、沒有 mock 的 Analyzer 測試 | 適用性差異 | 沒有採用該 library／場景不須替換測試框架；有 mock 時按 consumer 的明確技術選擇。此 .NET Profile 的 NSubstitute 預設不得被誤寫成所有測試的硬性依賴 |
++| 反例及不合規 consumer fixture | 測試意圖，非 production waiver | 保留預期 Diagnostic 與位置；不為遵循協作文件把反例改成正例 |
++
++新增真正例外時，沿既有 Issue／ADR／採納來源記錄條件、理由、owner、適用範圍及何時重看；沒有時間限制就不發明到期日。此表是本次採納的差異摘要，不另建 waiver 資料庫。
++
++## Framework 版本與知識讀取
++
++| 證據層 | 本次已知內容 | 不代表 |
++|---|---|---|
++| 公開 v0.20.2 | common 0.3.0、dotnet-backend 0.1.4、ddd-ca-hex-architect 0.3.1；已核對 ZIP 與 SHA-256 | 已安裝、全部來源可經 skill 讀取、已採納 normative rules |
++| 已合併來源 1d9a42c8 | [PR #485][fw-split] 拆為 domain-model-designer 0.1.0／software-architect 0.1.0，common 0.4.0／dotnet 0.1.5，並調整 Spec／BDD／DDD 與流程責任 | 已發布 v0.21.0；最終成品版本或檔案數已固定 |
++| 目前目標專案 | 只有本次計畫與草案；未安裝 Framework | installed lock、runtime discovery、AI 實際操作驗收 |
++
++建議 v0.21.0 採用 16 個 skills：保留原已接受選配用途，以 `domain-model-designer`、`software-architect` 取代一個 `ddd-ca-hex-architect`。其餘 skills 及兩個知識包依正式 catalog 固定版本；Codex adapter 維持單選，不自動加入新出的能力。
++
++知識 bindings 先沿明確操作與 consumer allowlist 使用參考知識。需要宣稱 registered normative coverage 時，才選實際 resource／Rule IDs、已核准的目標 authority、精確 raw SHA-256 與 selector，再重新 derive／plan。本草案仍為 draft，因此不產生有效 normative authority 宣告。
++
++UseCase 角色關係、Controller、Repository 文件有未登錄部分；不能由文檔路徑生成 Rule ID，也不能因同檔有 `ARCH-UOW-001` 就把其他角色語意一併宣稱為已登錄。
++
++截至本次查閱，已合併的 `software-architect` 仍未明列 `USECASE-COMMAND-HANDLER-RELATIONSHIP.MD`，完整 playbook 也未列入其 consumption。v0.21.0 發布後要重新核對，不能假定版本提升已解決。若某次操作需要的 Framework 資源不可讀，應明列 coverage 缺口；已接受的目標專案決策仍可依其本身權威引用，但不得宣稱取得了該 Framework 資源或繞回來源 checkout 來補 installed-reader 證據。
++
++## 少量代表情境
++
++以下是文件及未來採用驗收的預期行為，本次沒有執行為產品或 AI runtime 測試。
++
++| Given | When | Then |
++|---|---|---|
++| 已確認 Analyzer-only／custom-contract 方向 | Framework 範例使用內建基底 | 保留獨立採用，不要求改寫全部 consumer；指出目前角色辨識缺口 |
++| 任務是修改 Analyzer 本身 | 讀到 MQ-first、Backend 四層或 BDDfy 預設 | 先判斷適用性，不替產品加入 broker、Controller、資料庫或測試依賴 |
++| 已接受 Controller → UseCase 與薄 Handler 慣例 | 新對話接手下游規則工作 | 引用已接受來源，不重新提議 mediator 分層；必要資源缺失仍明列 |
++| 合法領域事件 port 被 DBA1016 擋下 | 分析 consumer 錯誤 | 區分規範與 Analyzer 誤判，連到 #7，不把改名當作語意修復 |
++| ES instance 有 pending events | 通用 dispatcher 要 ClearDomainEvents | 依 CT-005 拒絕一般清除路徑，保留 append／commit 責任 |
++| VO 有 init、集合或巢狀 Entity | 宣稱規則已涵蓋 | 對照 #11 的實際驗收；未定義或未實作部分標記未評估 |
++| 新版 Framework 有不同預設 | 產生新選配或升級提案 | 列出來源差異、目標決策影響與需要決定的項目，不自動覆寫 |
++| 正式 v0.21.0 可下載 | 準備首次安裝 | 核對 ZIP／catalog／engine／版本及 allowlist，重新產生逐檔計畫；發布本身不提供安裝授權 |
++
++## 核准與接續
++
++本次檢核項目是：三種工作範圍是否正確、既有決策引用是否完整、擬採納語意與例外是否符合 owner 慣例，以及是否採等待 v0.21.0 的路徑。
++
++核准後才能將本文件改為相應有效狀態；該狀態變更會改變 raw bytes，若有 authority pin 必須同步重新產生。等待期間可維護這份草案及既有需求，不安裝 v0.20.2 作過渡、不安裝未發布 main，也不啟動背景監看。需要實作、安裝或通知時依後續指示執行。
++
++正式安裝條件聚焦已選能力：可驗證的 v0.21.0 成品、相容選配與精確檔案計畫、必要知識讀取缺口已解決或其影響已明確接受、以及安裝授權。#481／#483 的工作儲存、#482／#484 的通用客製升級、#486 的記憶提案、#487 的 sub-agent 模型管理不因存在就成為本次全部完成的前置條件；本次沒有選這些額外能力。
++
++[fw-ddd]: https://github.com/YuChia-Wei/ai-collaboration-framework/blob/3c7434fd3ea65bcbf519fef3e3ca232a0bc59043/src/knowledge/engineering-common/ddd/README.md
++[fw-bdd]: https://github.com/YuChia-Wei/ai-collaboration-framework/blob/3c7434fd3ea65bcbf519fef3e3ca232a0bc59043/src/knowledge/engineering-common/bdd/README.md
++[fw-playbook]: https://github.com/YuChia-Wei/ai-collaboration-framework/blob/3c7434fd3ea65bcbf519fef3e3ca232a0bc59043/src/knowledge/dotnet-backend/design/architecture-playbook.md
++[fw-relationship]: https://github.com/YuChia-Wei/ai-collaboration-framework/blob/3c7434fd3ea65bcbf519fef3e3ca232a0bc59043/src/knowledge/dotnet-backend/standards/USECASE-COMMAND-HANDLER-RELATIONSHIP.MD
++[fw-usecase]: https://github.com/YuChia-Wei/ai-collaboration-framework/blob/3c7434fd3ea65bcbf519fef3e3ca232a0bc59043/src/knowledge/dotnet-backend/standards/coding-standards/usecase-standards.md
++[fw-repository]: https://github.com/YuChia-Wei/ai-collaboration-framework/blob/3c7434fd3ea65bcbf519fef3e3ca232a0bc59043/src/knowledge/dotnet-backend/standards/coding-standards/repository-standards.md
++[fw-messaging]: https://github.com/YuChia-Wei/ai-collaboration-framework/blob/3c7434fd3ea65bcbf519fef3e3ca232a0bc59043/src/knowledge/dotnet-backend/standards/coding-standards/transactional-messaging-standards.md
++[fw-aggregate]: https://github.com/YuChia-Wei/ai-collaboration-framework/blob/3c7434fd3ea65bcbf519fef3e3ca232a0bc59043/src/knowledge/dotnet-backend/standards/coding-standards/aggregate-standards.md
++[fw-dbc]: https://github.com/YuChia-Wei/ai-collaboration-framework/blob/3c7434fd3ea65bcbf519fef3e3ca232a0bc59043/src/knowledge/dotnet-backend/standards/DESIGN-BY-CONTRACT.md
++[fw-mapper]: https://github.com/YuChia-Wei/ai-collaboration-framework/blob/3c7434fd3ea65bcbf519fef3e3ca232a0bc59043/src/knowledge/dotnet-backend/standards/coding-standards/mapper-standards.md
++[fw-projection]: https://github.com/YuChia-Wei/ai-collaboration-framework/blob/3c7434fd3ea65bcbf519fef3e3ca232a0bc59043/src/knowledge/dotnet-backend/standards/coding-standards/projection-standards.md
++[fw-tests]: https://github.com/YuChia-Wei/ai-collaboration-framework/blob/3c7434fd3ea65bcbf519fef3e3ca232a0bc59043/src/knowledge/dotnet-backend/standards/coding-standards/test-standards.md
++[fw-structure]: https://github.com/YuChia-Wei/ai-collaboration-framework/blob/3c7434fd3ea65bcbf519fef3e3ca232a0bc59043/src/knowledge/dotnet-backend/standards/project-structure.md
++[fw-identity]: https://github.com/YuChia-Wei/ai-collaboration-framework/blob/3c7434fd3ea65bcbf519fef3e3ca232a0bc59043/src/knowledge/engineering-common/references/ENGINEERING-IDENTITY-CONTRACT.md
++[fw-split]: https://github.com/YuChia-Wei/ai-collaboration-framework/pull/485

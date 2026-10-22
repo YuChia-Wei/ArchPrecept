@@ -120,7 +120,9 @@ public sealed class RepositoryQueryMethodAnalyzerTests
     [Fact]
     public async Task Reports_child_entity_used_through_compatibility_contract()
     {
-        var diagnostics = await AnalyzeAsync(
+        // This legacy regression intentionally violates a compiler generic constraint too.
+        // Other fixtures require a compilable input before their analyzer result is accepted.
+        var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(new RepositoryQueryMethodAnalyzer(),
                               """
                               public abstract class AggregateRoot<TId> { }
                               public sealed class OrderItem { }
@@ -140,7 +142,7 @@ public sealed class RepositoryQueryMethodAnalyzerTests
                                   : IDomainRepository<OrderItem, string>
                               {
                               }
-                              """);
+                              """, verifyCompilation: false);
 
         var diagnostic = Assert.Single(diagnostics);
         Assert.Equal("DBA1001", diagnostic.Id);

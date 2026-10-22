@@ -1,0 +1,8 @@
+<ArchPrecept version="1" profiles="core,web-api,framework,ddd" namingConventions="true">
+  <Expected type="Products.Sample.Product" role="aggregate" />
+  <Expected type="Products.Sample.ProductPrice" role="value-object" />
+  <Expected type="Products.Sample.CreateProductUseCase" role="use-case" />
+  <Expected type="Products.Sample.ProductsController" role="controller" />
+  <Rule id="DBA1018" severity="error" />
+  <Rule id="DBA1019" severity="error" />
+</ArchPrecept>

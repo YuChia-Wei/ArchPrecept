@@ -15,14 +15,6 @@ public sealed class RepositoryQueryMethodAnalyzer : DiagnosticAnalyzer
     private static readonly ImmutableHashSet<string> AllowedAggregateMethods =
         ImmutableHashSet.Create(StringComparer.Ordinal, "FindByIdAsync", "SaveAsync");
 
-    private static readonly ImmutableHashSet<string> ForbiddenGenericWriteRepositories =
-        ImmutableHashSet.Create(
-            StringComparer.Ordinal,
-            "IRepository",
-            "IGenericRepository",
-            "IWritableRepository",
-            "ICrudRepository");
-
     private static readonly string[] WriteMethodPrefixes =
     {
         "Save",
@@ -59,24 +51,24 @@ public sealed class RepositoryQueryMethodAnalyzer : DiagnosticAnalyzer
     private static void AnalyzeNamedType(SymbolAnalysisContext context)
     {
         var type = (INamedTypeSymbol)context.Symbol;
-        if (type.TypeKind != TypeKind.Interface)
+        if (type.TypeKind is not (TypeKind.Interface or TypeKind.Class or TypeKind.Struct))
         {
             return;
         }
 
-        if (IsForbiddenGenericWriteRepository(type))
+        if (type.TypeKind == TypeKind.Interface && RoleClassifier.For(context.Compilation, context.Options).IsDirectContract(type, "generic-repository"))
         {
             Report(context, type, $"public generic writable repository '{type.Name}' is prohibited");
             return;
         }
 
-        var aggregateContracts = GetAggregateContracts(type);
+        var aggregateContracts = GetAggregateContracts(type, RoleClassifier.For(context.Compilation, context.Options));
         if (!aggregateContracts.IsEmpty)
         {
             AnalyzeAggregateRepository(context, type, aggregateContracts);
         }
 
-        if (IsOrImplements(type, "IQueryRepository", 0))
+        if (RoleClassifier.For(context.Compilation, context.Options).Is(type, "query-repository"))
         {
             AnalyzeQueryRepository(context, type);
         }
@@ -90,8 +82,8 @@ public sealed class RepositoryQueryMethodAnalyzer : DiagnosticAnalyzer
         INamedTypeSymbol type,
         ImmutableArray<INamedTypeSymbol> aggregateContracts)
     {
-        if (IsContract(type, "IDomainRepository", 2)
-            && !type.AllInterfaces.Any(candidate => IsContract(candidate, "IAggregateRepository", 2)))
+        if (RoleClassifier.For(context.Compilation, context.Options).IsDirectContract(type, "compatibility-repository")
+            && !type.AllInterfaces.Any(candidate => RoleClassifier.For(context.Compilation, context.Options).IsDirectContract(candidate, "aggregate-repository")))
         {
             Report(
                 context,
@@ -101,7 +93,7 @@ public sealed class RepositoryQueryMethodAnalyzer : DiagnosticAnalyzer
 
         var invalidAggregate = aggregateContracts
             .Select(contract => contract.TypeArguments[0])
-            .FirstOrDefault(candidate => !IsAggregateRoot(candidate));
+            .FirstOrDefault(candidate => !RoleClassifier.For(context.Compilation, context.Options).Is(candidate, "aggregate"));
 
         if (invalidAggregate is not null)
         {
@@ -164,7 +156,7 @@ public sealed class RepositoryQueryMethodAnalyzer : DiagnosticAnalyzer
                 continue;
             }
 
-            if (ContainsMutableDomainType(method.ReturnType))
+            if (ContainsMutableDomainType(method.ReturnType, RoleClassifier.For(context.Compilation, context.Options), new System.Collections.Generic.HashSet<ITypeSymbol>(SymbolEqualityComparer.Default)))
             {
                 Report(
                     context,
@@ -174,56 +166,13 @@ public sealed class RepositoryQueryMethodAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    /// <summary>
-    /// 收集型別本身及其繼承介面中的聚合儲存庫契約。
-    /// </summary>
-    private static ImmutableArray<INamedTypeSymbol> GetAggregateContracts(INamedTypeSymbol type)
-    {
-        var builder = ImmutableArray.CreateBuilder<INamedTypeSymbol>();
-
-        if (IsAggregateContract(type))
-        {
-            builder.Add(type);
-        }
-
-        foreach (var candidate in type.AllInterfaces)
-        {
-            if (IsAggregateContract(candidate))
-            {
-                builder.Add(candidate);
-            }
-        }
-
-        return builder.ToImmutable();
-    }
-
-    /// <summary>
-    /// 判斷型別是否為標準或相容性的聚合儲存庫契約。
-    /// </summary>
-    private static bool IsAggregateContract(INamedTypeSymbol type) =>
-        IsContract(type, "IAggregateRepository", 2)
-        || IsContract(type, "IDomainRepository", 2);
-
-    /// <summary>
-    /// 判斷型別本身或其繼承介面是否符合指定名稱與泛型參數數量的契約。
-    /// </summary>
-    private static bool IsOrImplements(INamedTypeSymbol type, string name, int arity) =>
-        IsContract(type, name, arity)
-        || type.AllInterfaces.Any(candidate => IsContract(candidate, name, arity));
-
-    /// <summary>
-    /// 判斷型別的原始定義是否符合指定名稱與泛型參數數量。
-    /// </summary>
-    private static bool IsContract(INamedTypeSymbol type, string name, int arity) =>
-        type.OriginalDefinition.Name == name
-        && type.OriginalDefinition.Arity == arity;
-
-    /// <summary>
-    /// 判斷型別是否為公開受禁止的通用可寫入儲存庫契約。
-    /// </summary>
-    private static bool IsForbiddenGenericWriteRepository(INamedTypeSymbol type) =>
-        type.Arity > 0
-        && ForbiddenGenericWriteRepositories.Contains(type.OriginalDefinition.Name);
+    /// <summary>收集中央分類器辨識的兩參數聚合 repository 契約，保留實際泛型引數。</summary>
+    private static ImmutableArray<INamedTypeSymbol> GetAggregateContracts(INamedTypeSymbol type, RoleClassifier classifier) =>
+        RoleClassifier.TypeClosure(type).OfType<INamedTypeSymbol>()
+            .Where(candidate => candidate.TypeArguments.Length == 2
+                && (classifier.IsDirectContract(candidate, "aggregate-repository")
+                    || classifier.IsDirectContract(candidate, "compatibility-repository")))
+            .ToImmutableArray();
 
     /// <summary>
     /// 判斷聚合儲存庫方法是否符合 <c>FindByIdAsync</c> 或 <c>SaveAsync</c> 的核准非同步簽章。
@@ -281,72 +230,15 @@ public sealed class RepositoryQueryMethodAnalyzer : DiagnosticAnalyzer
         type.Name == "CancellationToken"
         && type.ContainingNamespace.ToDisplayString() == "System.Threading";
 
-    /// <summary>
-    /// 判斷型別或其限制條件、繼承階層是否表示聚合根。
-    /// </summary>
-    private static bool IsAggregateRoot(ITypeSymbol type)
+    /// <summary>在有界的宣告回傳型別內檢查 Entity／Aggregate 與陣列、泛型引數。</summary>
+    private static bool ContainsMutableDomainType(ITypeSymbol type, RoleClassifier classifier,
+        System.Collections.Generic.HashSet<ITypeSymbol> visited)
     {
-        if (type is ITypeParameterSymbol typeParameter)
-        {
-            return typeParameter.ConstraintTypes.Any(IsAggregateRoot);
-        }
-
-        if (type is not INamedTypeSymbol namedType)
-        {
-            return false;
-        }
-
-        for (var current = namedType; current is not null; current = current.BaseType)
-        {
-            if (current.Name == "AggregateRoot" || current.Name == "EsAggregateRoot")
-            {
-                return true;
-            }
-        }
-
-        return namedType.Name == "IAggregateRoot"
-            || namedType.AllInterfaces.Any(candidate => candidate.Name == "IAggregateRoot");
-    }
-
-    /// <summary>
-    /// 判斷型別或其泛型引數是否包含聚合根或領域實體等可變領域型別。
-    /// </summary>
-    private static bool ContainsMutableDomainType(ITypeSymbol type)
-    {
-        if (IsAggregateRoot(type) || IsDomainEntity(type))
-        {
-            return true;
-        }
-
-        return type is INamedTypeSymbol namedType
-            && namedType.TypeArguments.Any(ContainsMutableDomainType);
-    }
-
-    /// <summary>
-    /// 判斷型別或其限制條件、繼承階層是否表示領域實體。
-    /// </summary>
-    private static bool IsDomainEntity(ITypeSymbol type)
-    {
-        if (type is ITypeParameterSymbol typeParameter)
-        {
-            return typeParameter.ConstraintTypes.Any(IsDomainEntity);
-        }
-
-        if (type is not INamedTypeSymbol namedType)
-        {
-            return false;
-        }
-
-        for (var current = namedType; current is not null; current = current.BaseType)
-        {
-            if (current.Name == "DomainEntity")
-            {
-                return true;
-            }
-        }
-
-        return namedType.Name == "IDomainEntity"
-            || namedType.AllInterfaces.Any(candidate => candidate.Name == "IDomainEntity");
+        if (!visited.Add(type)) return false;
+        if (classifier.Is(type, "aggregate") || classifier.Is(type, "entity")) return true;
+        if (type is IArrayTypeSymbol array) return ContainsMutableDomainType(array.ElementType, classifier, visited);
+        return type is INamedTypeSymbol named
+            && named.TypeArguments.Any(argument => ContainsMutableDomainType(argument, classifier, visited));
     }
 
     /// <summary>
@@ -370,9 +262,9 @@ public sealed class RepositoryQueryMethodAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        context.ReportDiagnostic(Diagnostic.Create(
+        DiagnosticReporting.Report(context,
             RuleDescriptors.RepositoryQueryMethod,
             location,
-            reason));
+            reason);
     }
 }

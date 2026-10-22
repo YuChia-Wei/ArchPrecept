@@ -39,68 +39,37 @@ public sealed class ProjectionReadOnlyAnalyzer : DiagnosticAnalyzer
     {
         var invocation = (InvocationExpressionSyntax)context.Node;
         var projectionType = context.ContainingSymbol?.ContainingType;
-        if (projectionType is null || !ImplementsProjectionMarker(projectionType))
+        if (projectionType is null || !RoleClassifier.For(context.Compilation, context.Options).Is(projectionType, "projection"))
         {
             return;
         }
 
         var method = context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol as IMethodSymbol;
-        if (method is null || !IsPersistenceWrite(method))
+        if (method is null || !IsPersistenceWrite(method, RoleClassifier.For(context.Compilation, context.Options)))
         {
             return;
         }
 
-        context.ReportDiagnostic(Diagnostic.Create(
+        DiagnosticReporting.Report(context,
             RuleDescriptors.ProjectionWriteOperation,
             invocation.GetLocation(),
             projectionType.Name,
-            method.Name));
-    }
-
-    /// <summary>
-    /// 判斷型別是否實作 <c>IProjection</c> 標記介面。
-    /// </summary>
-    private static bool ImplementsProjectionMarker(INamedTypeSymbol type)
-    {
-        foreach (var contract in type.AllInterfaces)
-        {
-            if (contract.Name == "IProjection")
-            {
-                return true;
-            }
-        }
-
-        return false;
+            method.Name);
     }
 
     /// <summary>
     /// 判斷方法是否為 <c>DbContext</c> 或 <c>DbSet</c> 的持久化寫入作業。
     /// </summary>
-    private static bool IsPersistenceWrite(IMethodSymbol method)
+    private static bool IsPersistenceWrite(IMethodSymbol method, RoleClassifier classifier)
     {
         if (method.Name is "SaveChanges" or "SaveChangesAsync")
         {
-            return InheritsFrom(method.ContainingType, "DbContext");
+            return classifier.Is(method.ContainingType, "db-context");
         }
 
         return WriteMethods.Contains(method.Name)
-            && (InheritsFrom(method.ContainingType, "DbContext")
-                || InheritsFrom(method.ContainingType, "DbSet"));
+            && (classifier.Is(method.ContainingType, "db-context")
+                || classifier.Is(method.ContainingType, "db-set"));
     }
 
-    /// <summary>
-    /// 判斷型別是否繼承自指定名稱的基底型別。
-    /// </summary>
-    private static bool InheritsFrom(INamedTypeSymbol? type, string typeName)
-    {
-        for (var current = type; current is not null; current = current.BaseType)
-        {
-            if (current.Name == typeName)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }

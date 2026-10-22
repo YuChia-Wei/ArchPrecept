@@ -15,7 +15,12 @@ stable-release planning. Current supported consumers are .NET 8 and 10; .NET 11
 will be evaluated after a later release. See the
 [License and provenance assessment](docs/releases/licensing-assessment.md) for the completed review and its scope.
 
-All six current packages are published to GitHub Packages as **0.0.2-preview** with public visibility.
+The previous **0.0.2-preview** release contains six public GitHub Packages.
+**0.0.3-preview** adds selectable rule profiles, shared role mapping/evidence,
+the domain-event dispatcher correction, two opt-in ValueObject rules and a Products API sample.
+Start with the [installation and usage guide](docs/getting-started.md),
+[analyzer policy](docs/product/analyzer-policy.md), and [0.0.3 release record](docs/releases/0.0.3-preview.md)
+for the current publication and validation status.
 CT-005 adds the optional `ArchPrecept.Contracts.Domain.EventSourcing` package.
 CT-004 separates `ArchPrecept.Contracts.Messaging` message contracts from the
 `ArchPrecept.Contracts.Application.Messaging` publisher port. Transport configuration
@@ -30,7 +35,8 @@ fast-forward merge to main and main-push build/publication flow for six public p
 The product was renamed from .NET Engineering Guardrails to ArchPrecept on
 2026-10-18. Existing consumers must replace the `EngineeringGuardrails.*` project,
 assembly, and namespace prefix with `ArchPrecept.*`, update references, and rebuild.
-Diagnostic IDs `DBA1001`–`DBA1017` and rule behavior remain unchanged.
+That rename retained Diagnostic IDs `DBA1001`–`DBA1017`; subsequent behavior changes
+and the new opt-in `DBA1018`／`DBA1019` are documented in their version-specific release notes.
 
 The GitHub repository is now `YuChia-Wei/ArchPrecept`.
 The local checkout directory `dotnet-architecture-kit`
@@ -45,7 +51,9 @@ need to match the online repository name.
 - `src/Conformance/` — planned repository conformance and reporting capability.
 - `tests/<Capability>/` — non-shipping automated verification projects grouped to mirror `src/`.
 - `samples/` — package-consumer examples and smoke-test projects.
-- `docs/` — product, analyzer Diagnostic manuals, packaging, and future AI Context planning notes.
+- `docs/` — product, analyzer Diagnostic manuals, packaging and release records.
+- `rules/` — the single machine-readable rule catalog and configuration schemas.
+- `.dev/planning/` — development plans and deferred Framework adoption drafts.
 
 All buildable, publishable product source belongs under a capability directory in
 `src/`. Test and sample projects remain outside `src/` because they are
@@ -56,8 +64,8 @@ ship. ArchPrecept's own code and documentation are licensed under
 [Apache-2.0](LICENSE); dependencies retain their respective licenses.
 All six current package IDs are approved for public publication. The initial flow
 publishes an unshipped version after main-push CI and verifies public metadata and
-registry consumption on .NET 8 and 10. See the [current release record](docs/releases/0.0.2-preview.md)
-for actual publication results and the [previous release record](docs/releases/preview.md) for history.
+registry consumption on .NET 8 and 10. See the [current release record](docs/releases/0.0.3-preview.md),
+[0.0.2 record](docs/releases/0.0.2-preview.md), and [first preview record](docs/releases/preview.md) for evidence.
 
 Analyzer Diagnostic 的觸發條件、範例、修正與 suppression 指引，請見
 [`docs/diagnostics/README.md`](docs/diagnostics/README.md)。

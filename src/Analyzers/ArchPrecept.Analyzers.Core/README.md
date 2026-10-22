@@ -1,62 +1,25 @@
 # ArchPrecept Analyzers Core
 
-本專案的 Roslyn 架構分析器，係自 .NET backend AI Context framework 複製而來，作為此 Repository 的初始原始碼基線。
+此 NuGet 套件提供編譯期架構規則，不包含 Contracts runtime、AI CLI 或 Framework。一般 `dotnet build` 可執行。
 
-## 目前的 Diagnostic
+- [安裝與最小驗證入口](../../../docs/getting-started.md)
+- [Diagnostic 手冊與 HelpLink](../../../docs/diagnostics/README.md)
+- [Profile、角色映射、優先序與評估界線](../../../docs/product/analyzer-policy.md)
+- [唯一 Rule Catalog](../../../rules/catalog.xml)
+- [Products Web API 套件 sample](../../../samples/Products/README.md)
 
-- [`DBA1001`](../../../docs/diagnostics/DBA1001.md)（`error`）：驗證 Aggregate／Query Repository 的語意邊界、相容性繼承、Aggregate Root 限制、可攜式雙方法 Aggregate 合約，並禁止通用泛型可寫入 CRUD Port。
-- [`DBA1002`](../../../docs/diagnostics/DBA1002.md)（`error`）：Use Case 或 Handler 不得注入 `IServiceProvider`。
-- [`DBA1003`](../../../docs/diagnostics/DBA1003.md)（`warning`）：Aggregate／Entity 不應參考如 `DbContext` 等基礎設施型別。
-- [`DBA1004`](../../../docs/diagnostics/DBA1004.md)（`warning`）：具體 Controller 類別應宣告 `ApiControllerAttribute`。
-- [`DBA1005`](../../../docs/diagnostics/DBA1005.md)（`error`）：Controller 不得參考 `DbContext` 或呼叫 `SaveChanges`。
-- [`DBA1006`](../../../docs/diagnostics/DBA1006.md)（`error`）：Controller 不得直接建立 Handler 或 Use Case 型別。
-- [`DBA1007`](../../../docs/diagnostics/DBA1007.md)（`warning`）：物件 Mapper 應為靜態類別。
-- [`DBA1008`](../../../docs/diagnostics/DBA1008.md)（`warning`）：物件 Mapper 不應相依 Repository、Use Case 或 Handler。
-- [`DBA1009`](../../../docs/diagnostics/DBA1009.md)（`warning`）：事件溯源 Aggregate 的狀態只應在 `When` transition 中變更。
-- [`DBA1010`](../../../docs/diagnostics/DBA1010.md)（`error`）：Use Case 不得使用 Service Locator 或 attribute-based 屬性注入。
-- [`DBA1011`](../../../docs/diagnostics/DBA1011.md)（`error`）：Handler 不得混合處理 Command 與 Query marker 職責。
-- [`DBA1012`](../../../docs/diagnostics/DBA1012.md)（`error`）：Use Case 不得直接建立 Repository。
-- [`DBA1013`](../../../docs/diagnostics/DBA1013.md)（`warning`）：Projection 服務不應呼叫 EF 持久化寫入操作。
-- [`DBA1014`](../../../docs/diagnostics/DBA1014.md)（`error`）：Controller 不得注入具體 Handler、訊息匯流排、調度器、寫入 Repository 或 Domain Service；Query Repository／Service 僅保留給已明確選定的純查詢端點。
-- [`DBA1015`](../../../docs/diagnostics/DBA1015.md)（`error`）：Use Case 合約與實作必須使用 `ExecuteAsync`、非選用的 `CancellationToken` 與傳輸無關輸入；Use Case 也不得同時公開 `Handle`／`HandleAsync`。
-- [`DBA1016`](../../../docs/diagnostics/DBA1016.md)（`error`）：Use Case 不得注入 `IMessageBus`、中介器／調度器或另一個 Use Case。
-- [`DBA1017`](../../../docs/diagnostics/DBA1017.md)（`error`）：`*CommandHandler` 與 `*QueryHandler` 型別必須調適至恰好一個 Use Case，且不得相依 Repository 或 Domain Service。
+0.0.3-preview 保留 DBA1001–DBA1017 的 legacy 預設；新增 DBA1018／DBA1019 為 ddd opt-in Warning。DBA0001 表示無效設定，DBA0002 提供明確宣告範圍與部分未評估狀態。每項規則的實際 Profile／角色／severity 由 Catalog 提供，Descriptor 直接讀取同一份資料。
 
-完整的逐項手冊、觸發條件、範例、修正與 suppression 指引，請見 [`docs/diagnostics/README.md`](../../../docs/diagnostics/README.md)。
+```xml
+<PackageReference Include="ArchPrecept.Analyzers.Core" Version="[0.0.3-preview]" PrivateAssets="all" />
+```
 
-`DBA1001` 取代原有以 grep 進行的 Repository 合規腳本。它透過介面繼承分類標準、相容與衍生 Port，而非廣泛比對 `Repository` 名稱；目標專用的批次 Port 則刻意不納入此可攜式分析器。
+需要精確自有契約時，用 AdditionalFiles 的 repository／project XML 設定完整 metadata 與 assembly；不需要安裝產品 Contracts。命名慣例仍可選用，但診斷會標示低信心。規則沒有聲稱覆蓋未辨識的全部型別；用 Expected 取得特定範圍的狀態。
 
-`DBA1004` 至 `DBA1006` 取代原有以 grep 進行的 Controller 合規腳本；`DBA1007` 與 `DBA1008` 取代原有 Mapper 合規腳本。`DBA1014` 至 `DBA1017` 實作已核准 Use Case inbound-port 與 Handler adapter 模型中可確定判定的部分。純查詢端點是否已被明確選定，仍屬目標 Repository 的證據，不會從協調邏輯品質自動推論。
+原始碼維護可執行 Analyzer 測試，發布驗收使用 `eng/Build-Packages.ps1` 與 `eng/Test-PackageConsumer.ps1`，對 SDK 8／10 的真實 nupkg 驗證。原始碼內含式 ProjectReference 範例仍保留在 templates，但不代替套件驗收。
 
-分析器不取代供審查與架構技能使用的 AI 軟體工程推理脈絡。
-
-## 執行測試
-
-```bash
+```powershell
 dotnet test tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ArchPrecept.Analyzers.Core.Tests.csproj
 ```
 
-## 初始擷取狀態
-
-本專案仍不可封裝（non-packable）。已核准的專案、預設組件與根命名空間識別均為 `ArchPrecept.Analyzers.Core`；NuGet 套件識別、支援的編譯器矩陣與發佈合約仍未核准。
-
-## 接線至目標 Repository
-
-進行原始碼內含式評估時，請透過 `Directory.Build.props` 將此分析器專案接線至目標專案。
-
-使用：
-
-- `templates/Directory.Build.props.snippet`
-- `templates/analyzer-severity.editorconfig`
-
-該片段會以以下設定將分析器專案加入為 `ProjectReference`：
-
-- `OutputItemType="Analyzer"`
-- `ReferenceOutputAssembly="false"`
-- `PrivateAssets="all"`
-
-如此一來，目標專案可在 `dotnet build` 期間接收分析器 Diagnostic，而不會把分析器專案當作執行階段組件參考。
-
-嚴重性範本讓每個架構 Diagnostic 可獨立設定。目標 Repository 可依架構 Profile 與團隊共識選用 `none`、`silent`、`suggestion`、`warning` 或 `error`。
-
-自訂 DBA Diagnostic 會在分析器專案接線後的建置期間執行。標準 IDE 程式碼風格偏好可能還需要 `EnforceCodeStyleInBuild`、`dotnet format --verify-no-changes` 或等效的 CI 命令。只有目標建置將 warning 視為 error 時，warning 才會阻擋建置。
+此專案為可封裝的六個產品專案之一；Roslyn 與第三方 DLL 不會隨 Analyzer nupkg 內嵌。發布狀態以 [版本紀錄](../../../docs/releases/0.0.3-preview.md) 為準。標準 IDE style preferences 與架構 Diagnostic 的 CI 接線是不同責任，單純安裝套件不會替整個 repository 建立完整 gate。

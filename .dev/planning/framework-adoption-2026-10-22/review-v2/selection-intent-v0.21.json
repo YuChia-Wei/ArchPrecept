@@ -1,0 +1,144 @@
+{
+  "artifact_kind": "non-executable-selection-intent",
+  "status": "draft-for-owner-review",
+  "installer_input": false,
+  "reason_not_executable": "v0.21.0 尚未發布，沒有已驗證的正式 catalog identity、raw hashes 或最終版本。不要把這份 JSON 傳給 derive-subset 或 maintain_framework。",
+  "strategy": "recommended-wait-for-public-v0.21.0",
+  "owner_accepted": "原選配用途及方向；本輪檢核文件、例外、16-skill 拆分後對應與等待方案。",
+  "target_release": "v0.21.0",
+  "released_catalog_identity": null,
+  "released_catalog_sha256": null,
+  "released_files_sha256": null,
+  "observed_source_commit": "1d9a42c80a0f0db2d69dc36d335a090bfb071281",
+  "proposed_skills": [
+    {
+      "id": "adr-author",
+      "observed_source_version": "0.1.0",
+      "release_version": null
+    },
+    {
+      "id": "ai-context-auditor",
+      "observed_source_version": "0.1.0",
+      "release_version": null
+    },
+    {
+      "id": "ai-context-governance",
+      "observed_source_version": "0.1.1",
+      "release_version": null
+    },
+    {
+      "id": "ai-context-init",
+      "observed_source_version": "0.2.1",
+      "release_version": null
+    },
+    {
+      "id": "code-reviewer",
+      "observed_source_version": "0.2.5",
+      "release_version": null
+    },
+    {
+      "id": "diagnostic-analyst",
+      "observed_source_version": "0.1.0",
+      "release_version": null
+    },
+    {
+      "id": "domain-model-designer",
+      "observed_source_version": "0.1.0",
+      "release_version": null
+    },
+    {
+      "id": "local-change-implementer",
+      "observed_source_version": "0.2.6",
+      "release_version": null
+    },
+    {
+      "id": "pr-author",
+      "observed_source_version": "0.1.0",
+      "release_version": null
+    },
+    {
+      "id": "requirement-author",
+      "observed_source_version": "0.2.2",
+      "release_version": null
+    },
+    {
+      "id": "slice-implementer",
+      "observed_source_version": "0.2.6",
+      "release_version": null
+    },
+    {
+      "id": "software-architect",
+      "observed_source_version": "0.1.0",
+      "release_version": null
+    },
+    {
+      "id": "software-development-orchestrator",
+      "observed_source_version": "0.4.0",
+      "release_version": null
+    },
+    {
+      "id": "spec-author",
+      "observed_source_version": "0.3.0",
+      "release_version": null
+    },
+    {
+      "id": "spec-compliance-validator",
+      "observed_source_version": "0.1.0",
+      "release_version": null
+    },
+    {
+      "id": "test-designer",
+      "observed_source_version": "0.4.2",
+      "release_version": null
+    }
+  ],
+  "replacement": {
+    "from": "ddd-ca-hex-architect",
+    "to": [
+      "domain-model-designer",
+      "software-architect"
+    ],
+    "scope": "保留原先領域與架構用途，依已合併拆分更換身份；不假設存在舊 ID alias。"
+  },
+  "proposed_knowledge": [
+    {
+      "id": "dotnet-backend",
+      "observed_source_version": "0.1.5",
+      "release_version": null
+    },
+    {
+      "id": "engineering-common",
+      "observed_source_version": "0.4.0",
+      "release_version": null
+    }
+  ],
+  "adapters": [
+    "codex"
+  ],
+  "skill_naming": "original",
+  "sub_agents": [],
+  "binding_plan": {
+    "reference_knowledge": "依正式 metadata 的 operation/resource allowlist 及明選工作範圍重建；不得照抄 v0.20.2 的 12 bindings。",
+    "normative_rules": "本輪不建立。先核准目標採納文件、狀態與 bytes，再只對真實 Rule IDs、適用資源及 authority pins 建立。",
+    "missing_resources": "必要資源未允許或版本不符時明列不可用；不以來源 checkout 補 installed-reader 證據。"
+  },
+  "excluded": [
+    "claude adapter",
+    "Framework sub-agent packages",
+    "local-backlog",
+    "workflow-records",
+    "lesson-author",
+    "problem-frame-author",
+    "user-story-author",
+    "model policy files",
+    "memory or workflow store initialization"
+  ],
+  "release_gate": [
+    "public release and verified archive",
+    "catalog/engine/pins from the same release",
+    "selected component closure",
+    "needed UseCase authority resource coverage or explicitly accepted bounded gap",
+    "fresh file plan including approved target documents/settings",
+    "separate installation authorization"
+  ]
+}

@@ -14,13 +14,6 @@ namespace ArchPrecept.Analyzers.Core;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MapperComplianceAnalyzer : DiagnosticAnalyzer
 {
-    private static readonly string[] ForbiddenTypeSuffixes =
-    {
-        "Repository",
-        "UseCase",
-        "Handler"
-    };
-
     /// <summary>
     /// 取得此分析器支援的 Diagnostic 描述項目。
     /// </summary>
@@ -36,7 +29,7 @@ public sealed class MapperComplianceAnalyzer : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        context.RegisterSyntaxNodeAction(AnalyzeMapper, SyntaxKind.ClassDeclaration);
+        context.RegisterSyntaxNodeAction(AnalyzeMapper, SyntaxKind.ClassDeclaration, SyntaxKind.RecordDeclaration, SyntaxKind.StructDeclaration, SyntaxKind.RecordStructDeclaration);
     }
 
     /// <summary>
@@ -44,54 +37,35 @@ public sealed class MapperComplianceAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static void AnalyzeMapper(SyntaxNodeAnalysisContext context)
     {
-        var declaration = (ClassDeclarationSyntax)context.Node;
+        var declaration = (TypeDeclarationSyntax)context.Node;
         var mapperSymbol = context.SemanticModel.GetDeclaredSymbol(declaration, context.CancellationToken);
-        if (mapperSymbol is null || !mapperSymbol.Name.EndsWith("Mapper", StringComparison.Ordinal))
+        if (mapperSymbol is null || !RoleClassifier.For(context.Compilation, context.Options).Is(mapperSymbol, "mapper"))
         {
             return;
         }
 
         if (!mapperSymbol.IsStatic)
         {
-            context.ReportDiagnostic(Diagnostic.Create(
+            DiagnosticReporting.Report(context,
                 RuleDescriptors.MapperMustBeStatic,
                 declaration.Identifier.GetLocation(),
-                mapperSymbol.Name));
+                mapperSymbol.Name);
         }
 
         foreach (var typeSyntax in declaration.DescendantNodes().OfType<TypeSyntax>())
         {
             var type = context.SemanticModel.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
-            if (type is null || !IsForbiddenDependency(type))
+            if (type is null || !(RoleClassifier.For(context.Compilation, context.Options).Is(type, "repository") || RoleClassifier.For(context.Compilation, context.Options).Is(type, "use-case") || RoleClassifier.For(context.Compilation, context.Options).Is(type, "handler")))
             {
                 continue;
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(
+            DiagnosticReporting.Report(context,
                 RuleDescriptors.MapperForbiddenDependency,
                 typeSyntax.GetLocation(),
                 mapperSymbol.Name,
-                type.Name));
+                type.Name);
         }
     }
 
-    /// <summary>
-    /// 判斷型別是否為 Repository、Use Case 或 Handler 等 Mapper 不應依賴的型別。
-    /// </summary>
-    private static bool IsForbiddenDependency(ITypeSymbol type)
-    {
-        var candidate = type is INamedTypeSymbol { IsGenericType: true } namedType
-            ? namedType.ConstructedFrom.Name
-            : type.Name;
-
-        foreach (var suffix in ForbiddenTypeSuffixes)
-        {
-            if (candidate.EndsWith(suffix, StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }
