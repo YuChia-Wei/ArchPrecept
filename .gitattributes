@@ -26,3 +26,10 @@
 
 # Preserve reviewed snapshot bytes and their recorded hashes across platforms.
 /.dev/planning/framework-adoption-2026-10-22/review-v2/** -text
+
+# Managed Framework bytes are verified against raw SHA-256.
+/.ai/core/** -text
+/.agents/skills/** -text
+/.ai/framework.lock -text
+/.ai/project/installation.json -text
+/.dev/README.MD text eol=lf

@@ -23,3 +23,6 @@ packages/
 # Operating-system files
 .DS_Store
 Thumbs.db
+
+# Local Framework writer guard and transient state
+/.ai/local/

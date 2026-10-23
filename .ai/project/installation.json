@@ -1,0 +1,796 @@
+{
+  "selection_version": 2,
+  "catalog": {
+    "identity": "catalog:1:0.21.0:221695622dde248a2dc84ffb9fc675d7c45d0768:2e924c8314edfb763e8662dab29dbd24c2ee6c0f8318429fa967171e3b24053e",
+    "catalog_sha256": "ca2b9c23eb0ed6552acfed4406ab93f96b3991f5320c1e57f40de5a22fa842f3",
+    "files_sha256": "636a2d82a4dbab3cd292ab2d3a6599db84e4342c41fdb23beddd1fd5b9575366"
+  },
+  "skills": [
+    "adr-author",
+    "ai-context-auditor",
+    "ai-context-governance",
+    "ai-context-init",
+    "code-reviewer",
+    "diagnostic-analyst",
+    "domain-model-designer",
+    "local-change-implementer",
+    "pr-author",
+    "requirement-author",
+    "slice-implementer",
+    "software-architect",
+    "software-development-orchestrator",
+    "spec-author",
+    "spec-compliance-validator",
+    "test-designer"
+  ],
+  "knowledge": [
+    "dotnet-backend",
+    "engineering-common"
+  ],
+  "adapters": [
+    "codex"
+  ],
+  "bindings": [
+    {
+      "id": "common-domain-discovery-reference",
+      "package": "engineering-common",
+      "resources": [
+        "member:bdd/discovery.md",
+        "member:ddd/README.md",
+        "member:ddd/domain-discovery.md",
+        "member:ddd/examples/order-cancellation.md",
+        "member:discovery/collaborative-discovery.md"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "architecture"
+        ],
+        "operations": [
+          "explore"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": null,
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    },
+    {
+      "id": "common-domain-model-reference",
+      "package": "engineering-common",
+      "resources": [
+        "engineering-rule-catalog",
+        "member:bdd/discovery.md",
+        "member:bdd/formulation.md",
+        "member:ddd/README.md",
+        "member:ddd/domain-discovery.md",
+        "member:ddd/examples/order-cancellation.md",
+        "member:ddd/model-evolution.md",
+        "member:ddd/strategic-design.md",
+        "member:ddd/tactical-design.md",
+        "member:domain-language/README.MD",
+        "member:domain-language/templates/aggregate-vocabulary-template.md",
+        "member:domain-language/templates/bounded-context-language-template.md",
+        "member:domain-language/templates/domain-event-language-template.md",
+        "member:operations/CONTEXT-MAP-GUIDE.MD"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "architecture"
+        ],
+        "operations": [
+          "design",
+          "review"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": null,
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    },
+    {
+      "id": "common-implementation-reference",
+      "package": "engineering-common",
+      "resources": [
+        "engineering-rule-catalog",
+        "member:references/GWT-TEST-HANDOFF-CONTRACT.md",
+        "member:references/TEST-DESIGN-HANDOFF-CONTRACT.md"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "implementation"
+        ],
+        "operations": [
+          "implement"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": null,
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    },
+    {
+      "id": "common-local-change-reference",
+      "package": "engineering-common",
+      "resources": [
+        "engineering-rule-catalog"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "local-change"
+        ],
+        "operations": [
+          "implement"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": null,
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    },
+    {
+      "id": "common-requirement-authoring-reference",
+      "package": "engineering-common",
+      "resources": [
+        "member:bdd/discovery.md",
+        "member:bdd/formulation.md",
+        "member:ddd/domain-discovery.md"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "requirements"
+        ],
+        "operations": [
+          "draft",
+          "normalize"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": null,
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    },
+    {
+      "id": "common-requirement-exploration-reference",
+      "package": "engineering-common",
+      "resources": [
+        "member:bdd/discovery.md",
+        "member:ddd/domain-discovery.md",
+        "member:discovery/collaborative-discovery.md"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "requirements"
+        ],
+        "operations": [
+          "explore"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": null,
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    },
+    {
+      "id": "common-review-reference",
+      "package": "engineering-common",
+      "resources": [
+        "engineering-rule-catalog"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "review"
+        ],
+        "operations": [
+          "review"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": null,
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    },
+    {
+      "id": "common-software-architecture-reference",
+      "package": "engineering-common",
+      "resources": [
+        "engineering-rule-catalog",
+        "member:references/ARTIFACT-DESIGN-REVIEW-CONTRACT.md",
+        "member:references/AUTHORING-BOUNDARY-CONTRACT.md",
+        "member:references/TECHNOLOGY-SELECTION-POLICY.md"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "architecture"
+        ],
+        "operations": [
+          "design",
+          "review"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": null,
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    },
+    {
+      "id": "common-specification-reference",
+      "package": "engineering-common",
+      "resources": [
+        "member:bdd/formulation.md",
+        "member:ddd/domain-discovery.md",
+        "member:ddd/tactical-design.md",
+        "member:references/AUTHORING-BOUNDARY-CONTRACT.md"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "specification"
+        ],
+        "operations": [
+          "draft",
+          "normalize"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": null,
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    },
+    {
+      "id": "common-test-design-reference",
+      "package": "engineering-common",
+      "resources": [
+        "engineering-rule-catalog",
+        "member:bdd/README.md",
+        "member:bdd/automation.md",
+        "member:bdd/discovery.md",
+        "member:bdd/examples/library-renewal.md",
+        "member:bdd/formulation.md",
+        "member:bdd/gherkin.md",
+        "member:references/GWT-TEST-HANDOFF-CONTRACT.md",
+        "member:references/TEST-DESIGN-HANDOFF-CONTRACT.md"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "test-design"
+        ],
+        "operations": [
+          "design",
+          "review"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": null,
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    },
+    {
+      "id": "dotnet-domain-model-reference",
+      "package": "dotnet-backend",
+      "resources": [
+        "engineering-rule-catalog",
+        "member:standards/DESIGN-BY-CONTRACT.md",
+        "member:standards/coding-standards/aggregate-standards.md"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "architecture"
+        ],
+        "operations": [
+          "design",
+          "review"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": "dotnet-backend",
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    },
+    {
+      "id": "dotnet-implementation-reference",
+      "package": "dotnet-backend",
+      "resources": [
+        "engineering-rule-catalog",
+        "member:standards/DESIGN-BY-CONTRACT.md",
+        "member:standards/coding-standards/aggregate-standards.md",
+        "member:standards/coding-standards/controller-standards.md",
+        "member:standards/coding-standards/repository-standards.md",
+        "member:standards/coding-standards/test-standards.md",
+        "member:standards/coding-standards/transactional-messaging-standards.md",
+        "member:standards/coding-standards/usecase-standards.md"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "implementation"
+        ],
+        "operations": [
+          "implement"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": "dotnet-backend",
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    },
+    {
+      "id": "dotnet-local-change-reference",
+      "package": "dotnet-backend",
+      "resources": [
+        "engineering-rule-catalog",
+        "member:standards/coding-standards/aggregate-standards.md",
+        "member:standards/coding-standards/controller-standards.md",
+        "member:standards/coding-standards/repository-standards.md",
+        "member:standards/coding-standards/test-standards.md",
+        "member:standards/coding-standards/usecase-standards.md"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "local-change"
+        ],
+        "operations": [
+          "implement"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": "dotnet-backend",
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    },
+    {
+      "id": "dotnet-review-reference",
+      "package": "dotnet-backend",
+      "resources": [
+        "engineering-rule-catalog",
+        "member:review/review-routing.yaml",
+        "member:standards/DESIGN-BY-CONTRACT.md",
+        "member:standards/coding-standards/aggregate-standards.md",
+        "member:standards/coding-standards/controller-standards.md",
+        "member:standards/coding-standards/repository-standards.md",
+        "member:standards/coding-standards/test-standards.md",
+        "member:standards/coding-standards/usecase-standards.md"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "review"
+        ],
+        "operations": [
+          "review"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": "dotnet-backend",
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    },
+    {
+      "id": "dotnet-software-architecture-reference",
+      "package": "dotnet-backend",
+      "resources": [
+        "engineering-rule-catalog",
+        "member:standards/BUILDING-BLOCKS-RECONSTRUCTION-CONTRACT.md",
+        "member:standards/DESIGN-BY-CONTRACT.md",
+        "member:standards/coding-standards/transactional-messaging-standards.md",
+        "member:standards/coding-standards/usecase-standards.md",
+        "member:standards/project-structure.md"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "architecture"
+        ],
+        "operations": [
+          "design",
+          "review"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": "dotnet-backend",
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    },
+    {
+      "id": "dotnet-test-design-reference",
+      "package": "dotnet-backend",
+      "resources": [
+        "engineering-rule-catalog",
+        "member:standards/coding-standards/test-standards.md"
+      ],
+      "use_as": "knowledge",
+      "selector": {
+        "capabilities": [
+          "test-design"
+        ],
+        "operations": [
+          "design",
+          "review"
+        ],
+        "path_prefixes": [
+          ".dev/planning",
+          ".dev/standards",
+          "docs",
+          "rules",
+          "samples",
+          "src",
+          "tests"
+        ],
+        "technology_profile": "dotnet-backend",
+        "file_types": [
+          "cs",
+          "csproj",
+          "json",
+          "md",
+          "props",
+          "targets",
+          "txt",
+          "xml",
+          "yaml"
+        ],
+        "execution_modes": [
+          "direct"
+        ]
+      },
+      "authorities": [],
+      "required_rule_ids": [],
+      "required_for_coverage": false
+    }
+  ],
+  "skill_naming": "original"
+}
