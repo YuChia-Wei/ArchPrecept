@@ -5,9 +5,9 @@ author: "產品負責人：YuChia Wei"
 date: "2026-10-21"
 lang: "zh-TW"
 document_id: "DOC-PRD"
-document_version: "0.6"
+document_version: "0.7"
 status: "draft"
-last_reviewed: "2026-10-21"
+last_reviewed: "2026-10-25"
 canonical_path: "docs/product/prd.md"
 canonical: true
 source_format: "markdown"
@@ -16,7 +16,7 @@ owners:
 related_documents:
   - "DOC-PRODUCT-PLAN"
   - "DOC-GOV-TRACEABILITY"
-supersedes: "0.5"
+supersedes: "0.6"
 ---
 
 # 目錄
@@ -54,9 +54,9 @@ supersedes: "0.5"
 
 > **文件狀態：需求基線草案（Requirements Baseline Draft）**<br>
 > **目標 GitHub Repository：** `YuChia-Wei/ArchPrecept`<br>
-> **版本：** `0.6`<br>
+> **版本：** `0.7`<br>
 > **上游文件：** 《ArchPrecept 產品規劃書》<br>
-> **重要排除事項：** 產品品牌與 Project／Assembly／Namespace 前綴已核准為 ArchPrecept；本文件不核准 NuGet Package ID、套件發布與商標權利。
+> **適用狀態：** 全文件仍為 draft；已確認的產品政策及本文明定的文件交付要求各在其範圍內適用，不代表全部 PRD 已核准、完成或可立即發布。
 
 | 欄位 | 內容 |
 |---|---|
@@ -69,10 +69,10 @@ supersedes: "0.5"
 | Repository 名稱 | `YuChia-Wei/ArchPrecept` |
 | 需求範圍 | Rule Model、Role Classification、Analyzer、Reference Contracts、Architecture Testing、Conformance、設定、文件治理、雙向追溯、打包與 Release |
 | 關聯治理文件 | 《ArchPrecept 文件治理與規則追溯規範》 |
-| 需求治理 | Requirement ID 穩定；需求變更需同步驗收標準、測試及相容性影響 |
-| 本版排除 | NuGet Package ID 核准、商標權利確認、最終定價與商業化策略 |
+| 需求治理 | Requirement ID 不因重排而變更；需求變更同步驗收與證據。Preview 不考慮向後相容，見版本政策 |
+| 本版排除 | 具體版本發布授權、商標權利確認、最終定價與商業化策略 |
 
-既有品牌與程式碼命名前綴依 DEC-015／DEC-016 採 ArchPrecept，本機目錄 `dotnet-architecture-kit` 保留。四套件已發布的歷史證據見 [0.0.1-preview 紀錄](../releases/preview.md)。本版依 CT-004／CT-005 與 DEC-017／DEC-018 拆分 Messaging 並新增獨立 Domain.EventSourcing，六套件已依 DEC-019 公開發布為 `0.0.2-preview`，見[發布證據](../releases/0.0.2-preview.md)。公開型別搬移不具來源／二進位相容性，見 [ES 遷移](event-sourcing-contract.md)與 [Messaging 遷移](messaging-contract.md)。所有 Requirement ID 保持不變。
+產品名稱與程式碼前綴採 ArchPrecept，本機目錄 `dotnet-architecture-kit` 保留。現行套件與交付入口見 [README](../../README.md)，Messaging 與 ES 契約見[訊息責任邊界](messaging-contract.md)及[Event Sourcing 核心契約](event-sourcing-contract.md)。首個不帶 `-preview` 公開版本之前不考慮向後相容；可直接調整 ID、schema、defaults 與 API，不強制維持 legacy／replacement／migration scaffolding。已發布 bytes 不可覆寫，正式版維護承諾仍待選定。
 
 # 執行摘要
 
@@ -80,7 +80,7 @@ supersedes: "0.5"
 
 首個外部可用 Prerelease 的核心，不是增加更多零散 Diagnostic，而是先完成中央 Architecture Role Classifier、Analyzer 與 Reference Contract Libraries 的相依解耦，以及 Analyzer-only／Custom Contracts 的完整 Consumer Test。產品必須證明：即使採用端不使用本產品定義的 `IAggregateRoot`、`IUseCase` 或 Repository 介面，仍可透過明確角色映射執行主要架構規則。
 
-本 PRD 同時要求所有規則具備穩定 Rule ID、可解釋的角色判定 Evidence、明確的機械化程度及 `not-evaluated` 狀態，以避免把「沒有 Diagnostic」誤認為「已完成合規驗證」。來源、授權與 Ownership 的產品決策由產品規劃書第 14 章管理；本文件保留對應的發布閘門與驗收要求。
+本 PRD 同時要求所有規則具備版本內唯一的 Rule ID、可解釋的角色判定 Evidence、明確的機械化程度及 `not-evaluated` 狀態，以避免把「沒有 Diagnostic」誤認為「已完成合規驗證」。來源、授權與 Ownership 的產品決策由產品規劃書第 14 章管理；本文件保留對應的發布閘門與驗收要求。
 
 產品規劃書與 PRD 本身也是受治理的產品資產。Repository 內必須以 Markdown 維持單一正式來源，並讓工程規範、Requirement、Rule ID、Diagnostic／Architecture Test、實作與測試形成雙向追溯。未來安裝 AI Collaboration Framework 時，應以 Gap Analysis 建立 `.dev/` 開發治理層，而不是以搬移產品文件取代需求與規則對齊。
 
@@ -153,12 +153,12 @@ Architecture Testing 與完整 Conformance CLI 可在 MVP 後續里程碑完成�
 
 | ID | 需求 | 優先 | 驗收標準 |
 |---|---|---|---|
-| RM-001 | 每條工程規則必須具有穩定且唯一的 Rule ID | P0 | CI 能檢查重複 ID；公開後不得重用 |
+| RM-001 | 每條工程規則必須具有版本內唯一且可追溯的 Rule ID | P0 | CI 能檢查同版重複 ID 與文件一致性；正式版前可直接調整，不強制保留 preview 舊 ID |
 | RM-002 | Rule Catalog 必須為機器可讀格式並有 Schema | P0 | 所有 Catalog File 通過 Schema Validation |
 | RM-003 | Rule 必須記錄標題、理由、適用角色、Profile、執行機制及機械化程度 | P0 | 每個 P0 Rule 欄位完整，缺漏會使 CI 失敗 |
 | RM-004 | Rule 必須能映射至 Diagnostic ID、Architecture Test 或 CLI Check | P0 | 所有公開 Diagnostic 均能反查 Rule ID |
-| RM-005 | Rule 必須能引用 AI Collaboration Framework 的規範來源 | P1 | Compatibility Mapping 可列出來源文件與版本 |
-| RM-006 | Rule Catalog 必須支援 Deprecated／Replacement 關係 | P1 | 淘汰規則可指向替代 Rule ID 與生效版本 |
+| RM-005 | Rule 必須能引用外部方法論／作者來源，並區分支持界線與產品選擇 | P1 | 規則文件可定位原始來源及相關段落；Framework 知識只依明選範圍參考，不充當規則設計權威 |
+| RM-006 | Rule 的生命週期與替代關係依生效版本政策治理 | P1 | 首個 non-preview 公開版本前不強制 deprecated／replacement 結構；有實際替代契約時清楚說明，正式版後依所選維護政策驗收 |
 | RM-007 | Rule 狀態必須支援機械化、協助式、人工審查與不適用分類 | P0 | Report 能區分 `machine-enforced`、`machine-assisted`、`review-required`、`not-applicable` |
 | RM-008 | Rule Catalog、Diagnostic Descriptor 與 Markdown 文件不得無聲漂移 | P1 | CI 會驗證 ID、標題與文件引用一致性 |
 
@@ -205,8 +205,8 @@ Architecture Testing 與完整 Conformance CLI 可在 MVP 後續里程碑完成�
 | CT-005 | Event Sourcing 支援必須明確定義 Replay、Pending Event、Version 與 Commit 語意 | P1 | 行為測試涵蓋重播、不重複記錄與版本檢查；[核心契約與驗收案例](event-sourcing-contract.md) |
 | CT-006 | Contracts 不得相依 Analyzer、Architecture Testing 或 Conformance | P0 | Dependency Graph 驗證通過 |
 | CT-007 | Core Contracts 不得成為完整 Runtime Framework | P0 | 不包含 Outbox、ORM、Bus、DI Scanning 等具體實作 |
-| CT-008 | Public API 變更必須進行相容性比較 | P1 | Candidate Release 產生 API Compatibility Report |
-| CT-009 | Lab 原始碼 Ownership 必須在抽取後轉移至此 repo | P1 | Provenance 記錄含來源 Commit 與 Canonical Owner |
+| CT-008 | Public API 變更必須說明當前契約與行為差異 | P1 | Candidate 可列出受影響 API 與驗證；首個 non-preview 公開版本前不以維持舊 preview 相容為 gate |
+| CT-009 | 參考契約的維護 Ownership 與實際程式碼來源必須可稽核 | P1 | Provenance 記錄含來源 Commit（適用時）、授權與此 repo 的 Canonical Owner；不作為規則方法論歸因 |
 
 ## 7. 功能需求：Architecture Testing
 
@@ -252,12 +252,24 @@ Architecture Testing 與完整 Conformance CLI 可在 MVP 後續里程碑完成�
 | AD-002 | 提供 Analyzer-only／Custom Contracts 範例 | P0 | Sample 與 Consumer Test 均能建置 |
 | AD-003 | 提供 Reference Contracts 範例 | P1 | 顯示低設定 strict adoption |
 | AD-004 | 提供 ASP.NET Core、Worker、Console Job 等不同宿主範例 | P1 | 證明產品不侷限 Backend |
-| AD-005 | 提供 Migration Guide | P1 | 既有使用者可從命名慣例轉到明確 Mapping |
+| AD-005 | 提供當前採用與設定指引，包含從命名慣例改採明確 Mapping | P1 | 使用者可依當前文件完成角色映射；正式版前不強制提供舊 preview migration／相容實作 |
 | AD-006 | 提供 Compatibility Manifest | P1 | AI Context 與 Guardrails 能聲明相容版本範圍 |
-| AD-007 | 提供 Provenance Record | P0 | Analyzer 的課程啟發、後續獨立實作 Ownership，以及 Contracts 的來源與抽取紀錄可稽核 |
+| AD-007 | 提供 Provenance Record | P0 | 程式碼／文件來源、授權與維護 Ownership 可稽核；不把 provenance 或私人討論當成產品規則設計理由 |
 | AD-008 | 文件不得宣稱所有架構品質都能自動判定 | P0 | README 與 Diagnostic Docs 清楚說明判斷邊界 |
+| AD-009 | 每條公開規則必須直接說明設計依據、為何選它、代價與方法論對齊／加強 | P0 | 具外部作者／權威來源及支持界線、產品選擇、適用性、正反例與未評估／限制；工具 Diagnostic 說明證據契約，不虛構方法論歸因 |
+| AD-010 | 每個可獨立採用套件必須有完整使用說明 | P0 | 含安裝／認證前提、平台、最小範例、模式與設定、責任／相依、錯誤處理及限制；Analyzer-only／custom-contract 可按其真實能力使用 |
+| AD-011 | 公開 API 必須提供對人與 AI 可讀且隨包交付的 XML 文件 | P0 | 有意義的 summary 及依簽章／行為適用的 typeparam、param、returns／value、exception、remarks；涵蓋不變條件、所有權／可變性、生命週期與限制；生成、nupkg 內容及 feed consumer 可讀分別留證 |
 
-### 10.1 文件治理與雙向追溯需求
+### 10.1 已選規則政策與文件邊界
+
+規則細節集中於[規則設計依據](rule-design-rationale.md)、[方法論來源](methodology-references.md)及各 Diagnostic 文件；`rules/catalog.xml` 仍是唯一產品機器規則來源。保留的政策包括：Aggregate Repository 的 identity-load／save 與 read-side query 分工、純 Mapper 的 static-only 與無 I/O／編排角色、預設 Controller → UseCase、薄交付 Handler、專屬 Input／required CancellationToken，以及明選的純查詢例外。
+
+這些是產品對責任邊界的選擇，不能宣稱方法論一律要求同樣形式；也不能只因更嚴格就自動視為方法論矛盾。自訂契約提供角色辨識能力，不表示任意契約形狀均符合所選政策。真實 symbols、有效契約、角色視圖與訊息範圍的精確化，必須保留已接受語意，並以對應證據驗收。
+
+全面禁止 Aggregate static factory 及 MQ-only 尚缺完整設計理由與適用條件，保留為獨立待決議題；本文件不以缺證據撤銷既有選擇，也不擴張成新 Analyzer 行為。API XML 與使用文件的完整交付仍須另行實作及驗收。
+
+
+### 10.2 文件治理與雙向追溯需求
 
 | ID | 需求 | 優先 | 驗收標準 |
 |---|---|---|---|
@@ -270,11 +282,12 @@ Architecture Testing 與完整 Conformance CLI 可在 MVP 後續里程碑完成�
 | DG-007 | 可機械化規範若尚無執行機制，必須被報告為 Coverage Gap | P0 | Gap Report 不得把缺少實作的規範視為已通過或不適用 |
 | DG-008 | Diagnostic 若缺少 Rule ID、規範來源或測試映射，必須被視為發布阻擋 | P0 | CI 對公開 Diagnostic 的追溯完整性執行 Gate |
 | DG-009 | 文件生命週期必須支援 `draft`、`in-review`、`approved`、`active`、`superseded`、`archived` | P1 | 文件 Metadata 與審查流程使用一致狀態定義 |
-| DG-010 | 重大產品、需求與規則變更必須保留替代與歷史關係 | P1 | Requirement／Rule／Decision 淘汰時保留舊 ID、狀態、替代項目與生效版本 |
+| DG-010 | 重大產品、需求與規則變更必須可追查 | P1 | 現行正文說明有效語意與理由；Git 保存差異與決策歷史；preview 不強制舊規則並存、replacement 或 migration 結構 |
 | DG-011 | AI Collaboration Framework 導入必須先執行語意盤點與 Gap Analysis | P1 | 導入計畫能說明哪些內容保留於 `docs/`／`rules/`，哪些建立於 `.dev/`，且不以無差別搬移作為驗收 |
 | DG-012 | 文件與追溯資產必須有固定 Owner 與審查節奏 | P1 | Release Candidate、重大規則變更與 Framework 升級前會執行一致性審查 |
-| DG-013 | 重大產品邊界、Requirement 語意或文件 Ownership 變更必須建立 ADR／Decision Log | P1 | 可追查原決策、替代決策、生效版本與影響範圍 |
+| DG-013 | 重大產品邊界、Requirement 語意與文件 Ownership 變更須直接更新正式文件及可審查 Git 差異 | P1 | 現行理由、適用範圍與驗收一致；Git 可追查歷史，有獨立比較用途時才另建 ADR，不強制追加變更日誌 |
 | DG-014 | Word／PDF 等衍生輸出必須記錄來源 Document ID、版本與 Commit／Tag | P0 | Export 可反查 Markdown 正式來源，且不得標示為 canonical |
+| DG-015 | 規則與方法論或明選 Framework 知識有真正衝突時，只討論受影響範圍 | P0 | 列雙方精確來源／狀態、相同適用條件、互斥要求、consumer 影響及處置選項，由產品負責人決定；較嚴政策或方法論未規定形式不自動構成衝突 |
 
 ## 11. 功能需求：Build、Packaging 與 Release
 
@@ -285,11 +298,12 @@ Architecture Testing 與完整 Conformance CLI 可在 MVP 後續里程碑完成�
 | RL-003 | Build 必須可重現且支援 Source Link／Symbols | P1 | Package Inspection 通過 |
 | RL-004 | 每個 Candidate 必須從本機 Feed 安裝至 Consumer | P0 | 實際 `.nupkg` restore／build／test 成功 |
 | RL-005 | Analyzer Package Layout 必須正確 | P0 | Analyzer 以 Analyzer Asset 載入，不成為 Runtime Reference |
-| RL-006 | Release 必須附 Checksum、Inventory、Release Note、Migration Note 與 Compatibility Manifest | P1 | Hosted Release Artifact 完整 |
+| RL-006 | Release 必須附 Checksum、Inventory、當前使用與變更說明及平台／成品矩陣 | P1 | 發布證據可定位不可變成品與支援範圍；preview 不強制 migration scaffolding，正式版後依所選維護政策 |
 | RL-007 | Validation、Feed Publication、Hosted Release 與下載後驗證是不同 Checkpoint | P1 | Release Workflow 有獨立狀態與失敗處理 |
-| RL-008 | 課程啟發揭露、Provenance 與授權檢查未通過不得公開發布 | P0 | Workflow 有明確阻擋條件 |
+| RL-008 | Provenance 與授權檢查未通過不得公開發布 | P0 | 發布 gate 有明確來源／權利阻擋條件；不以規則理由文字取代逐檔授權檢查 |
 | RL-009 | 所有可建置、可發布的產品原始碼必須集中於 `src/`，並依 `Contracts`、`Analyzers`、`ArchitectureTesting`、`Conformance` 等能力分組 | P0 | Repository 結構檢查拒絕位於 `src/` 外的產品 Project；測試 Project 位於對應的 `tests/<Capability>/` 且不進入發布 Inventory |
 | RL-010 | 產品 Project、預設 Assembly Name 與根 Namespace 必須使用 `ArchPrecept.<Capability>` 階層；測試 Project 加 `.Tests` | P0 | Repository 不含產品身分中的 `Lab`、`BuildingBlocks` 或 `Backend`；命名檢查不建立或推定 NuGet Package ID |
+| RL-011 | 首個不帶 `-preview` 後綴的公開版本必須通過規則理由、完整使用與 API XML 交付 gate | P0 | AD-009～AD-011 逐項有實際證據；XML 內容、生成、nupkg 隨包、feed consumer 可讀與語意審查分別驗收，不以現有 preview pipeline 已通過推定完成 |
 
 ## 12. 非功能需求
 
@@ -330,8 +344,9 @@ enforcement:
       diagnostic_id: <diagnostic-id>
 coverage: full
 source:
-  framework: ai-collaboration-framework
-  document: USECASE-COMMAND-HANDLER-RELATIONSHIP.MD
+  design_rationale: docs/product/rule-design-rationale.md
+  external_references: docs/product/methodology-references.md
+  policy_kind: product-strengthening
 lifecycle:
   introduced: 0.1.0
   status: active
@@ -464,7 +479,7 @@ FullAdoption
 
 Consumer Test 必須對實際 Pack 後的 Artifact 執行，不可只使用 ProjectReference 模擬發布成品。
 
-### 14.4 Compatibility Tests
+### 14.4 版本與當前契約檢查
 
 - Public API Baseline；
 - Diagnostic ID／Default Severity；
@@ -487,7 +502,7 @@ Consumer Test 必須對實際 Pack 後的 Artifact 執行，不可只使用 Proj
 - Rule Catalog、Diagnostic Descriptor、規範文件與測試映射完整性；
 - 公開 Diagnostic 缺少 Rule ID、規範來源或測試時的失敗案例；
 - 可機械化規範缺少執行機制時的 Coverage Gap 報告；
-- Requirement／Rule 淘汰與 Replacement 關係；
+- Requirement／Rule 的當前語意、Git 差異與適用版本政策；
 - AI Collaboration Framework 導入前後的責任與路徑映射驗證。
 
 ## 15. MVP 驗收條件
@@ -506,8 +521,8 @@ Consumer Test 必須對實際 Pack 後的 Artifact 執行，不可只使用 Proj
 10. Rule Catalog 通過 Schema Validation。
 11. Domain／Application／Messaging Public API 已完成第一輪 Review。
 12. Package Inventory、Deterministic Build、Package Inspection 與 Local Feed Consumer Test 通過。
-13. 課程啟發揭露、公開成品的來源與授權檢查，以及 Provenance 記錄均已完成。
-14. Release Artifact 附 Checksum、Inventory、Release Note 與 Compatibility Manifest。
+13. 公開成品的來源／授權檢查與 Provenance 記錄均已完成。
+14. Release Artifact 附 Checksum、Inventory、當前使用與變更說明，以及平台／成品矩陣。
 15. NuGet Package ID 可仍維持待決策，但發布前必須正式核准。
 16. `docs/product/product-plan.md`、`docs/product/prd.md` 與 `docs/governance/document-governance-and-traceability.md` 已成為穩定 Markdown 正本。
 17. 所有公開 Diagnostic 均具備工程規範、Requirement、Rule ID、實作與測試的雙向追溯。
@@ -523,10 +538,11 @@ Consumer Test 必須對實際 Pack 後的 Artifact 執行，不可只使用 Proj
 - 有正向、反向及誤報案例；
 - 有文件、修正指引與例外說明；
 - 有規範、Requirement、Rule、執行機制、實作與測試的追溯更新；
-- 有相容性影響評估；
+- 有當前契約與差異說明；正式版前不以維持 preview 相容為條件；
 - 有 Provenance／Ownership 更新；
 - 有 Consumer 或 Integration Evidence；
 - 未造成 Analyzer 與 Contracts 之間的禁止相依；
+- 有適用的完整使用說明、規則理由與有意義 API XML；XML 交付須有 nupkg 及 consumer 可讀證據；
 - Markdown 正本與衍生輸出保持一致；
 - CI、Package Validation、文件追溯驗證與 Repository 自檢通過。
 
@@ -555,24 +571,9 @@ docs/
 samples/
 ```
 
-已知基線：
+現行已交付能力、Diagnostic 與套件狀態以 [README](../../README.md)、[診斷目錄](../diagnostics/README.md)、[設定與角色政策](analyzer-policy.md)及各版本發布紀錄為準。歷史測試結果不視為本文件本次驗收。
 
-- Domain、Application、Domain.EventSourcing、Messaging 與 Application.Messaging 契約專案；
-- Roslyn Analyzer 初始實作；
-- 17 個 Diagnostic；本輪 51 個 Analyzer 測試、.NET 8／10 各 21 個 ES 測試與六種 consumer 模式，見[候選驗證](../releases/0.0.2-preview.md)；
-- Analyzer 目前主要依簡單型別名稱、Suffix 與方法形狀判定角色；
-- Project 仍為 `IsPackable=false`；
-- Project、預設 Assembly Name 與根 Namespace 已核准採 `ArchPrecept.<Capability>`；公開 Package ID、License 與相容性策略尚未核准。
-
-目前尚未建立 `src/ArchitectureTesting/` 與 `src/Conformance/` 專案；兩者是已規劃但尚未實作的產品能力，不以空目錄或空專案預先佔位。
-
-主要重構方向：
-
-- 維持 Project、Assembly 與 Namespace 的 `ArchPrecept.<Capability>` 階層，禁止重新引入 `Backend`、`Lab` 與 `BuildingBlocks` 產品身分；
-- 把分散於各 Analyzer 的角色判定抽成中央 Classifier；
-- 把 Source-included Analyzer 轉為正式 Analyzer 成品；
-- 將 Reference Contracts 從複製來源轉為 Canonical Ownership；
-- 建立 Rule Catalog、Consumer Matrix 及 Release Governance。
+`src/ArchitectureTesting/` 與 `src/Conformance/` 仍是規劃能力，不以空專案預先佔位。Analyzer 與 Contracts 維持獨立；持續以共用 Classifier、明確 Mapping、唯一 Rule Catalog 及真實 package consumer 證據驗證其聲明範圍。
 
 # 附錄 B：需求識別碼
 
@@ -590,7 +591,7 @@ samples/
 | `RL` | Build、Packaging 與 Release |
 | `NFR` | 非功能需求 |
 
-需求 ID 一經公開使用後，不應因文件重新排序、章節拆分或名稱調整而重編；若需求淘汰，應保留 ID 並標記狀態及替代項目。
+需求 ID 不因文件重新排序、章節拆分或名稱調整而重編；需求語意與移除理由由當前文件及 Git 保存。Rule／Diagnostic 的 Preview 調整依版本政策，不因本段引入強制相容或替代結構。
 
 # 附錄 C：詞彙表
 
@@ -614,7 +615,7 @@ samples/
 
 - 產品願景、能力邊界、Repository 策略、來源、授權與 Ownership 由產品規劃書管理；PRD 不重複維護相同決策內容。
 - Repository 正本使用穩定路徑 `docs/product/prd.md`，Markdown 為正式來源；版本由文件控制與 Git 歷史管理。
-- Requirement ID 不因章節重新排序而變更；新增、變更、淘汰與替代關係應保留狀態、生效版本及驗收影響。
+- Requirement ID 不因章節重新排序而變更；新增、變更或移除直接更新理由及驗收，歷史由 Git 保存。
 - PRD 的產品需求應進一步拆解為未來 `.dev/requirements/` 與 `.dev/specs/`，但 PRD 本身不作為單次工作項目或實作日誌。
 - 每次重大需求或規則變更，必須同步追溯工程規範、Rule ID、Diagnostic／Architecture Test、實作與測試。
 - NuGet Package Naming 決策完成後，應新增獨立 Naming／Identity 文件或附錄，不改寫不依賴名稱的需求語意。

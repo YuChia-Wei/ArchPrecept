@@ -5,9 +5,9 @@ author: "產品負責人：YuChia Wei"
 date: "2026-10-21"
 lang: "zh-TW"
 document_id: "DOC-PRODUCT-PLAN"
-document_version: "0.8"
+document_version: "0.9"
 status: "draft"
-last_reviewed: "2026-10-23"
+last_reviewed: "2026-10-25"
 canonical_path: "docs/product/product-plan.md"
 canonical: true
 source_format: "markdown"
@@ -56,8 +56,8 @@ related_documents:
 
 > **文件狀態：決策基線草案（Decision Baseline Draft）**<br>
 > **目標 GitHub Repository：** `YuChia-Wei/ArchPrecept`<br>
-> **版本：** `0.7`<br>
-> **重要排除事項：** 產品品牌與 Project／Assembly／Namespace 前綴已核准為 ArchPrecept；本文件不核准 NuGet Package ID、套件發布與商標權利。
+> **版本：** `0.9`<br>
+> **適用狀態：** 文件整體仍為 draft；第 3 節已確認決策及本文件明定的 Preview 政策可作為其範圍內的產品基線。本文不構成任何一次發布授權或商標權利判斷。
 
 | 欄位 | 內容 |
 |---|---|
@@ -72,7 +72,7 @@ related_documents:
 | 目前階段 | 初始抽取、產品邊界定義、公開契約硬化與 Analyzer 架構重整前 |
 | 本版納入 | 產品背景、定位、決策、設計原則、使用者、能力架構、責任邊界、repo 結構、文件治理與追溯、發布治理、來源與 Ownership、Roadmap、風險及待決策事項 |
 | 關聯治理文件 | 《ArchPrecept 文件治理與規則追溯規範》 |
-| 本版排除 | NuGet Package ID 核准、商標權利確認、最終定價與商業化策略 |
+| 本版排除 | 具體版本發布授權、商標權利確認、最終定價與商業化策略 |
 
 # 執行摘要
 
@@ -80,11 +80,7 @@ related_documents:
 
 產品不只包含 Roslyn 分析器（Roslyn Analyzer），也包含支援規則執行所需的規則模型、架構角色辨識、架構測試（Architecture Testing）、符合性驗證工具（Conformance Tool）、設定與導入資產，以及一組**選配的參考契約類別庫（Reference Contract Libraries）**。參考契約類別庫預計提供 `IAggregateRoot`、Event-Sourced Aggregate、`IUseCase`、Repository Port、Messaging Abstraction 等正式維護的介面與基底型別，但採用這些型別**不得成為使用 Analyzer 的必要條件**。
 
-本產品與 AI Collaboration Framework 的責任分工如下：
-
-- AI Collaboration Framework 保存工程原則、理由、取捨、例外情境、AI Skill 與人工審查方式。
-- `ArchPrecept` 實作可被確定判定的規則、標準化角色模型、參考契約及機械化證據。
-- 採用端 Repository 保存自己的真實架構、角色映射、啟用 Profile、例外與抑制證據。
+產品本身負責解釋每條規則的設計理由、取捨、適用性與可驗證邊界；相關方法論的歸因以外部作者或權威來源為準。AI Collaboration Framework 可提供協作與審查知識，採用端則保存自身角色映射、啟用 Profile、例外及驗證證據。Framework 的存在不取代本產品文件，也不自動授予規則規範地位。
 
 目前建議維持**單一 repo、多個成品輸出**。Analyzer 與參考契約類別庫在套件相依上完全解耦，但放在同一 repo 共同維護，以便在同一個 Pull Request 中原子性更新規則、契約、測試、文件與相容性宣告。只有在參考契約類別庫形成獨立產品生命週期、維護責任或授權邊界時，才考慮拆分新的 repo。
 
@@ -101,17 +97,9 @@ related_documents:
 
 ### 1.1 背景
 
-本產品由三條實務演進路徑匯流而成：
+DDD、Clean Architecture 與 Hexagonal Architecture 提供責任、依賴與邊界的設計原則，但同一原則通常容許多種實作形式。團隊仍需要說明自己選擇的形式、代價及適用條件，並區分哪些條件可由 C# 語意分析可靠判斷。
 
-1. **課程學習與靜態分析器演進**<br>
-   完成 [馴服 AI 寫出可維護的系統：模式語言驅動開發工作坊](https://teddysoft.tw/courses/ai-coding-pl/) 課程後，依據課程中學習到的與 AI 協作的做法，配合老師提供的資源與自己的軟體工程知識、實際工作需求，進行 AI Collaboration Framework 的整理與開發。
-   之後，由於 dotnet 本身就有 Roslyn Analyzer 的靜態檢查工具，所以將 dotnet 開發專用的規則檢核特別抽出來做專用的 Roslyn Analyzer。
-
-2. **DDD 與應用程式架構契約的累積**<br>
-   `IAggregateRoot`、`IDomainEntity`、Domain Event、Repository Port、Result、Event Sourcing Aggregate 等型別，來自多個 Lab Repository 中反覆實作與修正後的經驗。
-
-3. **AI 協作規範的機械化需求**<br>
-   AI Collaboration Framework 已能詳細描述 DDD、Clean Architecture、Hexagonal Architecture、Use Case、Handler、Repository、Controller 與 Messaging 邊界，但單靠文件與 Prompt，仍無法保證人員或 AI 每次實作都遵循規範。
+ArchPrecept 將明確的產品政策轉成可執行檢查，同時保留人工與 AI 判斷的範圍。規則的外部依據與產品加強處分別寫入[規則設計依據](rule-design-rationale.md)，來源資格及支持界線見[方法論來源](methodology-references.md)。個人研究、私人討論及其他專案的開發歷史不作為公開規則的設計權威。
 
 ### 1.2 核心問題
 
@@ -173,38 +161,35 @@ related_documents:
 
 | 編號 | 決策 | 狀態 | 理由 |
 |---|---|---|---|
-| DEC-001 | GitHub repo 使用 `dotnet-engineering-guardrails` | 已確認 | 目前產品主軸已收斂為規則模型、機械化執行與符合性證據 |
-| DEC-002 | 對外工作名稱使用 `.NET Engineering Guardrails` | 已由 DEC-015 取代 | 保留原工作名稱的歷史；自 2026-10-18 起採 ArchPrecept |
-| DEC-003 | 維持單一 repo、多成品輸出 | 已確認 | 契約、Analyzer、Rule Catalog、測試與相容性需原子性共同演進 |
-| DEC-004 | Analyzer 不得依賴 Reference Contract Libraries | 已確認 | Analyzer-only 必須是一等採用模式 |
-| DEC-005 | 未採用本產品介面的專案也必須能執行核心規則 | 已確認 | 既有系統不能被迫全面遷移才能獲得驗證能力 |
-| DEC-006 | Reference Contract Libraries 保留在同一 repo，定位為選配 | 暫定 | 共同演進效益大於目前拆 repo 的治理收益 |
-| DEC-007 | Core 規則宿主中立，ASP.NET Core／Messaging 規則以 Profile 區分 | 已確認 | 支援桌面、Console、Worker、批次與其他宿主 |
-| DEC-008 | 規則目錄是機器可讀的正式來源 | 已確認 | 避免 Diagnostic、Markdown 與設定各自漂移 |
-| DEC-009 | 零 Diagnostic 不得自動等同整體合規 | 已確認 | 無法辨識或未啟用的規則應標示 `not-evaluated` |
-| DEC-010 | NuGet Package ID 與 Package Prefix 延後決策 | 已確認 | Project、Assembly 與 Namespace 可先穩定能力身分，但不據此推定發布識別 |
-| DEC-011 | 產品規劃書與 PRD 採受控持續演進；Markdown 為正式來源，Word 為衍生輸出 | 已確認 | 讓 Git Diff、Review、歷史追蹤與自動驗證有單一來源，避免雙向人工維護造成漂移 |
-| DEC-012 | 未來安裝 AI Collaboration Framework 時保留 `docs/` 產品文件，並以 `.dev/` 補上開發治理層 | 已確認 | Framework 導入應採語意映射與 Gap Analysis，不應把產品文件無差別搬入流程目錄 |
-| DEC-014 | .NET Project、預設 Assembly Name 與 Namespace 採 `EngineeringGuardrails.<Capability>` 階層 | 已由 DEC-015 取代 | 保留原命名決策；能力分層與不推定 NuGet Package ID 的原則繼續適用 |
-| DEC-013 | 工程規範、PRD Requirement、Rule、執行機制、實作、測試與證據必須雙向可追溯 | 已確認 | 可識別「規範沒有工具」與「工具缺少正式規範依據」兩種治理缺口 |
-| DEC-015 | 產品採 ArchPrecept；Solution 採 `ArchPrecept.slnx`；Project、預設 Assembly Name 與 Namespace 採 `ArchPrecept.<Capability>` | 已確認，2026-10-18 生效 | 取代 DEC-002 與 DEC-014 的命名；保留能力分層、公開型別簡名、Diagnostic ID 與規則行為；不核准套件發布 |
-| DEC-016 | GitHub Repository 改名另行安排，本機目錄保留 `dotnet-architecture-kit` | 已確認，2026-10-18 生效 | DEC-001 仍記錄目前遠端名稱；本機目錄保留以維持 chat/Codex session 連續性，不要求與線上名稱一致 |
-| DEC-017 | CT-005 的 ES 核心採同 repository、獨立 `.csproj`／NuGet 套件，ES Analyzer 留在 Core | 負責人同意，2026-10-21 | [核心契約與遷移](event-sourcing-contract.md)；完整 ES runtime 是否獨立產品另案評估；本次沒有發布授權 |
-| DEC-018 | 契約按責任與能力命名；ES 採 `Contracts.Domain.EventSourcing`，Messaging 拆成訊息契約與 `Contracts.Application.Messaging` port | 負責人同意，2026-10-21 | [Messaging 邊界與遷移](messaging-contract.md)；組態由 host／adapter 擁有，只保留不發布的範例 |
-| DEC-019 | 六套件採 public、目前維持 `0.0.2-preview`；初期以 `--ff-only` 合併回 main 後直接推送，由 main push 建置與發布 | 負責人同意，2026-10-21 | [初期 CI/CD](../releases/cicd-plan.md)；tag 與其他觸發方式留待後期，不新增 PR／reviewer 門檻 |
-| DEC-020 | 執行全部不依賴 Framework 安裝的核心 Issues #6／#7／#8／#11／#1／#9，候選版本為 `0.0.3-preview`，沿用六套件 public 與 main-push 發布政策 | 負責人同意，2026-10-22 | [設定與角色政策](analyzer-policy.md)、[版本交付及證據](../releases/0.0.3-preview.md)；Framework 草案保存 [.dev/planning](../../.dev/planning/README.md)，待 0.21.0 正式發布後另行評估安裝；#5 採用端升級及 #10 P2 不擴入 |
-
-### 3.1 改名與採用端遷移
-
-本次將 `EngineeringGuardrails.*` 改為 `ArchPrecept.*`，並將 `EngineeringGuardrails.slnx` 改為 `ArchPrecept.slnx`。既有使用端需同步更新 ProjectReference、Assembly 引用、using 與完整型別名稱並重新建置；Assembly 與公開型別身分會改變，不能視為二進位相容的更名。既有 Diagnostic ID `DBA1001`～`DBA1017`、嚴重性與規則行為不變。
-
-DEC-015 的改名階段只處理 Repository 內部與文件。2026-10-18 後續發布準備已確認 GitHub Repository 為 `YuChia-Wei/ArchPrecept`，本機目錄 `dotnet-architecture-kit` 保留。負責人允許準備 GitHub Packages preview、CI/CD 與 PR；四個既有產品專案已 opt in 封裝為 `0.0.1-preview`。2026-10-19 License／來源檢查已完成，四套件已發布 GitHub Packages 並通過 .NET 8／10 registry 消費驗證；實際 public 可見性與原先 private 預期不符，等待負責人決定公開範圍，後續發布已停用。詳見[發布紀錄](../releases/preview.md)。未來版本政策仍待審查。
+| DEC-001 | GitHub repository 使用 `YuChia-Wei/ArchPrecept` | 已確認 | 對外產品與 repository 身分一致；本機目錄保留 `dotnet-architecture-kit` |
+| DEC-002 | 對外產品名稱由 DEC-015 定義 | 已取代 | 現行名稱集中於 DEC-015；歷史內容由 Git 保存 |
+| DEC-003 | 單一 repo、多成品輸出 | 已確認 | 規則、契約、測試與文件可共同演進 |
+| DEC-004 | Analyzer 不得依賴 Reference Contract Libraries | 已確認 | Analyzer-only 是一等採用模式 |
+| DEC-005 | 自訂契約也能執行核心規則 | 已確認 | 以角色映射支援既有系統；自訂辨識不等於放寬已選政策 |
+| DEC-006 | Reference Contracts 留在同一 repo，定位為選配 | 暫定 | 依獨立產品生命週期與 ownership 再評估是否拆 repo |
+| DEC-007 | Core 宿主中立；宿主／技術規則以 Profile 區分 | 已確認 | 支援 Web API、桌面、Console、Worker 與其他宿主 |
+| DEC-008 | `rules/catalog.xml` 是機器規則正式來源 | 已確認 | 文件說明理由與限制，不建立第二份產品 Catalog |
+| DEC-009 | 零 Diagnostic 不等於整體合規 | 已確認 | 未辨識、未啟用與未執行的檢查需分別揭露 |
+| DEC-010 | Package ID 的現行決策見第 12.6 節 | 已確認 | 未來成品名稱仍需獨立選定，不由 Project 名稱自動推定 |
+| DEC-011 | Markdown 正本持續演進，Word／PDF 為衍生輸出 | 已確認 | 以 Git 保存歷史，現行本文維持可直接閱讀的產品語意 |
+| DEC-012 | `docs/`、`rules/` 與 `.dev/` 各自維持責任 | 已確認 | Framework 安裝不搬移或取代產品來源 |
+| DEC-013 | 規範、Requirement、Rule、實作、測試與證據雙向追溯 | 已確認 | 讓缺少設計依據與缺少執行機制都可見 |
+| DEC-014 | 程式碼命名前綴由 DEC-015 定義 | 已取代 | 能力分層繼續適用；歷史內容由 Git 保存 |
+| DEC-015 | 產品名稱為 ArchPrecept；Solution 為 `ArchPrecept.slnx`；Project／Assembly／Namespace 為 `ArchPrecept.<Capability>` | 已確認 | 產品身分及能力邊界一致 |
+| DEC-016 | 本機目錄保留 `dotnet-architecture-kit` | 已確認 | 本機路徑無須與遠端名稱一致 |
+| DEC-017 | ES 核心採獨立 `Contracts.Domain.EventSourcing` 套件；ES Analyzer 留在 Core | 已確認 | ES 能力選配；完整 storage／projection runtime 另案評估 |
+| DEC-018 | Messaging 分為訊息契約與 Application publisher port | 已確認 | 依責任解耦；host／adapter 擁有組態與具體傳輸機制 |
+| DEC-019 | 六套件 public；review 與驗證後 ff-only 回 main，再由 main push 發布 preview | 已確認 | 現行流程見[CI/CD](../releases/cicd-plan.md)，不新增 PR／reviewer 必經門檻 |
+| DEC-020 | 核心 Analyzer 採共用分類與明確設定／範圍證據 | 已確認 | 現行交付見[設定與角色政策](analyzer-policy.md)；目標語意與已交付範圍分開 |
+| DEC-021 | 保留嚴格 Repository、static Mapper 及 UseCase／薄 Handler 政策，優先修正判定精確度 | 已確認 | 理由、方法論支持界線與代價見[規則設計依據](rule-design-rationale.md)；來源未完整處仍明列待補 |
+| DEC-022 | 首個不帶 `-preview` 公開版本之前不考慮向後相容 | 已確認 | 可直接整理 ID、schema、defaults、API，不強制 legacy／replacement／migration scaffolding；已發布 bytes 不可覆寫 |
+| DEC-023 | 首個不帶 `-preview` 公開版本須具備逐規則依據、完整使用說明與隨包可讀 API XML | 已確認 | 人與 AI 均須能理解產品契約；交付要求不等於檢查已通過 |
 
 ## 4. 產品設計原則
 
 ### 4.1 規範推理與機械化執行分離
 
-AI Collaboration Framework 或人類文件負責回答「為什麼、何時、如何取捨」；Guardrails 負責回答「哪些條件可被確定判定，以及結果證據為何」。
+產品文件直接回答「為什麼、何時、如何取捨」，以外部方法論／作者來源說明支持界線；Analyzer 等機制回答「哪些條件已被實際判定，以及結果證據為何」。協作知識可協助審查，不取代產品自行說明設計理由的責任。
 
 ### 4.2 Analyzer 獨立採用
 
@@ -252,9 +237,9 @@ AI Collaboration Framework 或人類文件負責回答「為什麼、何時、�
 
 Domain、Application 與核心 Analyzer 不得預設 ASP.NET Core、Wolverine、MediatR、EF Core 或特定 UI Framework。宿主／技術專屬規則以 Profile 或獨立規則群處理。
 
-### 4.8 相容性是產品功能
+### 4.8 版本政策明示
 
-公開介面、Diagnostic ID、規則語意、預設 Severity、設定 Schema 及 CLI 報告格式都必須納入相容性治理。
+公開介面、Diagnostic ID、規則語意、預設 Severity、設定 Schema 與報告格式均須有明確當前契約。首個不帶 `-preview` 公開版本之前不考慮向後相容；正式版相容承諾另行選定，見[版本政策](../releases/version-policy-proposal.md)。
 
 ### 4.9 發布採明確允許清單
 
@@ -262,7 +247,7 @@ Repository 預設不可打包；只有 package inventory 明確核准的專案�
 
 ### 4.10 來源可追溯
 
-每條 Analyzer 規則與每組參考契約，都應記錄其設計來源、相關規範、實作 Ownership、來源 Commit（適用時）及後續演進責任。
+每條規則直接說明外部設計依據、產品選擇、理由與取捨，並區分方法論原則與產品加強。程式碼來源、授權與 Ownership 以專門 provenance／license 資料保存，不把抽取歷史或私人討論當成方法論依據。
 
 ### 4.11 產品文件採受控持續演進
 
@@ -270,7 +255,7 @@ Repository 預設不可打包；只有 package inventory 明確核准的專案�
 
 ### 4.12 正式來源、衍生輸出與雙向追溯分離
 
-- Markdown 是 Repository 內的正式文件來源，檔名維持穩定；版本由文件 Metadata、Git Commit、Tag 與 Release 保存。
+- Markdown 是 Repository 內的正式文件來源，檔名維持穩定；版本由文件 Metadata、Git commit 與既有發布紀錄保存。
 - Word／PDF 是供閱讀或對外溝通的衍生輸出，不接受與 Markdown 並行的人工編輯。
 - 工程規範、PRD Requirement、Rule ID、Diagnostic／Architecture Test、實作與測試之間必須建立雙向追溯，讓「有規範但無驗證」與「有 Diagnostic 但無規範依據」都能被辨識。
 
@@ -360,7 +345,7 @@ ArchPrecept
    ├─ Diagnostic Documentation
    ├─ Configuration Examples
    ├─ Compatibility Manifests
-   ├─ Migration Guides
+   ├─ Adoption and configuration guidance
    ├─ Provenance Records
    └─ Consumer Samples
 ```
@@ -369,14 +354,14 @@ ArchPrecept
 
 Rule Model 是產品真正的中心，負責定義：
 
-- 穩定 Rule ID；
+- 版本內唯一且可追溯的 Rule ID；
 - 規則標題、理由與適用範圍；
 - 可機械化程度；
 - 角色需求；
 - Diagnostic ID／Architecture Test／CLI Check 對照；
 - 預設 Profile 與 Severity；
-- AI Collaboration Framework 文件引用；
-- 版本、淘汰與替代關係。
+- 外部方法論／作者來源與支持界線；
+- 版本與依生效政策所需的生命週期資訊。
 
 ### 7.2 Enforcement
 
@@ -419,50 +404,20 @@ Conformance Tool 不重寫 Roslyn 語意判斷，而負責：
 
 ## 8. 與 AI Collaboration Framework 的責任邊界
 
-```text
-AI Collaboration Framework
-  ├─ Engineering principles and rationale
-  ├─ Trade-offs and exception guidance
-  ├─ AI Skills and review workflows
-  └─ Human-readable standards
-                │
-                │ 規則來源與相容版本引用
-                ▼
-ArchPrecept
-  ├─ Rule Catalog
-  ├─ Role Classification
-  ├─ Analyzer / Architecture Tests
-  ├─ Optional Reference Contracts
-  └─ Conformance Evidence
-                │
-                │ 採用、設定與例外
-                ▼
-Target Repository
-  ├─ Actual architecture facts
-  ├─ Role mappings
-  ├─ Enabled profiles and severities
-  ├─ Waivers / suppressions
-  └─ CI evidence
-```
+- ArchPrecept 擁有規則理由、產品政策、Rule Catalog、角色模型、Analyzer、選配 Contracts、使用說明與交付證據。
+- AI Collaboration Framework 提供工程與 AI 協作知識、skill 與審查方法；明選可讀知識不代表已採納 normative rule，也不等於產品驗證。
+- 採用端擁有自身架構、role mapping、啟用 Profile、例外與執行結果。
+- 規則對外歸因引用方法論作者或權威來源，Framework 研究工作流、私人對話及其他專案歷史不作為規則設計權威。
 
-### 8.1 Ownership 原則
+### 8.1 真正衝突的處理
 
-- AI Collaboration Framework 不再保存 Analyzer 實作原始碼。
-- Guardrails repo 不複製完整 AI Context、Skill 或專案特定規格。
-- Target Repository 的業務、技術棧、例外及發布狀態，不得回寫成通用產品事實。
-- 兩個產品透過 Compatibility Manifest 與 Rule Mapping 連結，不強制共用相同版本號。
+當規則與其宣稱的方法論，或本專案明選的 Framework 知識，在同一角色、適用條件及責任邊界提出互不相容的要求時，只提出受影響規則的窄範圍討論：列出兩方精確來源及狀態、衝突條件、對 consumer 的影響、保留／修正／明選另一政策等選項，交由產品負責人決定後更新當前文件。討論期間只暫停依賴該衝突的結論。
 
-### 8.2 未來 Framework 導入原則
+比方法論更嚴格、方法論未規定某種命名或形式，均不自動構成矛盾。應先說明產品加強保護的責任、成本與限制。Framework 的缺失／未讀來源屬證據缺口，不可自行推翻已接受政策。全面禁止 Aggregate static factory 及 MQ-only 尚缺完整設計理由與適用條件，保留為獨立待決議題，不擴張為新的 Analyzer 行為。
 
-在 AI Collaboration Framework 尚未具備適合 Analyzer／套件產品開發的 Profile 前，產品層級文件先由 `docs/` 管理。未來安裝 Framework 時，應先執行語意盤點與 Gap Analysis，確認：
+### 8.2 開發治理
 
-- 哪些內容屬於長期產品文件，應繼續留在 `docs/`；
-- 哪些是機器可讀規則，應由 `rules/` 維護；
-- 哪些應拆解為 `.dev/requirements/`、`.dev/specs/`、`.dev/standards/`、`.dev/workflows/` 或 `.dev/releases/`；
-- 每條現行 Diagnostic 是否有配套工程規範、Rule ID、測試與適用性說明；
-- 每條可機械化規範是否已有對應執行機制，或應明確標記為缺口。
-
-Framework 導入不得把移動路徑視為治理完成；真正的驗收標準是 Ownership、正式來源與追溯關係清楚，且沒有重複維護同一產品事實。
+`docs/` 保存產品文件，`rules/` 保存機器規則，`.dev/` 保存專案開發治理與證據。Framework selection、安裝 bytes、verified reader、規範採納及實際執行分別讀回，不因目錄或文件存在就宣稱完整覆蓋；精確選配與缺口以專案入口及[採納文件](../../.dev/standards/framework-adoption.md)為準。
 
 ## 9. 相依與分層原則
 
@@ -501,7 +456,7 @@ Conformance Tool
 - Analyzer／Consumer 測試；
 - Rule Catalog 與文件；
 - Compatibility Manifest；
-- Migration Note。
+- 當前使用與變更說明。
 
 Repository 邊界不等於 NuGet 相依邊界。同一 repo 仍可讓 Analyzer-only、Contracts-only 與 Full Adoption 完全獨立安裝及版本化。
 
@@ -516,181 +471,42 @@ Repository 邊界不等於 NuGet 相依邊界。同一 repo 仍可讓 Analyzer-o
 - Contracts 擴張為完整 Runtime Framework；
 - 大量使用者只採用 Contracts，且 Guardrails 已不再是主要產品關聯。
 
-## 11. 預期 Git repo 結構
-
-> 下列 `ArchPrecept.*` 名稱是已核准的 .NET Project、預設 Assembly Name 與 Namespace 工作身分；不代表或推定最終 NuGet Package ID。其他目錄名稱描述 Repository 責任。
+## 11. Git repo 結構與責任
 
 ```text
-dotnet-engineering-guardrails/
-│
-├─ .github/
-│  ├─ ISSUE_TEMPLATE/
-│  └─ workflows/
-│     ├─ ci.yml
-│     ├─ package-validation.yml
-│     └─ release.yml
-│
-├─ .dev/                            # 未來 Framework 導入後建立
-│  ├─ requirements/
-│  ├─ specs/
-│  ├─ standards/
-│  ├─ workflows/
-│  └─ releases/
-│
-├─ rules/
-│  ├─ catalog/
-│  │  ├─ domain.yml
-│  │  ├─ application.yml
-│  │  ├─ messaging.yml
-│  │  └─ aspnetcore.yml
-│  ├─ profiles/
-│  ├─ mappings/
-│  └─ schemas/
-│
+ArchPrecept/
 ├─ src/
-│  ├─ Contracts/
-│  │  ├─ ArchPrecept.Contracts.Domain/
-│  │  ├─ ArchPrecept.Contracts.Application/
-│  │  ├─ ArchPrecept.Contracts.Messaging/
-│  │  ├─ ArchPrecept.Contracts.Application.Messaging/
-│  │  └─ ArchPrecept.Contracts.Domain.EventSourcing/
-│  ├─ Analyzers/
-│  │  └─ ArchPrecept.Analyzers.Core/
-│  │     ├─ Classification/
-│  │     │  ├─ Roles/
-│  │     │  ├─ Evidence/
-│  │     │  ├─ BuiltInContracts/
-│  │     │  └─ Configuration/
-│  │     ├─ Rules/
-│  │     │  ├─ Domain/
-│  │     │  ├─ Application/
-│  │     │  ├─ Messaging/
-│  │     │  └─ AspNetCore/
-│  │     ├─ Diagnostics/
-│  │     ├─ Infrastructure/
-│  │     └─ CodeFixes/              # 僅限安全修正
-│  ├─ ArchitectureTesting/
-│  └─ Conformance/
-│     ├─ Commands/
-│     ├─ Discovery/
-│     ├─ Execution/
-│     ├─ Compatibility/
-│     └─ Reporting/
-│
-├─ config/
-│  ├─ editorconfig/
-│  ├─ msbuild/
-│  └─ conformance/
-│
-├─ tests/
-│  ├─ Analyzers/
-│  ├─ Contracts/
-│  ├─ ArchitectureTesting/
-│  ├─ Conformance/
-│  └─ Consumers/
-│     ├─ AnalyzerOnly.CustomContracts/
-│     ├─ AnalyzerOnly.ConventionBased/
-│     ├─ AnalyzerWithReferenceContracts/
-│     ├─ ContractsOnly/
-│     ├─ UnrelatedNaming.FalsePositiveTests/
-│     └─ FullAdoption/
-│
-├─ samples/
-│  ├─ CustomContracts/
-│  ├─ ReferenceContracts/
-│  ├─ AspNetCore/
-│  ├─ Worker/
-│  └─ ConsoleJob/
-│
+│  ├─ Contracts/                 # 五個選配契約專案
+│  └─ Analyzers/                 # Core Analyzer
+├─ tests/                       # 對應能力測試，不發布
+├─ samples/                     # 採用範例
+├─ rules/
+│  ├─ catalog.xml               # 唯一產品機器規則來源
+│  ├─ catalog.xsd               # Catalog 結構
+│  └─ configuration.xsd         # Consumer 設定結構
 ├─ docs/
-│  ├─ product/
-│  │  ├─ product-plan.md
-│  │  └─ prd.md
-│  ├─ governance/
-│  │  └─ document-governance-and-traceability.md
-│  ├─ architecture/
-│  ├─ rules/
-│  ├─ diagnostics/
-│  ├─ contracts/
-│  ├─ compatibility/
-│  ├─ migration/
-│  ├─ provenance/
-│  ├─ adoption/
-│  │  └─ ai-collaboration-framework.md
-│  └─ exports/                      # 選配；由 Markdown 產生
-│
-├─ eng/
-│  ├─ package-inventory.yml
-│  ├─ build/
-│  ├─ packaging/
-│  ├─ compatibility/
-│  └─ scripts/
-│
-├─ Directory.Build.props
-├─ Directory.Build.targets
-├─ Directory.Packages.props
-├─ global.json
-├─ NuGet.Config
-├─ ArchPrecept.slnx
-├─ README.md
-├─ LICENSE
-├─ NOTICE
-└─ THIRD-PARTY-NOTICES
+│  ├─ product/                  # 定位、PRD、規則理由、外部來源與使用政策
+│  ├─ governance/               # 文件責任、狀態與追溯
+│  ├─ diagnostics/              # 現行 Diagnostic 與限制
+│  └─ releases/                 # 發布政策與歷史證據
+├─ .dev/                        # 開發治理及工作證據
+├─ eng/                         # 建置、打包與 consumer 驗證入口
+└─ ArchPrecept.slnx
 ```
 
 ### 11.1 實體結構原則
 
-- `rules/`：機器可讀規則與 Schema，不是一般說明文件。
-- `docs/rules/`：人類可讀的理由、範例、例外與遷移說明。
-- `src/`：所有可建置、可發布的產品原始碼；第一層依產品能力分組，不在 Repository 根目錄另設 `analyzers/` 或 `tools/` 原始碼樹。
-- 產品 `.csproj` 檔名、預設 Assembly Name 與根 Namespace 使用 `ArchPrecept.<Capability>`；測試專案使用對應產品名稱加 `.Tests`。
-- `ArchPrecept.*` 工作身分不得自動複用為 NuGet Package ID；發布識別仍需獨立決策與核准。
-- `src/Contracts/`：選配 runtime contracts；目錄位置不代表 Analyzer 相依。
-- `src/Analyzers/`：Roslyn Analyzer 與僅限安全修正的 Code Fix 原始碼。
-- `src/ArchitectureTesting/`：可由採用端測試專案引用的架構測試程式庫。
-- `src/Conformance/`：可執行的 .NET Tool／CLI 與報告編排能力。
-- `tests/`：不發布的自動驗證專案，第二層沿用 `src/` 的能力名稱；測試原始碼不與產品成品混放。
-- `tests/Consumers/`：以實際打包成品驗證 restore、build、Diagnostic 與執行行為。
-- `samples/`：供人閱讀的完整案例，不取代 Consumer Smoke Test。
-- `docs/product/`：產品規劃書與 PRD 的穩定正式路徑；檔名不隨版本改變。
-- `docs/governance/`：文件生命週期、追溯模型與 Framework 導入規劃。
-- `docs/exports/`：選配的 Word／PDF 衍生輸出，不是人工維護的正式來源。
-- `.dev/`：未來 Framework 導入後的需求拆解、技術規格、工作流程與證據層；不取代 `docs/` 或 `rules/`。
-- `eng/`：建置、打包、相容性與 Artifact Inventory 的產品工程資產。
-
-### 11.2 文件與治理結構
-
-目前 Repository 先採下列責任分工：
-
-```text
-docs/
-  ├─ product/       # 產品規劃與需求基線
-  ├─ governance/    # 文件治理與追溯設計
-  ├─ architecture/  # 對外可閱讀的產品架構
-  └─ ...
-
-rules/
-  ├─ catalog/       # 機器可讀 Rule ID 與語意
-  ├─ mappings/      # Rule、Diagnostic、規範與測試映射
-  └─ schemas/
-```
-
-未來安裝 AI Collaboration Framework 後，增加：
-
-```text
-.dev/
-  ├─ requirements/  # 從 PRD 拆出的可排程需求
-  ├─ specs/         # 技術設計與介面規格
-  ├─ standards/     # Repository 自身工程規範
-  ├─ workflows/     # 單次變更的計畫、結果與證據
-  └─ releases/      # Candidate 與正式發布證據
-```
-
-產品規劃書與 PRD 不因 Framework 導入而預設搬離 `docs/product/`。是否移動任何文件，必須由語意責任與 Ownership 決定，而不是套用目錄範本。
+- 可建置、可發布的產品原始碼集中在 `src/<Capability>/`，不在根目錄另建平行產品樹。
+- 產品 Project、預設 Assembly Name 與根 Namespace 使用 `ArchPrecept.<Capability>`；測試專案使用對應產品名稱加 `.Tests`，不進入發布 inventory。
+- Analyzer 與 Contracts 目錄相鄰不構成套件相依；五個契約與 Analyzer 各自可獨立採用。
+- `rules/catalog.xml` 與 XSD 是機器資料；人類可讀理由、來源支持界線及修正方式集中於產品／Diagnostic 文件，不複製第二份 Rule Catalog。
+- 規劃中的 ArchitectureTesting／Conformance 只有在實作後才新增相應專案，不以空專案代表能力已交付。
+- `.dev/` 保存專案開發治理及證據；Framework 安裝不搬移或取代 `docs/` 的產品 Ownership。
+- `samples/` 供人與 AI 閱讀；實際 pack 成品的 consumer 驗證仍須獨立執行。
 
 ## 12. 預期發布成品
 
-> 本節定義成品類型，並列出尚未核准的 Package ID 命名候選。
+> 本節區分現行套件與規劃能力；列出不代表某次發布已完成。
 
 ### 12.1 Reference Contract Libraries
 
@@ -714,10 +530,10 @@ rules/
 
 ### 12.4 Adoption Assets
 
-- Rule Catalog 與 JSON Schema
+- XML Rule Catalog、Catalog XSD 與設定 XSD
 - Diagnostic 文件
 - Profile 與 Severity 範本
-- Migration Guide
+- 當前採用與角色映射指引
 - Compatibility Manifest
 - Provenance／Lineage 文件
 - 文件治理與規則追溯規範
@@ -730,23 +546,23 @@ rules/
 - SHA-256 Checksum
 - Artifact Inventory
 - Release Notes
-- Migration Notes
+- 當前使用與變更說明
 - Compatibility Manifest
 - Rule Catalog Snapshot
 - Software Bill of Materials（SBOM，後續成熟階段）
 
-### 12.6 Package ID 命名候選
+### 12.6 現行套件與未來能力
 
-下表區分現行實作與未來能力。初始四個 ID 已發布 `0.0.1-preview`，詳見[歷史套件 inventory](../releases/preview.md#套件-inventory)。2026-10-21 依 CT-004／CT-005 拆分 Messaging 並新增 Domain.EventSourcing；六套件先依 DEC-019 發布 `0.0.2-preview`，再依 DEC-020 發布 [0.0.3-preview](../releases/0.0.3-preview.md)。舊 Messaging.Abstractions ID 不在現行成品中。nuget.org ID 可用性尚未確認，發布狀態與來源實作分開記錄。
+現行六個 Package ID 如下；實際來源與發布結果分別由目前 checkout 及各版本發布紀錄證明。nuget.org 尚未納入發布範圍，未來能力名稱不預先視為已發布 ID。
 
-| 能力 | Package ID 候選 | 實作狀態 |
+| 能力 | Package ID／未來候選 | 實作狀態 |
 |---|---|---|
 | Domain Contracts | `ArchPrecept.Contracts.Domain` | 已有對應專案 |
 | Application Contracts | `ArchPrecept.Contracts.Application` | 已有對應專案 |
 | Messaging Contracts | `ArchPrecept.Contracts.Messaging` | 共用訊息契約，不依賴 port 或 Configuration |
 | Application Messaging Ports | `ArchPrecept.Contracts.Application.Messaging` | 發布 port 與傳遞 metadata，只依賴 Messaging；見[責任邊界](messaging-contract.md) |
 | 核心 Analyzer | `ArchPrecept.Analyzers.Core` | 已有對應專案 |
-| Event Sourcing Contracts | `ArchPrecept.Contracts.Domain.EventSourcing` | CT-005 已有對應專案；`EsAggregateRoot` 已移入，待發布；見[行為與遷移契約](event-sourcing-contract.md) |
+| Event Sourcing Contracts | `ArchPrecept.Contracts.Domain.EventSourcing` | CT-005 已有對應專案；見[行為契約](event-sourcing-contract.md) |
 | Architecture Testing | `ArchPrecept.ArchitectureTesting` | 尚未建立專案 |
 | Conformance CLI／.NET Tool | `ArchPrecept.Conformance` | 尚未建立專案，CLI 命令名稱另行決策 |
 
@@ -765,15 +581,11 @@ rules/
 | Configuration Compatibility | `.editorconfig` Key、AdditionalFiles Schema、CLI Config Schema |
 | Report Compatibility | JSON／SARIF／Markdown Schema、Exit Code |
 
-### 13.2 初期版本策略
+### 13.2 Preview 與正式版政策
 
-以下為規劃方向，未來維護規則仍待負責人決定。本次只固定 `0.0.1-preview`；平台 major 對齊與產品 SemVer 的取捨詳見[版本規則提案](../releases/version-policy-proposal.md)，不自動套用後續升版。
+首個不帶 `-preview` 後綴的公開版本之前不考慮向後相容。可直接調整 ID、schema、defaults 與 API，不為舊 preview 強制保留 legacy 模式、replacement rule、雙軌 API 或 migration scaffolding。版本內識別仍須唯一、文件與實作一致；已發布 Package ID／version 的 bytes 不可覆寫。
 
-- 初期採 `0.x` Prerelease。
-- 可先採共同 Release Train，但每個成品仍可獨立安裝。
-- 是否採獨立版本號，待實際演進壓力再決定。
-- Diagnostic ID 一旦公開，即視為穩定識別，不得任意重用。
-- 規則觸發範圍擴張可能是 Breaking Change，不只 API 變更才算 Breaking。
+六個現行套件暫採共同 release train，各自仍可獨立安裝。正式版的版號模型、維護線與相容承諾待選定；本文件不自動選定下一版本或授權發布。詳見[版本政策與首個正式版條件](../releases/version-policy-proposal.md)。
 
 ### 13.3 發布閘門
 
@@ -783,12 +595,14 @@ rules/
 2. Analyzer-only／Custom Contracts Consumer Test；
 3. Reference Contracts Consumer Test；
 4. False-positive Regression Test；
-5. Public API 與 Analyzer 行為相容性檢查；
+5. Public API 與 Analyzer 行為差異檢查；Preview 不以維持舊版相容為通過條件；
 6. Package Content、Source Link、Symbols 與 Metadata 檢查；
 7. 本機 Feed 安裝驗證；
 8. Rule Catalog／Diagnostic 文件完整性驗證；
 9. Provenance 與 License Gate；
 10. 由不可變 Commit 產出且不重新建置的發布 Artifact。
+
+首個不帶 `-preview` 的公開版本另須完成每條規則的外部依據、選擇與對齊／加強說明、各套件完整使用文件，以及公開 API 的有意義 XML（summary、適用參數／回傳／例外、生命週期與限制），並證明 XML 隨 nupkg 交付且 feed consumer 可讀。這是待交付 gate，不宣稱現有 pipeline 或本次文字修改已驗收通過。
 
 ### 13.4 文件與規則基線治理
 
@@ -796,43 +610,26 @@ rules/
 - 文件版本記錄於文件控制區塊及 Git 歷史，不以 `-v0.x` 檔名在 Repository 內建立多份並行正本。
 - Markdown 為可審查的正式來源；Word／PDF 僅由正式來源產生。
 - Rule Catalog、Diagnostic 文件與 Traceability Mapping 應可由 CI 驗證一致性。
-- 重大產品或需求變更應保留 Decision／Requirement 歷史，不得只覆寫結論而失去替代關係。
+- 重大產品或需求變更直接更新現行理由、語意及驗收，歷史由可審查 Git diff／commit 保存；只有有實際用途時才另建 ADR 或替代映射，不強制附加變更日誌。
 
 ## 14. 來源、授權與 Ownership 規劃
 
-### 14.1 AI 協作的課程啟發與既有 .NET 工具的產品化
+### 14.1 產品設計依據
 
-依負責人於 2026-10-19 的補充，Teddysoft 課程主要採用 Java，啟發的是與 AI 協作的模式。ArchPrecept 的套件與分析器在此之前已在使用，負責人也曾研究這類工具；課程不是 .NET 套件與分析器技術的起點。課程網址：[Teddysoft AI Coding 課程頁面](https://teddysoft.tw/courses/ai-coding-pl/)。
+規則設計以外部方法論／作者來源為依據，直接說明所解決的問題、選定政策、替代方案的取捨與檢查限制。入口為[規則設計依據](rule-design-rationale.md)與[方法論來源](methodology-references.md)。產品加強須明確標示，不把 opinionated 選擇歸因為方法論普遍禁令。
 
-為了與 AI 協作，並在看到課程以純文字比較處理這類需求後，負責人想到將既有 .NET 生態系的分析器做法搭配協作流程，讓規範能由編譯與 CI 階段的工具提供可重複、可追溯的檢查證據。這次的進一步投入，是把既有使用與研究累積發展成自己使用的套件與框架。
+### 14.2 來源與授權
 
-目前產品化結合課程帶來的 AI 協作方法啟發、既有 Roslyn Syntax／Semantic Model 使用經驗、AI Collaboration Framework 的規範，以及個人在 DDD、Clean Architecture、Hexagonal Architecture 與 .NET 專案中的實務經驗，定義規則邊界、Diagnostic 語意、角色辨識及測試策略。
+自有內容採 Apache-2.0；第三方內容維持其授權。程式碼及文件的來源清冊、逐檔檢查、第三方聲明與致謝由 [NOTICE](../../NOTICE)、[THIRD-PARTY-NOTICES](../../THIRD-PARTY-NOTICES.md) 及既有來源／授權資料維護。發布成品不得包含權利未處理的教材、文字、程式碼或其他受保護內容。
 
-### 14.2 來源揭露與授權處理原則
+實際來源沿革與授權證據有其保存用途；它們不替代規則設計理由，也不要求在每條現行政策重述研究過程。
 
-2026-10-19 決策：ArchPrecept 自有內容採 Apache-2.0。負責人確認 Framework、distributed architecture Lab 與 webapi Lab 為自有知識累積來源，並補充課程為 AI 協作方法啟發，套件與分析器來自既有 .NET 使用及研究累積。固定上游逐檔比對、依賴條款檢查及來源聲明已記錄於[來源檢查結果](../releases/licensing-assessment.md)，來源待確認項目已完成。當時四個 preview 套件的 public 與 private 預期不符，故暫停後續發布；2026-10-21 DEC-019 已明確決定六套件採 public 並重新啟用 main push 發布。此決策更新先前 License 未選定的狀態，不更動舊版快照的歷史記錄。
+### 14.3 Ownership
 
-- 對外文件應清楚揭露課程對產品構想的啟發關係，避免把課程貢獻描述成不存在。
-- 本 repo 應擁有後續自行設計與實作的 Roslyn Analyzer 原始碼、Rule Catalog、Diagnostic 定義、測試及文件。
-- 公開發布前，應進行檔案層級的來源與授權檢查，確認發布成品未直接包含需另行授權的教材文字、程式碼或其他受保護內容。
-- 若檢查發現存在直接引用或改作內容，應依授權條款處理、取得必要同意，或改以獨立實作取代。
-- `NOTICE`、`THIRD-PARTY-NOTICES` 與 Provenance Record 應只記載可被證據支持的來源、授權與致謝資訊。
-
-### 14.3 Reference Contracts 的來源與 Ownership
-
-參考契約類別庫主要來自下列個人 Lab Repository 中反覆實作、驗證與演進的成果：
-
-- `https://github.com/YuChia-Wei/dotnet-webapi-lab/tree/main/src/dotnetLab.BuildingBlocks.Domain`
-- `https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/tree/main/src/BuildingBlocks`
-
-抽取與 Public API 硬化完成後，本 repo 應成為這些參考契約的 Canonical Source Owner。原 Lab Repository 應改為發布成品的 Consumer 或實驗環境，不再各自維護具有相同責任的複本。
-
-### 14.4 產品間 Ownership 邊界
-
-- AI Collaboration Framework 擁有工程原則、理由、適用條件、例外、AI Skill 與人工審查方法。
-- 本 repo 擁有 Rule Catalog、架構角色模型、Roslyn Analyzer、Architecture Testing、Conformance 能力，以及選配 Reference Contract Libraries。
-- 採用端 Repository 擁有自身架構事實、Role Mapping、啟用 Profile、例外與 Waiver 證據。
-- 規則內容可彼此引用，但不得在不同 Repository 重複維護相同的 Analyzer 原始碼或參考契約實作。
+- 本 repo 擁有後續自行維護的參考契約、Rule Catalog、角色模型、Analyzer、Architecture Testing、Conformance、測試與對外產品文件。
+- Consumer／實驗專案可採用已發布成品；不重複維護同責任的產品實作。
+- 協作 Framework 擁有其 skill、知識與工作方法，不因此擁有本產品的規則設計權威。
+- 採用端保存自己的真實架構、設定、例外與驗證結果，不將其實驗結果直接推成普遍產品承諾。
 
 ## 15. 成功衡量指標
 
@@ -853,7 +650,7 @@ rules/
 ### 15.2 品質指標
 
 - 100% Rule Catalog 通過 Schema Validation。
-- 100% Diagnostic ID 不重複且有相容性紀錄。
+- 100% Diagnostic ID 在版本內不重複，且與當前文件及實作一致。
 - 100% Release Artifact 可由 Checksum 驗證。
 - 100% Package Candidate 經本機 Feed Consumer Test。
 - Analyzer 對大型 Solution 的 Build Overhead 建立可重現基線，並設定後續效能預算。
@@ -870,14 +667,14 @@ rules/
 
 ### Phase 0：產品與治理基線
 
-**目標：** 完成 repo 命名、產品定位、目錄策略、課程啟發揭露，以及來源與授權檢查基線。<br>
+**目標：** 完成 repo 命名、產品定位、目錄策略，以及來源與授權檢查基線。<br>
 **主要工作：**
 
 - 將 repo 定位改為 `ArchPrecept`；
-- 建立 Product Plan、PRD、文件治理與規則追溯規範、Decision Log；
-- 建立 `docs/product/`、`docs/governance/` 與 `rules/mappings/` 的正式來源結構；
-- 建立來源清冊、課程啟發說明與 Provenance 記錄；
-- 保持所有 Project `IsPackable=false`；
+- 建立 Product Plan、PRD、文件治理與規則追溯規範；
+- 維護 `docs/product/`、`docs/governance/` 與 `rules/catalog.xml` 的正式來源責任；
+- 建立來源清冊、權利證據與 Provenance 記錄；
+- 維持預設不可打包、inventory 明選專案 opt in 的邊界；
 - 決定 Rule ID 與 Diagnostic ID 管理策略。
 
 **退出條件：** 產品邊界、非目標與公開發布阻擋條件被正式記錄。
@@ -920,7 +717,7 @@ rules/
 - 建立 CI、Package Validation 與 Release Workflow；
 - 建立 Consumer Smoke Tests；
 - 完成 Source Link、Symbols、Checksum、Artifact Inventory；
-- 發布 Diagnostic 文件、Migration Guide 與 Compatibility Manifest。
+- 發布 Diagnostic 文件、當前使用說明與平台／成品矩陣。
 
 **退出條件：** Analyzer-only、Contracts-only 與 Full Adoption 均能從實際 Feed 安裝。
 
@@ -941,7 +738,9 @@ rules/
 **目標：** 建立穩定相容性政策與外部採用流程。<br>
 **主要工作：**
 
-- 穩定 Public API、Diagnostic 與 Config Schema；
+- 選定正式版相容政策，穩定 Public API、Diagnostic 與 Config Schema；
+- 完成逐規則外部依據、選擇／取捨與方法論對齊／加強說明；
+- 完成各套件使用文件及隨 nupkg 交付、consumer 可讀的有意義 API XML；
 - 建立效能預算與大型 Codebase 基準；
 - 評估安全 Code Fix；
 - 建立 SBOM、簽章或 Build Attestation；
@@ -960,8 +759,8 @@ rules/
 | Analyzer 規則過度 opinionated | 使用者不信任或大量抑制 | Profile、Severity、適用性與人工審查邊界 |
 | 零 Diagnostic 被誤判為合規 | 錯誤安全感 | `not-evaluated` 狀態與 Coverage Report |
 | Analyzer 效能下降 | Build 變慢 | 共用 Classification Cache、Concurrent Execution、Benchmark |
-| Diagnostic ID 或行為不穩定 | Suppression 與 CI 破壞 | Analyzer Compatibility Policy、不可重用 ID |
-| 來源揭露或授權檢查不完整 | 公開發布存在權利與信任風險 | 課程啟發揭露、檔案層級 Provenance Audit、必要授權確認或獨立重寫 |
+| ID／行為與當前文件不一致 | 採用者無法解釋結果 | 每版內唯一、一致性檢查及清楚的當前使用說明；正式版前不保留 preview 相容負擔 |
+| 來源揭露或授權檢查不完整 | 公開發布存在權利與信任風險 | 檔案層級來源清冊、授權條款與權利證據、必要授權確認或獨立重寫 |
 | 單一 repo 範圍膨脹 | CI 與 Roadmap 複雜 | 僅保留 Guardrails 主軸，並設定明確的能力納入與拆分觸發條件 |
 | 過早拆 repo | 跨 repo 發版與相容性成本 | 先採單一 repo、獨立成品與 package inventory |
 
@@ -975,25 +774,18 @@ rules/
 - 提供完整 ORM、Outbox、Message Bus 或 Transaction Runtime；
 - 規定單一專案資料夾結構為唯一正確架構；
 - 透過 Analyzer 取代人類或 AI 架構審查；
-- 核准 NuGet Package ID、套件發布及商標權利；ArchPrecept 品牌與程式碼前綴依 DEC-015 已確認。
+- 用產品文件授予某次套件發布權限或判斷商標權利；具體發布沿當次授權及 CI/CD 流程。
 
 ## 19. 待決策事項
 
-| 優先 | 議題 | 決策時點 |
-|---|---|---|
-| P0 | Rule ID 與 Diagnostic ID 命名／保留政策 | Phase 0 |
-| P0 | 課程啟發揭露、來源與授權檢查基線 | Phase 0 |
-| P0 | Role Mapping 設定格式：`.editorconfig`、MSBuild、AdditionalFiles 或 YAML／JSON | Phase 1 |
-| P0 | Supported Roslyn／Compiler Matrix | Phase 1 |
-| P0 | Reference Contracts 的最低 Target Framework | Phase 2 |
-| P1 | `IUseCase`、Aggregate Version、Result 與 Event Sourcing Public API | Phase 2 |
-| P1 | 完整 Event Sourcing runtime 是否另立產品／repository；核心套件拆分已由 DEC-017 決定 | 實際 storage／projection 等需求確立後 |
-| P1 | ASP.NET Core／Messaging Analyzer 是否初期拆分 | Phase 3 |
-| P1 | 共同版本或獨立版本策略 | Phase 3 |
-| P1 | GitHub Packages、nuget.org 或其他初始 Feed | Phase 3 |
-| P2 | Conformance CLI 技術、AOT 與輸出 Schema | Phase 4 |
-| P2 | 是否提供 Code Fix | Phase 5 |
-| Deferred | NuGet Package ID、Package Prefix | API、產品邊界與發布治理穩定後 |
+| 議題 | 狀態／決策時點 |
+|---|---|
+| 正式版版號模型、維護線與相容承諾 | 首個不帶 `-preview` 公開版本前選定；不影響目前 Preview 直接整理契約 |
+| 全面禁止 Aggregate static factory 及 MQ-only 的完整設計理由與適用條件 | 保留為獨立待決議題；不因缺證據自行撤銷政策或新增行為 |
+| 真實 consumer 需要的 batch／purge 等額外 port | 有具體場景、責任與失敗語意後個別評估，不擴張 shared 最小 Repository |
+| 完整 Event Sourcing runtime 是否另立產品／repository | 實際 storage／projection 需求確立後；選配核心契約邊界已確定 |
+| Architecture Testing／跨專案依賴與 Conformance CLI | 各自保持獨立規劃，不作文件正規化的隱含前置 |
+| Code Fix、SBOM、簽章／attestation 與 Contracts 拆 repo | 依產品成熟度及實際需求評估 |
 
 # 附錄 A：目前程式碼基線
 
@@ -1057,11 +849,10 @@ samples/
 
 # 附錄 C：主要來源與參考
 
-- AI Collaboration Framework：`https://github.com/YuChia-Wei/ai-collaboration-prompts-dotnet-backend`
-- 目前 Repository：[ArchPrecept](https://github.com/YuChia-Wei/ArchPrecept)；GitHub 已完成改名，本機目錄保留 `dotnet-architecture-kit`。
-- Analyzer 構想的課程啟發：[Teddysoft 課程](https://teddysoft.tw/courses/ai-coding-pl/)
-- Domain Contract 來源之一：`https://github.com/YuChia-Wei/dotnet-webapi-lab/tree/main/src/dotnetLab.BuildingBlocks.Domain`
-- 分散式架構 Contract 來源：`https://github.com/YuChia-Wei/dotnet-distributed-architecture-lab/tree/main/src/BuildingBlocks`
+- [規則設計依據](rule-design-rationale.md)：產品選擇、理由、代價、方法論對齊／加強及已知缺口。
+- [方法論來源](methodology-references.md)：外部作者／權威來源及支持界線。
+- [產品需求](prd.md)：可觀察的能力與交付要求。
+- [文件治理與追溯](../governance/document-governance-and-traceability.md)：正式來源、證據及衝突處理。
 
 # 附錄 D：文件治理與持續演進
 
@@ -1070,8 +861,8 @@ samples/
 - 產品規劃書與 PRD 是持續演進的受控基線，不是 Sprint 日誌或單次交付紀錄。
 - Repository 內以 `docs/product/product-plan.md`、`docs/product/prd.md` 作為穩定 Markdown 正本；版本由文件控制 Metadata 與 Git 歷史保存。
 - Word／PDF 是衍生輸出，不得與 Markdown 並行人工修改。
-- 重大產品邊界變更應建立 ADR（Architecture Decision Record，架構決策紀錄）或 Decision Log，而非只覆寫結論。
-- PRD Requirement ID、Rule ID 與 Diagnostic ID 不因文件重新排序而改號；淘汰時保留狀態與替代關係。
+- 重大產品邊界變更直接更新現行理由及驗收，歷史由 Git 保存；有獨立決策比較需要時才另建 ADR，不以追加日誌取代現行正文。
+- 文件重排不改動 Requirement ID；Rule／Diagnostic 的 preview 調整依第 13 節，不為舊 preview 強制維持 replacement／migration。
 - 工程規範、PRD、Rule Catalog、Diagnostic／Architecture Test、實作與測試必須可雙向追溯。
 - 未來安裝 AI Collaboration Framework 時，先執行 Gap Analysis，再以 `.dev/` 補上 Requirements、Specs、Standards、Workflows 與 Release Evidence；產品文件不因安裝行為而預設搬家。
 - NuGet Package Naming 決策完成後，應新增 Naming／Identity 文件或附錄，不改寫不依賴名稱的需求語意。

@@ -29,7 +29,7 @@ ArchPrecept 的六個套件可依需要選用，執行檢核只需 .NET SDK 與 
 
 ## 2. 明確選規則與角色
 
-不加設定會保留 0.0.2 的 legacy 規則與命名慣例。新專案可建立 `archprecept.project.xml`：
+0.0.3-preview 不加設定時會採用 `legacy`，啟用 DBA1001–DBA1017 與命名慣例。需要控制規則及精確角色時，可建立 `archprecept.project.xml`：
 
 ```xml
 <ArchPrecept version="1" profiles="core,ddd" namingConventions="false">
@@ -74,8 +74,20 @@ dotnet_diagnostic.DBA1018.severity = error
 
 [Products Web API](../samples/Products/README.md) 使用實際套件、無外部服務的 adapter 與 HTTP／UseCase 測試，包含隔離的故意違規／修正步驟。[ES](product/event-sourcing-contract.md) 與 [Messaging](product/messaging-contract.md) 說明選配能力；發布 port／metadata overload 不等於交易、Outbox、可靠傳遞或完整執行環境。
 
-## 從 0.0.2 升級
+## 5. 理解規則與版本範圍
 
-六套件 ID、Contracts API 與既有 DBA1001–1017 的預設 severity 保留。真正程序內 IDomainEventDispatcher 不再因 Dispatcher 名稱被 DBA1016 誤報；移除舊局部 suppression 後重建。中央分類器讓繼承角色、record／struct 及已選 mapping 的範圍更一致，可能新增對先前漏掉的有效角色診斷；逐項確認 roleEvidence，避免一律 suppression。
+[規則設計依據](product/rule-design-rationale.md) 說明每條規則保護的責任、採用限制及成本；[方法論來源](product/methodology-references.md) 區分作者原則與產品具體政策。先確認規則適用的角色與 Profile，再依 Diagnostic 的 predicate／限制判讀結果。自有契約 mapping 讓 Analyzer 辨識角色，不會自動免除該角色已選的契約限制。
 
-新增 DBA1018／1019 不在 legacy 啟用。若改選精確 mapping 並停用命名慣例，請加入 Expected 以辨認尚未覆蓋的型別；這是採用政策變更，不是靜默宣稱全部原有角色已正確分類。
+例如 Aggregate Repository 的 criteria 查詢應由 query port 找候選 ID，再由命令端載入 Aggregate 並驗證目前狀態；純 Mapper 不負責查詢資料；UseCase 的 Input 不直接承載 HTTP 或 broker 型別。這些都是具體採用政策，其方法論支持與適用條件在各規則說明中列出。
+
+首個不含 `-preview` 後綴的公開版本發布前不提供向後相容保證。安裝或更新時讀取該版本的使用與規則文件；目前文件中的 `legacy` 是已實作設定名稱，不是保留舊版本的承諾。詳見[版本與發布準備政策](releases/version-policy-proposal.md)。
+
+### 安裝後的常見判讀
+
+| 現象 | 檢查方式 |
+|---|---|
+| XML 放在專案中卻未生效 | 確認已加入 AdditionalFiles；沒有 DBA0001 不代表未傳入的檔案已被讀取 |
+| 提高 severity 仍沒有規則執行 | 確認 Profile 包含該規則或 Rule enabled=true；severity 不啟用被排除的規則 |
+| 自有型別沒有診斷 | 核對完整 metadata name、泛型 arity、assembly 與 Expected；不要將未辨識視為合規 |
+| 結果與設計意圖不同 | 先讀 roleEvidence、predicate 與已知限制，確認誤判或不支援範圍；最小 suppression 只暫停檢查，不證明另一政策已被驗證 |
+| API tooltip 或套件文件不足 | 以本版 docs 確認責任與限制；完整可讀的 XML summary 及實際隨包文件是正式版發布前要求，不以成功安裝替代文件驗收 |

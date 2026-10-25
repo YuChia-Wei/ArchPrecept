@@ -1,18 +1,33 @@
 # Analyzer 設定、角色與評估契約（0.0.3-preview）
 
-本文件承接 #6、#7、#11 與 PRD CFG／RC／RM 需求，是本產品採用政策，無需安裝 Framework。一般 DDD 知識不自動使團隊慣例成為所有採用端的強制規範；Framework 的知識／skills 安裝仍依 `.dev/planning` 的等待決定另行評估。
+本文件描述 0.0.3-preview 的實際設定、角色及評估契約。規則的設計理由、方法論支持範圍及取捨見[規則設計依據](rule-design-rationale.md)，官方參考資料見[方法論來源](methodology-references.md)。本產品可獨立使用，無需安裝協作 Framework。
 
-## 相容基線與選用
+## 目前預設與選用
 
-未提供設定時沿用 `legacy`：保留 DBA1001–DBA1017 的啟用與 severity，以及原有名稱慣例。名稱證據標為低信心，不代表精確契約。修正真正領域事件 port 的誤報是本版刻意相容修正。
+未提供設定時採 `legacy`，啟用 DBA1001–DBA1017 及名稱慣例；各規則的 severity 依 Catalog。名稱證據標為低信心，不代表精確契約。`legacy` 是本版已存在的設定名稱，不構成後續版本的相容承諾。
 
-提供設定時可選 `core`、`web-api`、`messaging`、`event-sourcing`、`framework`、`ddd` 的聯集。`framework` 表示本產品明列的 ExecuteAsync／static Mapper／薄 Handler 等慣例，不表示已安裝或驗收 AI Collaboration Framework。`ddd` 才啟用兩條新增 VO 規則，初始 Warning；既有 consumer 未選用時不新增阻擋。實際規則清單、預設值、角色與來源統一由 `rules/catalog.xml` 提供。
+提供設定時可選 `core`、`web-api`、`messaging`、`event-sourcing`、`framework`、`ddd` 的聯集。`framework` 表示本產品明列的 ExecuteAsync／static Mapper／薄 Handler 等慣例，不表示已安裝或驗收協作 Framework。DBA1018／1019 包含於 `ddd`，預設 Warning；也可由個別 Rule 明確啟用。實際規則清單、預設值、角色與來源統一由 [Catalog](../../rules/catalog.xml) 提供。
+
+首個不含 `-preview` 後綴的公開版本發布前，不承諾保留舊版 API、Rule ID、Profile、schema、severity 或 suppression 語意，也不要求維護平行舊模式或遷移層。後續可直接改善契約，但同一版本的 Catalog、實作、設定、文件與套件必須一致。現有行為仍依本節如實記載；文件更新本身不改變 Analyzer。詳見[版本與發布準備政策](../releases/version-policy-proposal.md)。
+
+## 選定政策與精確度改進
+
+- Aggregate Repository 保留 identity-load／save，Query Repository 負責 criteria／搜尋及 read model。批次載入與 physical purge 是有明確需求、失敗及一致性語意的個別 port，不擴充所有 Aggregate Repository。
+- 純物件 Mapper 採 static-only；I/O、資料補齊與流程編排由其各自責任承擔。static 檢查不證明純函式，persistence Data Mapper 也不等同本產品的純 mapper 角色。
+- Controller 預設對接 UseCase；dispatch Handler 轉接一個 UseCase 目標。UseCase 採 ExecuteAsync、專屬 Input 及 required CancellationToken，並保留無輸入與標準 scalar 例外。多步驟目標由自己的 UseCase 組織 Domain 與 ports，不串接其他 UseCase。
+- 精確技術符號、繼承後的有效契約及實際 port 視圖，是後續判定改進的方向。每項需說明可分析範圍，不能用局部型別／語法檢查宣稱完整依賴、純度或副作用驗證。
+
+上述政策的理由與成本在規則設計文件直接說明；不把每個具體 .NET 形狀宣稱為方法論定理。其他架構模式須先有獨立的需求與判定契約，未定義的模式不能視為目前已支援。
+
+### 尚未實現的判定範圍
+
+schema version 1 沒有 endpoint pure-query selector、任意 transition method selector、Repository finder mode 或 Mapper purity engine。DBA1014 目前對 Query Repository／Service 的豁免不驗證 endpoint 是否經明選；DBA1017 計算 UseCase 相依型別，不驗證恰好一次呼叫；DBA1004 在 legacy 也可能檢查一般 MVC Controller，尚未區分 API／MVC 適用性。各規則完整 predicate 與限制見[診斷說明](../diagnostics/README.md)。
 
 ## 設定合併
 
-採用者透過 MSBuild `AdditionalFiles` 明確加入 `archprecept.repository.xml` 與／或 `archprecept.project.xml`。檔案必須唯一且符合 `rules/configuration.xsd`。缺檔、重複、未知鍵／角色／Profile、無效值、無法解析的明確 mapping 均回報 DBA0001；此狀態不算合規。
+採用者透過 MSBuild `AdditionalFiles` 明確加入 `archprecept.repository.xml` 與／或 `archprecept.project.xml`。檔案必須唯一且符合 `rules/configuration.xsd`。已傳入但無法讀取的檔案、重複、未知鍵／角色／Profile、無效值、無法解析的明確 mapping 均回報 DBA0001；此狀態不算合規。未加入 AdditionalFiles 的設定檔不會被 Analyzer 看見，不能依沒有 DBA0001 就推論設定已載入。
 
-固定優先序：相容預設 → repository 設定 → project 設定 → 個別 Rule 的 enabled／severity → 標準 Roslyn `dotnet_diagnostic.DBAxxxx.severity`／命令列設定。Project 只覆寫明確提供的項目；Profile 集合整組替換，Role mapping／Convention 依 role、Expected 依 type、Rule 依 id 覆寫。選定 Profile 後，個別 Rule 的 enabled 可明確啟用／停用。標準 severity 不會自行啟用被 Profile 排除的規則。
+固定優先序：本版預設 → repository 設定 → project 設定 → 個別 Rule 的 enabled／severity → 標準 Roslyn `dotnet_diagnostic.DBAxxxx.severity`／命令列設定。Project 只覆寫明確提供的項目；Profile 集合整組替換，Role mapping／Convention 依 role、Expected 依 type、Rule 依 id 覆寫。選定 Profile 後，個別 Rule 的 enabled 可明確啟用／停用。標準 severity 不會自行啟用被 Profile 排除的規則。
 
 ```xml
 <ArchPrecept version="1" profiles="core,web-api,ddd" namingConventions="false">

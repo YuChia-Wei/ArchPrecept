@@ -1,8 +1,8 @@
 ---
 title: "ArchPrecept 分析器 Diagnostic 說明書"
 document_id: DOC-DIAGNOSTICS
-document_version: 0.3
-last_reviewed: 2026-10-22
+document_version: 0.4
+last_reviewed: 2026-10-25
 status: draft
 lang: zh-TW
 canonical_path: docs/diagnostics/README.md
@@ -13,6 +13,8 @@ canonical_path: docs/diagnostics/README.md
 本目錄是 `ArchPrecept.Analyzers.Core` 目前所有 Roslyn Diagnostic 的可閱讀正式說明來源。每份手冊說明實際觸發條件、違規與合規範例、修正方式、已知限制、設定／suppression 選項，以及對應的實作與測試。
 
 這些手冊說明各規則的有界行為；唯一機器可讀 Rule／Diagnostic／Profile 對照在 [Catalog](../../rules/catalog.xml)。Descriptor 由同一份 Catalog 建立；共同設定與角色證據見 [Analyzer 採用政策](../product/analyzer-policy.md)。
+
+[規則設計理由](../product/rule-design-rationale.md)說明共同架構責任及產品取捨，[方法論與平台來源](../product/methodology-references.md)限定作者原則與具體產品政策的關係。每份手冊的「設計理由與取捨」說明該項限制為何存在；「適用範圍與觸發條件」及「已知限制與例外」則描述目前已實作的子集。合規範例只表示符合該項展示的檢查條件，不表示完整架構或執行期行為已通過。
 
 ## 使用方式
 
@@ -48,4 +50,4 @@ canonical_path: docs/diagnostics/README.md
 | [DBA1018](DBA1018.md) | VO 不得包含一般 setter、mutable field 或已知可變集合。 | `warning`，ddd opt-in |
 | [DBA1019](DBA1019.md) | VO 不得直接或經已知容器參考 Entity。 | `warning`，ddd opt-in |
 
-未提供設定時採 legacy，相容啟用 DBA1001–DBA1017；VO 新規則不自動啟用。一般規則診斷提供 Rule ID、角色、證據、信心與 HelpLink；可透過 `dotnet build -p:ErrorLog=diagnostics.sarif` 取回。Info 狀態與零診斷都不是完整架構合格證明。
+目前未提供設定時採 `legacy`，啟用 DBA1001–DBA1017；VO 規則不自動啟用。這是現版預設，不構成保留 preview 行為的義務；首個公開且不含 `-preview` 的版本之前不要求向後相容，詳見[版本邊界](../product/rule-design-rationale.md#版本邊界)。一般規則診斷提供 Rule ID、角色、證據、信心與 HelpLink；可透過 `dotnet build -p:ErrorLog=diagnostics.sarif` 取回。Info 狀態與零診斷都不是完整架構合格證明。

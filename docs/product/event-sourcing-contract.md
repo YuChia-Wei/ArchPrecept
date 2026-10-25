@@ -1,8 +1,6 @@
 # CT-005：Event Sourcing 核心契約與套件邊界
 
-2026-10-21。依 [PRD CT-005](prd.md) 與負責人同意的評估方向實作。
-此項以 CT-005 追溯，不新增 Issue。新能力採同 repository、獨立 `.csproj`／NuGet 套件；
-已隨 `0.0.2-preview` 公開發布，見[發布證據](../releases/0.0.2-preview.md)；不表示已完成下游專案遷移。
+本文件定義 [PRD CT-005](prd.md) 的記憶體內事件生命週期及採用方式。套件可獨立選用；已發布版本與驗證範圍見[發布紀錄](../releases/0.0.3-preview.md)。事件重播與副作用隔離的設計依據見[規則設計理由](rule-design-rationale.md)。
 
 ## 責任與相依
 
@@ -13,12 +11,12 @@ Analyzer 可獨立安裝，ES 套件也可不搭配 Analyzer 使用。
 - Domain 保留一般 Entity、Aggregate、Domain Event、Value Object。
 - EventSourcing 提供 `EsAggregateRoot<TId>` 的記憶體內生命週期。
 - ES 基底繼承 `AggregateRoot<TId>`，可滿足既有 `IAggregateRepository<TAggregate, TId>` 約束。
-- DBA1009 留在 `ArchPrecept.Analyzers.Core`，ID、預設 severity、辨識行為不變。
-- Event Store、snapshot、upcasting、projection runner、checkpoint、外部事件發布均不在此次範圍。
+- DBA1009 由 `ArchPrecept.Analyzers.Core` 提供；實際判定與限制見[規則說明](../diagnostics/DBA1009.md)。
+- Event Store、snapshot、upcasting、projection runner、checkpoint、外部事件發布均不在此契約範圍。
   完整 runtime 的獨立產品／repository 決策留待實際需求確立。
 
 現行 DBA1013 的 `IProjection` 是查詢端 Port；不可將更新 read model 的 ES projection handler
-直接視為同一角色。此次不改變 DBA1013。
+直接視為同一角色。
 
 ## 共同語言與不變條件
 
@@ -46,14 +44,14 @@ snapshot schema version 或 integration contract version。本版不實作這些
 應先取得 pending events 陣列與 expected revision，再將整批送交 adapter。
 若 append 結果未知，先依儲存端的冪等／查詢策略確認，不可盲目重送或直接清除 pending events。
 
-## 一般 Domain API 的相容性界線
+## 一般 Domain 事件能力與 ES pending 的界線
 
 為避免經由 `DomainEntity`／`IAggregateRoot`／`IDomainEntity` 呼叫繞過 ES 生命週期，
-Domain 的三個事件 mutator 改為 virtual，ES 以 sealed override 拒絕
+Domain 的三個事件 mutator 為 virtual，ES 以 sealed override 拒絕
 `AddDomainEvent`、`RemoveDomainEvent`、`ClearDomainEvents`，擲回 `NotSupportedException`。
-一般 Domain Entity／Aggregate 的原有行為不變。
+一般 Domain Entity／Aggregate 允許這些事件集合操作。
 
-這表示泛型約束仍相容，但「對所有 Aggregate 清除事件」的通用 dispatcher／repository
+符合泛型約束不等於所有操作可互換。「對所有 Aggregate 清除事件」的通用 dispatcher／repository
 流程不適用於 ES；它必須走 ES append／commit 協定。這是有意的行為限制，並非可無修改替換的承諾。
 衍生型別仍須遵守領域不變條件，不能任意寫入受保護的 Version 或直接變更狀態。
 
@@ -79,27 +77,14 @@ Domain 的三個事件 mutator 改為 virtual，ES 以 sealed override 拒絕
 [`samples/EventSourcing/Program.cs`](../../samples/EventSourcing/Program.cs) 由 package consumer
 腳本以真實本機 nupkg 執行，並驗證 DBA1009 仍能辨識新 assembly 的 ES 基底。
 
-## 從 0.0.1-preview 遷移
+## 採用方式
 
-1. 將所用 ArchPrecept 套件升到同一個候選版本，加入 `ArchPrecept.Contracts.Domain.EventSourcing`。
-2. ES 基底改用 `ArchPrecept.Contracts.Domain.EventSourcing.EsAggregateRoot<TId>`；Domain Event 等型別仍在 Domain。
-3. 移除 `base(events)`；改用 factory 建立已初始化的物件，再呼叫受保護的 `LoadFromHistory(events)`。
-4. 以 `Apply` 產生事件，不直接呼叫一般事件 mutator。
-5. Repository 以 expected revision 原子 append，成功後以事件總數呼叫 `MarkChangesAsCommitted`。
-6. 重新編譯並重驗 replay、初始化、失敗提交及 dispatcher 路徑。
+1. 加入 `ArchPrecept.Contracts.Domain.EventSourcing`，依需要選用 Analyzer；採用自有 ES 基底時不必改用此參考實作。
+2. 由 `EsAggregateRoot<TId>` 衍生領域聚合。重建入口先建立已初始化物件，再呼叫受保護的 `LoadFromHistory(events)`，避免在基底建構時呼叫衍生行為。
+3. 命令以 `Apply` 套用新事件，`When` 只轉換狀態；不直接呼叫一般事件 mutator。
+4. Repository 以 expected revision 原子 append，確認全部 pending events 已成功持久化後，才以事件總數呼叫 `MarkChangesAsCommitted`。
+5. 驗證自己的 replay、初始化、append 失敗／未知結果、並行衝突與 dispatcher 路徑；記憶體測試替身不取代真實 Event Store 驗證。
 
-使用 Central Package Management 時，也須在 `Directory.Packages.props` 加入新 PackageVersion；
-精確列舉 Package ID 的 NuGet source mapping 應涵蓋新的
-`ArchPrecept.Contracts.Domain.EventSourcing` 及其 Domain 相依，並更新 lock file 與容器還原設定。
-一般 `ArchPrecept.*` mapping 不需因本次更名新增 pattern。
-套件相依宣告的是候選版的最低版本，不是精確鎖版；共同 release train 的使用端應自行統一引用版本，
-本輪驗證的是六套件同版組合，不代表任意混搭未來版本都相容。
+使用 Central Package Management 時，在 `Directory.Packages.props` 設定所選版本；精確列舉 Package ID 的 NuGet source mapping 須涵蓋 EventSourcing 與 Domain。套件相依宣告最低版本，未保證任意版本混搭；使用端應明確統一並驗證所選套件組合。
 
-若曾使用尚未發布的 `ArchPrecept.Contracts.EventSourcing` 本機候選，移除其引用並改用
-`ArchPrecept.Contracts.Domain.EventSourcing`；使用全新 cache 驗證，避免同版號的舊本機候選遮蔽新成品。
-若持久化內容或 serializer 設定記錄舊基底的完整型別／assembly 名稱，須更新 binder／型別映射。
-本次沒有改動消費端具體事件的 schema，也沒有執行既有儲存資料轉換。
-
-舊 Domain assembly 不保留 ES 型別，也不加入 type forwarder，避免 Domain 反向依賴 ES。
-因此這是來源與二進位不相容變更；舊使用端不能只更換 DLL。
-採用自有 ES 基底的消費端可以繼續只用 Domain，不強制改用新的參考實作。
+事件 payload、serializer 型別映射、儲存端 schema 與資料演進由 consumer 擁有。此契約不提供資料轉換、type forwarder、snapshot 或 upcasting。首個 non-preview 公開版本前的套件政策見[版本政策](../releases/version-policy-proposal.md)。

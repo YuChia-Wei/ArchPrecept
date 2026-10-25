@@ -1,7 +1,6 @@
-# CT-004：Messaging 責任、相依與遷移
+# CT-004：Messaging 責任、相依與使用
 
-2026-10-21，依負責人同意的架構責任與命名方向調整。
-對應 [PRD CT-004](prd.md)，已隨 `0.0.2-preview` 公開發布；見[發布證據](../releases/0.0.2-preview.md)。
+本文件定義 [PRD CT-004](prd.md) 的訊息契約與 Application 發布 port。將訊息資料、應用需求及傳輸機制分開，可讓接收端只依賴資料契約，並讓 Application 不依賴特定 broker。設計理由見[規則設計依據](rule-design-rationale.md)，已發布版本見[發布紀錄](../releases/0.0.3-preview.md)。
 
 ## 套件與型別歸屬
 
@@ -22,7 +21,7 @@
 
 ## 發布 port 的語意
 
-兩個 `PublishAsync` overload 的參數與委派行為保持原樣：
+兩個 `PublishAsync` overload 的責任如下：
 
 - 單參數版本交付 `IIntegrationEvent` 給 adapter。
 - 帶 `IntegrationMessageDelivery` 的版本可傳遞穩定 `MessageId` 與可選 `PartitionKey`。
@@ -33,52 +32,30 @@
 `PartitionKey` 是供應商中立的分組提示；實際 broker 映射由 adapter 定義。
 它不是 Kafka client 的 partition 物件，也不應讓 Application 決定特定 broker API。
 
-## 傳輸設定去向
+## 傳輸設定的責任
 
-原 `MessagingTransportOptions` 與 `MessagingTransportProfile` 從產品套件移出，
-保留於 [`samples/Messaging/Host/MessagingTransportOptions.cs`](../../samples/Messaging/Host/MessagingTransportOptions.cs)，
-namespace 為 `MessagingSample.Host`。這是遷移參考來源，不是新的共用套件或可直接取代的 assembly。
+`MessagingTransportOptions` 與 `MessagingTransportProfile` 範例位於 [`samples/Messaging/Host/MessagingTransportOptions.cs`](../../samples/Messaging/Host/MessagingTransportOptions.cs)，
+namespace 為 `MessagingSample.Host`。這是 host 組態範例，不是共用套件或交付保證。
 
-Host 範例維持原先的設定鍵與驗證行為：`Messaging:Profile`、
+Host 範例使用以下設定鍵：`Messaging:Profile`、
 `Messaging:Kafka:ConnectionString`、`Messaging:RabbitMq:ConnectionString`。
 在該 profile 已通過驗證時才呼叫相應的 connection getter；範例不承諾跨 profile 取值有效。
 執行範例只讀取合成的記憶體設定，不連線 broker。
 
-本 repo 沒有實際訊息 host／adapter，因此沒有新增 Infrastructure 或 Adapter 發布專案，
-也沒有修改下游 Lab。消費端應把必要的設定類別放進自身 host／adapter，
+本產品不提供訊息 host／adapter 的發布專案。消費端應把必要的設定類別放進自身 host／adapter，
 採用自己的 namespace，並由該 host 參考 Configuration 套件。
 
-## 從 0.0.1-preview 遷移
+## 採用方式
 
-1. 移除 `ArchPrecept.Contracts.Messaging.Abstractions` 的 PackageReference。
-2. 只有訊息契約需求的專案改用 `ArchPrecept.Contracts.Messaging`。
-3. 需要 Publisher 或 Delivery 的專案改用 `ArchPrecept.Contracts.Application.Messaging`，
-   它會引入相同候選版本的 Messaging。
-4. 將 using／完整型別名稱分別改為上述 namespace；adapter 與訊息生產／接收端都重新編譯。
-5. 若使用舊傳輸設定 API，先在自身 host／adapter 接管，再移除舊套件；可參考上述來源範例。
-6. 若序列化器儲存 assembly-qualified type name，檢查其型別映射與歷史資料相容性；
-   本次沒有執行下游資料遷移，也不以 JSON 範例通過推定所有序列化器相容。
+1. 只有訊息契約需求的專案安裝 `ArchPrecept.Contracts.Messaging`。
+2. 需要發布 port 的專案安裝 `ArchPrecept.Contracts.Application.Messaging`；它會引入 Messaging 相依。
+3. Adapter 實作實際傳送、metadata 映射、錯誤處理與重試政策；若需要交易型 Outbox 或去重，另定持久化與交付協定。
+4. Host 擁有傳輸設定、DI 與 Configuration 套件相依；Contracts 不傳遞提供這些機制。
+5. 以實際 broker 驗證連線、持久化、重試、去重及分區等有宣告的行為，不能以介面呼叫成功替代。
 
-套件設定也要隨引用更新：若使用 Central Package Management，將
-`Directory.Packages.props` 的舊 `PackageVersion` 拆成實際採用的新 ID；
-同步檢查共用 `.props`／`.targets`、`GlobalUsings.cs` 與產生程式碼的模板。
-若 `NuGet.Config` 的 `packageSourceMapping` 精確列舉 ID，須加入
-`ArchPrecept.Contracts.Messaging` 與 `ArchPrecept.Contracts.Application.Messaging`，
-並涵蓋傳遞相依的 Messaging；既有 `ArchPrecept.*` mapping 已可涵蓋兩者。
-根目錄、子目錄及容器建置所複製的 NuGet 設定均須檢查，不能只修改開發機設定。
-重新 restore 並按專案政策更新 lock file，再以乾淨 cache 驗證；不可把舊 cache 的成功當成新 mapping 正確。
-參考 [NuGet Package Source Mapping](https://learn.microsoft.com/en-us/nuget/consume-packages/package-source-mapping)。
+Central Package Management、NuGet source mapping、lock file 與容器還原設定應涵蓋實際採用的 Package ID 及傳遞相依。Host 範例直接參考 `Microsoft.Extensions.Configuration` 與 `Microsoft.Extensions.Configuration.Abstractions` 8.0.0；使用者應按自己的 host 版本選擇相依。設定詳見 [NuGet Package Source Mapping](https://learn.microsoft.com/en-us/nuget/consume-packages/package-source-mapping)。
 
-舊 Messaging 套件曾傳遞引入 `Microsoft.Extensions.Configuration.Abstractions`；
-新契約套件不再提供它。接管設定來源的 host／adapter 應直接宣告
-`Microsoft.Extensions.Configuration.Abstractions`（範例基線為 8.0.0），
-若使用 `ConfigurationBuilder` 與 `AddInMemoryCollection`，則如 host 範例參考
-`Microsoft.Extensions.Configuration` 8.0.0。其他依賴舊傳遞相依的程式也須自行補上必要引用。
-完成後檢查 `project.assets.json`，避免舊 Messaging.Abstractions 經其他 library 留在相依圖中；
-跨版本編譯的 adapter 必須一起重編，不能以同時安裝新舊套件充當型別轉接。
-
-舊套件沒有轉接相依或 type forwarder；拆分涉及 assembly／namespace 身分變動，
-不宣稱來源或二進位相容。已發布的 `0.0.1-preview` 套件保持不變。
+具體訊息 schema、serializer 的 assembly-qualified type mapping 及歷史資料由訊息產品維護；ArchPrecept 不提供資料遷移或型別轉接層。首個 non-preview 公開版本前的套件政策見[版本政策](../releases/version-policy-proposal.md)。
 
 ## 驗收與證據邊界
 
@@ -88,7 +65,7 @@ Host 範例維持原先的設定鍵與驗證行為：`Messaging:Profile`、
 |---|---|
 | 僅安裝 Messaging | 自訂事件與請求可 JSON 往返；不引入 Publisher、Domain、Analyzer 或 Configuration |
 | 僅安裝 Application.Messaging | 自動引入 Messaging；metadata-aware adapter 收到原事件與 metadata |
-| 僅實作舊單參數 overload | 預設委派一次；維持舊行為，不宣稱 metadata 被使用 |
+| 僅實作單參數 overload | 預設委派一次；不宣稱 metadata 被使用 |
 | Adapter 回傳失敗 Task | 呼叫端觀察到原始例外 |
 | Host 接管設定來源 | InMemory、Kafka、AMQP／AMQPS 正例及未知／缺漏／錯誤設定反例通過 |
 

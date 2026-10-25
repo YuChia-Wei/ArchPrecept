@@ -5,9 +5,9 @@ author: "產品負責人：YuChia Wei"
 date: "2026-10-18"
 lang: "zh-TW"
 document_id: "DOC-GOV-TRACEABILITY"
-document_version: "0.2"
+document_version: "0.3"
 status: "draft"
-last_reviewed: "2026-10-18"
+last_reviewed: "2026-10-25"
 canonical_path: "docs/governance/document-governance-and-traceability.md"
 canonical: true
 source_format: "markdown"
@@ -38,7 +38,7 @@ related_documents:
 ├─ 11. Gap Analysis 執行流程
 ├─ 12. 自動化驗證與 CI Gate
 ├─ 13. Ownership 與審查節奏
-├─ 14. 現行文件遷移方案
+├─ 14. 現行文件維護方式
 └─ 15. 驗收條件
 
 附錄
@@ -51,10 +51,12 @@ related_documents:
 # 文件控制
 
 > **文件狀態：治理基線草案（Governance Baseline Draft）**<br>
-> **目標 GitHub Repository：** `dotnet-engineering-guardrails`<br>
-> **版本：** `0.2`<br>
+> **目標 GitHub Repository：** `YuChia-Wei/ArchPrecept`<br>
+> **版本：** `0.3`<br>
 > **上游文件：** 《ArchPrecept 產品規劃書》與《產品需求文件（PRD）》<br>
-> **Repository 建議正式路徑：** `docs/governance/document-governance-and-traceability.md`
+> **Repository 正式路徑：** `docs/governance/document-governance-and-traceability.md`
+
+全文件仍為 draft；明定的產品文件責任、Preview 政策與逐規則說明要求在各自範圍內適用，不表示整份治理規劃已落實或全部 gate 已通過。
 
 | 欄位 | 內容 |
 |---|---|
@@ -72,7 +74,7 @@ related_documents:
 
 `ArchPrecept` 的產品價值建立在「規範、規則與驗證證據可被一致維護」之上。若產品規劃書、PRD、工程規範、Rule Catalog、Diagnostic 與測試各自演進，即使 Analyzer 技術上正確，產品仍可能出現兩類風險：一是工程規範已改變但驗證工具未跟上；二是 Analyzer 已新增限制，卻缺少可辯護的規範依據。
 
-因此，本文件將產品文件視為**持續演進的受控產品資產（governed living product assets）**，而不是一次性提案、會議紀錄或工作日誌。產品規劃書與 PRD 先放置於 `docs/product/`，以 Markdown 作為單一正式來源；Word／PDF 僅作為衍生輸出。機器可讀 Rule Catalog 與 Mapping 放在 `rules/`；未來 AI Collaboration Framework 具備適合 Analyzer／套件產品開發的 Profile 後，再新增 `.dev/` 承接 Requirement 拆解、Spec、Standard、Workflow 與 Release Evidence。
+因此，本文件將產品文件視為**持續演進的受控產品資產（governed living product assets）**，而不是一次性提案、會議紀錄或工作日誌。產品規劃書與 PRD 放在 `docs/product/`，Markdown 為單一正式來源；Word／PDF 為衍生輸出。`rules/catalog.xml` 為唯一產品機器規則來源，結構由 `rules/catalog.xsd` 定義；consumer 設定結構為 `rules/configuration.xsd`。`.dev/` 承接開發治理與工作證據，不取代產品文件。
 
 Framework 導入時，不以「把既有文件搬到新目錄」作為完成條件，而是透過 Gap Analysis 確認：每條 Diagnostic 是否有工程規範、Requirement、Rule ID 與測試；每條可機械化規範是否有對應驗證機制；未機械化的部分是否明確標記為人工／AI 審查或產品缺口。
 
@@ -96,12 +98,12 @@ Framework 導入時，不以「把既有文件搬到新目錄」作為完成條�
 1. 建立單一、可版控且可審查的產品正式來源。
 2. 讓產品邊界、需求、工程規範、規則與實作不會無聲漂移。
 3. 讓人、AI Agent 與 CI 都能判斷某項規則的來源、覆蓋程度及驗證證據。
-4. 保留歷史決策與替代關係，而不是只看到最後結論。
+4. 用可審查 Git 差異保存歷史；現行正文直接說明有效理由與範圍。
 5. 在 AI Collaboration Framework 導入前後維持清楚 Ownership。
 
 ### 2.2 核心原則
 
-- **產品文件不是工作日誌。** 只記錄長期有效的產品決策、需求與驗收條件。
+- **產品文件不是工作日誌。** 直接更新長期有效的產品決策、理由、需求與驗收；歷史由 Git 保存，不逐次追加研究／批准／執行經過。
 - **Markdown 是正式來源。** Word／PDF 不與 Markdown 並行人工維護。
 - **穩定路徑優先。** Repository 正本不把版本號放進檔名。
 - **目錄表示責任，不只是格式。** `docs/`、`rules/`、`.dev/` 不可互相取代。
@@ -117,60 +119,43 @@ Framework 導入時，不以「把既有文件搬到新目錄」作為完成條�
 | PRD | 產品必須提供什麼、如何驗收 | `docs/product/prd.md` | 中 |
 | 文件治理規劃 | 文件、追溯與 Framework 導入如何治理 | `docs/governance/document-governance-and-traceability.md` | 低至中 |
 | 產品架構文件 | Rule Model、Role Classification、相依與執行模型 | `docs/architecture/` | 中 |
-| 人類可讀工程規範 | 原則、理由、例外、合規與不合規範例 | `docs/rules/` 或 AI Collaboration Framework 對應文件 | 中 |
+| 規則設計說明 | 外部方法論依據、產品選擇、理由、代價與支持界線 | `docs/product/rule-design-rationale.md`、`docs/product/methodology-references.md` | 與規則同步 |
 | Diagnostic 文件 | Diagnostic 行為、修正、Severity、Help Link | `docs/diagnostics/` | 與 Diagnostic 同步 |
-| Rule Catalog | Rule ID、適用性、機械化程度與 Lifecycle | `rules/catalog/` | 與規則同步 |
-| Traceability Mapping | Requirement、Rule、規範、實作與測試映射 | `rules/mappings/` | 與規則／實作同步 |
+| Rule Catalog | 現行 Rule ID、適用性、機械化程度與 Diagnostic 映射 | `rules/catalog.xml`；設定結構為 `rules/configuration.xsd` | 與規則同步 |
+| Traceability Mapping | Requirement、Rule、理由、實作與測試映射 | 依現行 Catalog／文件保存；未實作的映射資產標為規劃 | 與規則／實作同步 |
 | 產品原始碼 | Contracts、Analyzer、Architecture Testing 與 Conformance 實作 | `src/<Capability>/` | 與需求／規則實作同步 |
 | 自動驗證專案 | 各產品能力與 Consumer 的測試證據 | `tests/<Capability>/` | 與對應實作同步 |
-| Compatibility Manifest | Framework、Rule Catalog、Analyzer 與 Contracts 相容範圍 | `docs/compatibility/` 或機器可讀 Manifest | 每次 Candidate／Release |
-| 開發 Requirement | 從 PRD 拆出的可排程需求 | 未來 `.dev/requirements/` | 高 |
-| 技術 Spec | 單一能力的設計、介面與驗收 | 未來 `.dev/specs/` | 高 |
-| Workflow Evidence | 單次變更計畫、結果、Review 與證據 | 未來 `.dev/workflows/` | 高 |
-| Release Evidence | Pack、測試、Checksum、相容性與發布結果 | 未來 `.dev/releases/` | 每次 Candidate／Release |
+| 平台／成品矩陣 | 支援 SDK／IDE、成品及實際測試範圍 | 產品使用與發布文件；正式版相容承諾另行選定 | 每次 Candidate／Release |
+| 開發 Requirement | 從 PRD 拆出的可排程需求 | `.dev/requirements/` | 高 |
+| 技術 Spec | 單一能力的設計、介面與驗收 | `.dev/specs/` | 高 |
+| Workflow Evidence | 單次變更計畫、結果、Review 與證據 | `.dev/workflows/` | 高 |
+| Release Evidence | Pack、測試、Checksum、相容性與發布結果 | `.dev/releases/` | 每次 Candidate／Release |
 
 ## 4. Repository 擺放規則
 
-### 4.1 目前階段
-
-在 AI Collaboration Framework 尚未提供適合 Analyzer／NuGet 產品維護的 Profile 前，採用：
+### 4.1 產品正式來源
 
 ```text
 docs/
-├─ product/
-│  ├─ product-plan.md
-│  └─ prd.md
-├─ governance/
-│  └─ document-governance-and-traceability.md
-├─ architecture/
-├─ rules/
-├─ diagnostics/
-├─ compatibility/
-├─ migration/
-├─ provenance/
-└─ adoption/
+├─ product/       # Product Plan、PRD、規則理由與外部來源
+├─ governance/    # 文件責任、狀態、追溯與衝突處理
+├─ diagnostics/   # 現行 Diagnostic、修正與已知限制
+├─ releases/      # 發布政策與各版本歷史證據
+└─ ...
 
 rules/
-├─ catalog/
-├─ mappings/
-├─ profiles/
-└─ schemas/
+├─ catalog.xml           # 唯一產品機器 Rule Catalog
+├─ catalog.xsd           # Catalog 結構
+└─ configuration.xsd     # 現行設定 schema
 ```
 
-### 4.2 未來 Framework 導入後
+文件可以引用機器資料，不另建第二份 Catalog。未來 Mapping／Profile／Schema 的規劃不得被描述成現行已交付檔案。
 
-新增下列開發治理層：
+### 4.2 開發治理與 Framework
 
-```text
-.dev/
-├─ requirements/
-├─ specs/
-├─ standards/
-├─ workflows/
-└─ releases/
-```
+`.dev/` 保存專案開發治理、需求／規格拆解與工作證據；Framework selection、安裝與可讀知識的精確狀態以[採納文件](../../.dev/standards/framework-adoption.md)及實際 inspect 為準。selection 或檔案存在不等於 verified reader、規範採納或執行驗證。
 
-既有 `docs/product/` 不預設搬家。產品規劃書與 PRD 是產品層級基線，`.dev/requirements/` 與 `.dev/specs/` 則是可排程、可實作的細部拆解。
+`docs/product/` 保持產品正本，`.dev/` 不取代對外產品理由與使用文件。Framework 安裝與升級按具體範圍盤點，不以套用 Backend Application 假設或搬移所有文件代表完成。
 
 ### 4.3 不建議的做法
 
@@ -192,7 +177,7 @@ docs/product/prd.md
 docs/governance/document-governance-and-traceability.md
 ```
 
-文件版本寫入文件控制 Metadata，歷史版本由 Git Commit、Tag、Release 與必要的 Decision／Replacement 關係保存。
+文件版本寫入控制 Metadata，歷史內容由 Git commit 與既有發布紀錄保存。現行正文直接呈現有效理由和契約；ADR／替代映射只在有獨立用途時建立，Preview 不強制舊政策並存或 migration scaffolding。
 
 ### 5.2 衍生輸出
 
@@ -219,7 +204,7 @@ Markdown 正本
 
 | 狀態 | 定義 | 可作為實作依據 |
 |---|---|---|
-| `draft` | 初稿，尚未完成必要審查 | 否，除非明確標註實驗用途 |
+| `draft` | 全文件尚未完成必要審查；不自動撤銷已明確確認的個別決策 | 僅限另有明確確認且適用的選定範圍；不得聲稱整份文件已核准 |
 | `in-review` | 正在接受產品、架構或技術審查 | 有條件 |
 | `approved` | 已核准，但尚未進入實際採用或發布 | 是 |
 | `active` | 目前正式有效的產品／需求基線 | 是 |
@@ -258,7 +243,7 @@ Markdown 正本
 - MVP／Release Gate 改變；
 - Requirement 與 Rule／Diagnostic 的追溯關係改變。
 
-Requirement ID 一經使用，不因章節重排而更改。需求淘汰時保留 ID、狀態、生效版本、替代需求與遷移影響。
+Requirement ID 不因章節重排而更改；現行需求直接更新語意、理由與驗收，歷史由 Git 保留。首個不帶 `-preview` 公開版本之前不考慮向後相容，Rule／Diagnostic ID、schema、defaults、API 可直接調整，不強制 replacement、legacy 並存或 migration scaffolding。版本內唯一與已發布成品不可覆寫仍須遵守，詳見[版本政策](../releases/version-policy-proposal.md)。
 
 ### 7.3 與 `.dev` 的關係
 
@@ -323,7 +308,9 @@ Diagnostic / Architecture Test / CLI Check
 
 - Traceability ID
 - Product Requirement ID
-- Normative Source 與 Section
+- 產品理由所在文件／Section
+- 外部方法論／作者來源、對應段落與支持界線
+- 產品選擇及對齊／加強說明
 - Rule ID
 - Applicability／Profile／Architecture Role
 - Enforcement Level
@@ -341,10 +328,10 @@ Diagnostic / Architecture Test / CLI Check
 | `machine-assisted` | 工具可檢查部分條件 | 顯示覆蓋範圍與人工判斷項目 |
 | `review-required` | 需人或 AI 進行工程判斷 | 不得假裝自動通過 |
 | `missing-enforcement` | 規範可機械化，但尚無工具 | 列入產品 Backlog／Gap Report |
-| `missing-normative-source` | 執行機制缺少規範依據 | 公開發布阻擋 |
+| `missing-normative-source` | 公開規則缺少可查證依據或產品理由；工具 Diagnostic 缺少證據契約 | 明列缺口，按適用的發布 gate 阻擋；不得冒稱已補齊 |
 | `not-applicable` | Profile 或產品情境不適用 | 記錄理由 |
 | `not-evaluated` | 缺少角色映射、環境或執行條件 | 不得計入 Passed |
-| `superseded` | 已由新規則或需求取代 | 保留歷史與 Replacement |
+| `superseded` | 已由新規則或需求取代 | 歷史由 Git 保存；替代／相容處置依版本政策 |
 
 ## 10. AI Collaboration Framework 導入策略
 
@@ -376,9 +363,11 @@ Framework 應先具備或允許建立：
 
 ## 11. Gap Analysis 執行流程
 
-### 11.1 規範盤點
+### 11.1 規則理由與來源盤點
 
-盤點 DDD、Clean Architecture、Hexagonal Architecture、Use Case、Repository、Messaging、Event Sourcing、Controller、Mapper 與 Projection 等相關規範。
+每條規則分開記錄：外部方法論／作者的原始主張及其支持界線、產品選擇、為何選它、保護的責任、代價與限制、如何對齊或加強相關方法論。入口為[規則設計依據](../product/rule-design-rationale.md)與[方法論來源](../product/methodology-references.md)。設定／範圍 Diagnostic 說明自身契約，不強配方法論出處。
+
+正式產品文件只引用可查證的外部方法論／作者作為設計依據。私人討論、其他專案歷史及內部研究紀錄不作為設計權威，也不要求讀者重建研究過程。程式碼實際來源／授權資料另有保存用途，不能替代上述設計說明。
 
 ### 11.2 Diagnostic 與 Architecture Test 盤點
 
@@ -418,9 +407,16 @@ Contract → Role → Applicable Rules
 - 缺少 Help Link 或 Diagnostic 文件；
 - 規則與 AI Collaboration Framework 語意衝突。
 
-### 11.6 獨立審查
+### 11.6 真正衝突與來源缺口
 
-Gap Analysis 完成後，應由不同於主要實作者的 Reviewer 或 AI Agent 進行反向抽查，確認映射不是只為滿足格式而建立。
+當規則與方法論或明選 Framework 知識在相同適用範圍有互斥要求時：
+
+1. 固定受影響 Rule／Diagnostic、角色、Profile 與場景。
+2. 列雙方精確來源、狀態、原始主張及互斥條件；未讀或未取得的來源明列缺口。
+3. 說明 consumer 影響，提出保留並補理由、修正規則或明選另一政策等具體選項與代價。
+4. 交由產品負責人決定，並直接更新當前規則理由、要求與驗收；只暫停依賴該衝突的判斷。
+
+較嚴政策、方法論未強制某個名稱／形式或另一合法風格存在，均不自動構成矛盾。來源未完整也不自動撤銷已接受選擇；全面禁止 Aggregate static factory 及 MQ-only 尚缺完整設計理由與適用條件，保留為獨立待決議題，不作新增行為依據。審查核對理由、有效契約與實作範圍，不能只靠格式完整判定已解決。
 
 ## 12. 自動化驗證與 CI Gate
 
@@ -436,6 +432,10 @@ Gap Analysis 完成後，應由不同於主要實作者的 Reviewer 或 AI Agent
 - Word／PDF 輸出的來源 Commit／文件版本一致性；
 - Release Candidate 前的整體 Gap Report。
 
+首個不帶 `-preview` 的公開版本必須另外驗收逐規則理由、完整套件使用說明與對人／AI 可讀的公開 API XML。XML 要說明責任、不變條件、所有權／可變性、生命週期、適用參數／回傳／例外與限制；原始註解語意、生成檔、nupkg 隨包內容與 feed consumer 可讀分別留證。詳見 PRD AD-009～AD-011／RL-011 及[版本政策](../releases/version-policy-proposal.md)。
+
+這些是產品要求；現有 preview pipeline 是否實際檢查、每條規則是否補全、XML 是否交付，均須以實際證據回答，不因本文件新增文字而視為通過。
+
 初期可先以 Script 或 Conformance Tool 執行；成熟後由 Conformance 成品提供統一報告。
 
 ## 13. Ownership 與審查節奏
@@ -447,7 +447,7 @@ Gap Analysis 完成後，應由不同於主要實作者的 Reviewer 或 AI Agent
 | 產品規劃書 | 產品負責人 |
 | PRD | 產品負責人，技術負責人共同審查 |
 | 文件治理規劃 | 產品負責人／Repository Maintainer |
-| 工程規範 | AI Collaboration Framework 對應內容 Owner 或 Guardrails 產品 Owner |
+| 規則理由／方法論歸因 | ArchPrecept 產品 Owner；外部作者主張依原來源呈現 |
 | Rule Catalog／Mapping | Guardrails Maintainer |
 | Diagnostic／Architecture Test | 對應元件 Maintainer |
 | Consumer／Compatibility Test | Release／品質維護責任人 |
@@ -462,35 +462,13 @@ Gap Analysis 完成後，應由不同於主要實作者的 Reviewer 或 AI Agent
 - 發現規則誤報、漏報或規範衝突時；
 - 固定週期性審查，例如每季或每個 Major Milestone。
 
-## 14. 現行文件遷移方案
+## 14. 現行文件維護方式
 
-### 14.1 建議移入 Repository 的檔案
+Product Plan、PRD 與本文件維持各自穩定路徑，Markdown 只有一份正本。每次在授權範圍內直接修正文義、依據、適用條件與驗收，並檢查連結與相關文件的一致性；Git 保存歷史，不在正文追加逐次研究、交接或批准日誌。
 
-將目前文件內容以穩定檔名加入：
+規則文件、套件使用說明與 API XML 依對應產品變更同步維護。現行 `rules/catalog.xml` 不因文件盤點而被複製或改名；新機器資料與自動 gate 只有在另行實作並驗證後，才能稱為已交付。
 
-```text
-docs/product/product-plan.md
-docs/product/prd.md
-docs/governance/document-governance-and-traceability.md
-```
-
-下載或交換用的版本化檔名可以保留在 Release Artifact，但不應成為 Repository 內並行正本。
-
-### 14.2 第一階段工作
-
-1. 建立 `docs/product/` 與 `docs/governance/`。
-2. 將 Product Plan、PRD 與本文件加入 Git。
-3. 在各文件控制區塊標記狀態、Owner 與版本。
-4. 建立 `rules/mappings/` 目錄與初始 Traceability Schema 草案。
-5. 盤點現有 17 個 Diagnostic 的規範來源與測試。
-6. 建立缺口清單，但先不要求所有規則立即完成機械化。
-
-### 14.3 第二階段工作
-
-1. 將 Traceability Mapping 納入 CI。
-2. 讓新增 Diagnostic 必須同時提交 Rule、文件與測試。
-3. 建立 Word／PDF 產出流程及 Render QA。
-4. AI Collaboration Framework Profile 成熟後執行正式 Gap Analysis 與安裝計畫。
+來源與理由缺口、未交付能力、未執行檢查分別列明。文件正規化不授予實作、套件發布或 Framework 安裝權限，也不將歷史測試轉成當前驗收。
 
 ## 15. 驗收條件
 
@@ -499,72 +477,57 @@ docs/governance/document-governance-and-traceability.md
 1. Product Plan、PRD 與本文件在 Repository 中只有一份 Markdown 正本。
 2. 正本使用穩定路徑，版本由 Metadata 與 Git 保存。
 3. Word／PDF 明確標示為衍生輸出。
-4. `docs/`、`rules/` 與未來 `.dev/` 的責任文件化。
+4. `docs/`、`rules/` 與`.dev/` 的責任文件化。
 5. 每個公開 Diagnostic 都有 Rule ID、規範來源、Help Link 與測試映射。
 6. 每條 `machine-enforced` Rule 都有執行機制；缺少時會顯示 Gap。
 7. `not-evaluated`、`review-required` 與 `missing-enforcement` 不被計入 Passed。
 8. Framework 導入計畫包含 Dry Run、File Disposition、Gap Analysis 與獨立審查。
 9. Release Candidate 前會執行文件與追溯一致性檢查。
 10. 文件 Owner 與審查節奏已被指定。
+11. 真正衝突按第 11.6 節窄範圍處理，較嚴政策不自動視為矛盾。
+12. 首個不帶 `-preview` 公開版本前，逐規則依據、完整使用說明、API XML 隨包及 consumer 可讀均有實際驗收證據；未完成前保持明確缺口。
 
 # 附錄 A：建議 Repository 結構
 
 ```text
-dotnet-engineering-guardrails/
+ArchPrecept/
 ├─ src/
 │  ├─ Contracts/
-│  ├─ Analyzers/
-│  ├─ ArchitectureTesting/
-│  └─ Conformance/
+│  └─ Analyzers/
 ├─ tests/
-│  ├─ Contracts/
-│  ├─ Analyzers/
-│  ├─ ArchitectureTesting/
-│  ├─ Conformance/
-│  └─ Consumers/
+├─ samples/
 ├─ docs/
 │  ├─ product/
-│  │  ├─ product-plan.md
-│  │  └─ prd.md
 │  ├─ governance/
-│  │  └─ document-governance-and-traceability.md
-│  ├─ architecture/
-│  ├─ rules/
 │  ├─ diagnostics/
-│  ├─ compatibility/
-│  ├─ migration/
-│  ├─ provenance/
-│  └─ adoption/
+│  └─ releases/
 ├─ rules/
-│  ├─ catalog/
-│  ├─ mappings/
-│  ├─ profiles/
-│  └─ schemas/
-└─ .dev/                    # 未來 Framework 導入後
-   ├─ requirements/
-   ├─ specs/
-   ├─ standards/
-   ├─ workflows/
-   └─ releases/
+│  ├─ catalog.xml
+│  ├─ catalog.xsd
+│  └─ configuration.xsd
+├─ eng/
+└─ .dev/                    # 開發治理與工作證據
 ```
 
-`src/` 第一層是產品能力邊界；可建置、可發布的產品 Project 不得回到 Repository 根目錄的 `analyzers/`、`tools/` 或其他平行原始碼樹。`tests/` 使用相同能力名稱保存不發布的驗證 Project，Traceability Record 必須引用搬移後的正式路徑。
+ArchitectureTesting／Conformance 屬規劃能力，不以空專案預佔。`src/` 第一層是產品能力邊界；可建置、可發布的產品 Project 不得回到 Repository 根目錄的 `analyzers/`、`tools/` 或其他平行原始碼樹。`tests/` 使用相同能力名稱保存不發布的驗證 Project，Traceability Record 必須引用搬移後的正式路徑。
 
 # 附錄 B：Traceability Record 範例
 
+以下是說明追溯關係的文件範例，不是現行設定 schema 或第二份 Rule Catalog；實際 metadata 仍由 `rules/catalog.xml` 維護。
+
 ```yaml
-traceability_id: TRACE-ENG-REPOSITORY-001
+traceability_id: TRACE-AP-REPOSITORY-001
 status: active
 product_requirements:
   - RM-004
   - RC-003
   - AN-004
 normative_source:
-  document: docs/rules/repository-boundaries.md
-  section: aggregate-repository
+  document: docs/product/rule-design-rationale.md
+  section: repository
 rule:
-  rule_id: ENG-REPOSITORY-001
-  coverage: full
+  rule_id: AP-REPOSITORY-001
+  coverage: partial
 applicability:
   profiles:
     - core
@@ -572,12 +535,12 @@ applicability:
     - aggregate-repository
 enforcement:
   - type: roslyn-analyzer
-    diagnostic_id: <diagnostic-id>
+    diagnostic_id: DBA1001
 implementation:
-  - src/Analyzers/ArchPrecept.Analyzers.Core/Rules/Application/RepositoryContractAnalyzer.cs
+  - src/Analyzers/ArchPrecept.Analyzers.Core/RepositoryQueryMethodAnalyzer.cs
 tests:
-  - tests/Analyzers/RepositoryContractAnalyzerTests.cs
-  - tests/Consumers/AnalyzerOnly.CustomContracts/
+  - tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/RepositoryQueryMethodAnalyzerTests.cs
+  - eng/Test-PackageConsumer.ps1
 release_evidence: null
 ```
 

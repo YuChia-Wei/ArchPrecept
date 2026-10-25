@@ -11,6 +11,7 @@ ArchPrecept 提供可獨立採用的 .NET 架構分析器與選配參考契約�
 - 需求及驗收：[PRD](docs/product/prd.md)，只讀與任務相關的 Requirement；文件為 draft 不代表其中已明確確認的個別決策都失效，也不代表整份文件已核准。
 - 開發工作與規範適用性：[開發導覽](.dev/README.MD)、[Framework 採納文件](.dev/standards/framework-adoption.md)。先看文件狀態及適用範圍。
 - Diagnostic 現行行為：[診斷目錄](docs/diagnostics/README.md)。現行限制與目標規則語意須分開判斷。
+- 規則理由與官方依據：[設計依據](docs/product/rule-design-rationale.md)、[方法論來源](docs/product/methodology-references.md)。正式文案直接說明理由、適用範圍與取捨，不以私人或跨 repo 討論作為規範來源。
 - GitHub 工作入口：[ArchPrecept Issues](https://github.com/YuChia-Wei/ArchPrecept/issues)。既有工作優先，避免為同一缺口建立重複項目。
 
 ## 程式探索
@@ -53,11 +54,15 @@ ALWAYS prefer MCP graph tools over grep/glob/file-search for code discovery.
 
 ## 變更與驗證
 
+- 首個不含 `-preview` 後綴的公開版本發布前不考慮舊版相容性，不為舊 API／Diagnostic ID／Profile／schema／suppression 保留轉接層或平行模式；本版實際行為仍須如實描述。同版號已發布成品不可覆寫。正式版前的文件、使用說明與可讀 API XML 要求見[版本政策](docs/releases/version-policy-proposal.md)。
+- 與方法論、準則或所選 Framework 知識有真正同範圍理念衝突時，獨立討論受影響規則及權威來源；保留已接受而較嚴的政策理由，不因另一設計合法就自行放寬。
 - 依當次授權與既有 Issue 範圍推進；計畫核准不自動擴張成安裝、產品實作、發布或清理授權。已授權的必要工作不重複索取許可。
 - 先重用 accepted inputs，再選需求、設計、實作、審查或驗證步驟。不為形式重建完整 SDLC 文件，也不重跑與本次變更無關的昂貴驗收。
 - 用能驗證受影響行為的檢查。文件草案以來源、連結、適用範圍與差異檢查為主；Analyzer 變更需考慮正例、反例、誤判及自有契約；套件邊界變更再選 package consumer 驗證。
 - 本機 SDK 依 [global.json](global.json)。完整建置／測試／封裝入口為 [eng/Build-Packages.ps1](eng/Build-Packages.ps1)；consumer 驗證入口為 [eng/Test-PackageConsumer.ps1](eng/Test-PackageConsumer.ps1)。這些入口有不同成本，不因文件或 SHA 改變就一律執行。
 - 暫存或可重建驗證資料先確認 RAM 磁碟映射與容量，再使用`F:\tmp` 下有界任務目錄；不得靜默退回 C:。持久決策、憑證及正式安裝復原紀錄留在獲准的持久位置。不修改全機 TEMP/TMP。
+- 跨 repo／線上聊天研究、討論與中間設計資料在各階段完成及長工作接續前保存到該 F: 任務目錄，保留來源定位及必要摘錄；需要時讀回原資料，不只依賴對話摘要。正式整合時只將有效設計理由、契約及權威參考寫入 docs，不搬入研究歷程。
+- 文件與程式直接修改有效內容；不在文內堆疊修改日誌或被取代的提案。完成可審閱且已檢查的功能／任務時，以聚焦的 Git commit 保存。提交前評估尚未分享的零碎提交是否適合整理；已分享歷史不因減少數量而逕行重寫，發布紀錄與必要授權來源證據另依其責任保留。
 - 提交、合併與發布沿 [現行 CI/CD 規則](docs/releases/cicd-plan.md) 及當次授權。Framework 的 PR skill 不會替本專案新增必經 PR、required reviewer 或 branch protection。
 
 公開 Issue／PR 保存功能、設計、驗收、相依、技術證據與完成範圍；操作授權、交接與執行紀錄留在使用者對話及專案既有工作流程，不以 Issue 正文／留言當成授權來源。本選配未啟用 workflow store；需要其正式記錄而機制不可用時，標明未完成，不暗中建立儲存庫或改存 Issue。

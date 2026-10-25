@@ -1,11 +1,11 @@
 # 初期 CI/CD 與公開 Preview 發布規則
 
-2026-10-21，依負責人本次決定生效；取代上一輪「先經 PR／Environment 核准再發布」提案。
+本文件定義現行公開 Preview 發布流程。首次不帶 `-preview` 後綴的公開版本另須滿足[版本政策與文件閘門](version-policy-proposal.md)；現有 pipeline 仍只接受 preview，不因文件要求而自動具備正式版發布能力。
 
 ## 已決定的規則
 
 - 六個現行套件均採 **public**；舊 Messaging.Abstractions 不新增轉接版本。
-- 版號不自動遞增。2026-10-22 負責人明確核准核心工作使用 `0.0.3-preview`；前次為 `0.0.2-preview`。Gate 必須讀回 registry，確認選定版本是否存在；不能只依本機判斷未發布。
+- 版號由具體發布決策選定，不自動遞增。Gate 必須讀回 registry，確認選定版本是否存在；不能只依本機判斷未發布。
 - 初期在工作分支完成 review 與必要驗證，使用 `git merge --ff-only` 回 main，然後直接推送 main。
 - **main push 觸發完整建置、測試、封裝、發布與 registry 驗證**。不另要求 PR、required reviewers 或新增 branch protection。
 - 暫不建立 tag／GitHub Release，也不以 tag 觸發；後期再評估其他觸發與治理方式。
@@ -46,7 +46,7 @@ public 可見性及所有版本分頁。403 或其他 API 錯誤會失敗，只�
 | 既有 package 非 public、連結錯誤或權限不足 | 停止並回報，不能把 API 錯誤視為尚未發布 |
 
 新版產品內容若需發布不同 bytes，必須先改用未發布的新版本；main push 不自動遞增版本。
-同一目標的預覽修訂可用 `0.0.2-preview.1`、`.2`，正式版政策仍見[版號提案](version-policy-proposal.md)。
+首個不帶 `-preview` 公開版本之前不考慮向後相容，可直接調整 ID、schema、defaults 與 API；不強制 legacy／replacement／migration scaffolding。具體政策與正式版文件閘門見[版本政策](version-policy-proposal.md)。
 沒有使用 `--skip-duplicate`。六次 push 不是原子交易，不可刪除、覆寫或重建同版號後盲目重試。
 
 上傳與 metadata verification 分為不同 jobs：上傳成功後若只因 metadata／可見性檢查失敗，
@@ -56,11 +56,11 @@ public 可見性及所有版本分頁。403 或其他 API 錯誤會失敗，只�
 
 ## Public 設定與驗證
 
-本次已核准六套件 public。既有公開 package 的新版本沿用 package 可見性；
+六個現行套件採 public。既有公開 package 的新版本沿用 package 可見性；
 新的 Package ID 首次上傳後仍須確認。GitHub 文件指出新 package 預設 private，
 可在 Package settings 改為 public；public 不能改回 private。
 已查閱的官方 REST Packages API 未提供變更 visibility 的操作，因此 workflow 不使用未公開端點，
-也不把上傳成功等同已公開。若新 ID 為 private，依本次授權在官方設定頁完成 public 設定後重跑驗證。
+也不把上傳成功等同已公開。若新 ID 為 private，須在該次發布的具體授權範圍內完成官方 public 設定並重跑驗證。
 參考 [GitHub 可見性規則](https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility)
 與 [REST Packages API](https://docs.github.com/en/rest/packages/packages)。
 
@@ -78,3 +78,5 @@ GitHub NuGet 的 public 套件安裝仍需要驗證；Actions 使用具存取權
 本文件描述執行規則；實際版本結果分別記於 [0.0.3-preview 發布紀錄](0.0.3-preview.md) 與 [0.0.2-preview 歷史紀錄](0.0.2-preview.md)。
 後期才評估 tag／Release、PR 與 branch protection、required reviewers、nuget.org 及正式版維護線；
 這些不作為目前初期發布的前置條件。
+
+首個不帶 `-preview` 的公開版本另需逐規則設計理由、完整套件使用說明，以及有語意且隨 `.nupkg` 交付、由 consumer 可讀的 API XML 證據。這是待落實的產品 gate，並非現有 preview workflow 已自動檢查或本次已通過；正式版發布機制需另行實作與驗證。
