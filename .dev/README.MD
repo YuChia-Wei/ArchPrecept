@@ -46,6 +46,10 @@ DDD 工作說明共同語言、Bounded Context、Aggregate 不變條件及例子
 | SDK／安裝／公開 API 相容性 | [Test-PackageConsumer.ps1](../eng/Test-PackageConsumer.ps1) 的相關 consumer 情境 |
 | 合併與發布 | [CI/CD 規則](../docs/releases/cicd-plan.md)；驗證結果與發布授權分開 |
 
+## 開發經驗
+
+開發時的設計與驗證成本依 [AGENTS.md 的變更與驗證規則](../AGENTS.md#變更與驗證)處理。經驗回顧見 [LESSON：避免過度設計與過度測試](lessons/2026-10-29-proportionate-design-and-testing.md)；回顧本身不增加測試或執行步驟。
+
 ## Framework 導入狀態
 
 - 正式 v0.21.0 選配與逐檔預覽見 本機 `.dev/planning/framework-adoption-2026-10-24/PLAN.md`（依使用者指示不提交）；共享選配來源為 [installation.json](../.ai/project/installation.json)。此計畫的內容確認與安裝授權依使用者當次指示。
