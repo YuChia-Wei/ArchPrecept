@@ -54,6 +54,7 @@ ALWAYS prefer MCP graph tools over grep/glob/file-search for code discovery.
 
 ## 變更與驗證
 
+- 收到發布要求時，主動執行 [CI/CD 的發布前文件與規則檢查](docs/releases/cicd-plan.md#發布要求觸發的文件與規則檢查)，依該節使用可確認的低成本模型，檢查當版說明、規則、實作及成品證據的落差，修正並複查後才執行可能觸發上傳的動作。模型不可用或必要檢查未完成時如實回報；不得以 CI 成功代替。此為本專案明選的發布審查政策。
 - 首個不含 `-preview` 後綴的公開版本發布前不考慮舊版相容性，不為舊 API／Diagnostic ID／Profile／schema／suppression 保留轉接層或平行模式；本版實際行為仍須如實描述。同版號已發布成品不可覆寫。正式版前的文件、使用說明與可讀 API XML 要求見[版本政策](docs/releases/version-policy-proposal.md)。
 - 與方法論、準則或所選 Framework 知識有真正同範圍理念衝突時，獨立討論受影響規則及權威來源；保留已接受而較嚴的政策理由，不因另一設計合法就自行放寬。
 - 依當次授權與既有 Issue 範圍推進；計畫核准不自動擴張成安裝、產品實作、發布或清理授權。已授權的必要工作不重複索取許可。
