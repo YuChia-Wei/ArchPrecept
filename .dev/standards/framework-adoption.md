@@ -59,7 +59,7 @@ Framework v0.21.0 已於 2026-10-24 00:34:42 台灣時間正式發布。本文�
 | DEC-020、[0.0.3-preview](../../docs/releases/0.0.3-preview.md) | 負責人同意且已交付 | 核心 #1／#6／#7／#8／#9／#11 已交付；本輪不得退回舊版缺陷敘述或重開已完成規則決策 |
 | [License 與來源評估](../../docs/releases/licensing-assessment.md)、產品規劃書第 14 節 | 已有明確決定 | 自有內容採 Apache-2.0，第三方條款分開；不因 Framework 導入重開已完成選型 |
 
-產品規劃書仍保留 DEC-001 的舊遠端名稱、DEC-010 的早期套件命名待決記錄，以及舊版本停止發布的歷史段落。已有 README、DEC-019、現行 CI/CD 與 [0.0.3-preview 發布紀錄](../../docs/releases/0.0.3-preview.md) 說明後續狀態。接手時應沿這些明確演進讀取；本次不修改歷史產品文件，也不因舊段落重新要求決定已核准的六個套件 ID 或 public 範圍。
+產品與 repository 身分、套件 ID 及發布流程依[產品規劃書的現行決策](../../docs/product/product-plan.md#3-已確認的關鍵決策)、README 與[現行 CI/CD 規則](../../docs/releases/cicd-plan.md)判讀；已發布成品的證據見 [0.0.3-preview 發布紀錄](../../docs/releases/0.0.3-preview.md)。歷史內容由 Git 與各版本發布紀錄保存，不重新要求決定已核准的六個套件 ID 或 public 範圍。
 
 ## DDD CA 與 Hex Arch 慣例的採納範圍
 
