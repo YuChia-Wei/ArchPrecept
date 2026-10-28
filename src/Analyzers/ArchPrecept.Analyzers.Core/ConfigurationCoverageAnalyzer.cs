@@ -10,18 +10,23 @@ namespace ArchPrecept.Analyzers.Core;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ConfigurationCoverageAnalyzer : DiagnosticAnalyzer
 {
+    /// <summary>建立分析器實例；規則與角色設定由每次編譯提供，不保存 consumer 執行期狀態。</summary>
+    public ConfigurationCoverageAnalyzer() { }
+
     internal static readonly DiagnosticDescriptor InvalidConfiguration = new("DBA0001", "Invalid ArchPrecept configuration",
         "ArchPrecept configuration: {0}", "Configuration", DiagnosticSeverity.Error, true,
-        helpLinkUri: "https://github.com/YuChia-Wei/ArchPrecept/blob/main/docs/diagnostics/DBA0001.md",
+        helpLinkUri: DocumentationLinks.For("docs/diagnostics/DBA0001.md"),
         customTags: new[] { WellKnownDiagnosticTags.NotConfigurable, WellKnownDiagnosticTags.CompilationEnd });
     internal static readonly DiagnosticDescriptor Coverage = new("DBA0002", "ArchPrecept evaluation scope",
         "{0}: {1} ({2})", "Coverage", DiagnosticSeverity.Info, true,
-        helpLinkUri: "https://github.com/YuChia-Wei/ArchPrecept/blob/main/docs/diagnostics/DBA0002.md");
+        helpLinkUri: DocumentationLinks.For("docs/diagnostics/DBA0002.md"));
 
     /// <summary>取得設定與覆蓋狀態診斷。</summary>
+    /// <value>此分析器可回報的描述項；是否啟用及有效嚴重性由本次設定決定。</value>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(InvalidConfiguration, Coverage);
 
     /// <summary>註冊編譯結束回報，不因沒有來源符號而遺漏無效設定。</summary>
+    /// <param name="context">Roslyn 提供的註冊環境；由編譯器管理分析與取消生命週期。</param>
     public override void Initialize(AnalysisContext context)
     {
         // Report exclusions at generated declarations; this analyzer does not run product rules.
@@ -84,7 +89,7 @@ public sealed class ConfigurationCoverageAnalyzer : DiagnosticAnalyzer
     private static bool Supports(INamedTypeSymbol type, string id)
     {
         if (id == "DBA1015") return type.TypeKind == TypeKind.Interface || !type.IsAbstract;
-        if (id == "DBA1016") return type.TypeKind != TypeKind.Interface && !type.IsAbstract;
+        if (id == "DBA1016") return type.TypeKind is TypeKind.Class or TypeKind.Struct;
         if (id is "DBA1001" or "DBA1018" or "DBA1019") return true;
         if (id is "DBA1004" or "DBA1005" or "DBA1006" or "DBA1014")
             return type.TypeKind == TypeKind.Class && !type.IsAbstract;

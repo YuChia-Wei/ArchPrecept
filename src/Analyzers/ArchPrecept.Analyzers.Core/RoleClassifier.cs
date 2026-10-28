@@ -17,6 +17,7 @@ internal sealed class RoleClassifier
     private readonly ConcurrentDictionary<ISymbol, ConcurrentDictionary<string, RoleMatch>> matches = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<string, INamedTypeSymbol> configured = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ImmutableArray<INamedTypeSymbol>> builtIn = new(StringComparer.Ordinal);
+    private readonly HashSet<ISymbol> pureQueryControllers = new(SymbolEqualityComparer.Default);
     internal AnalyzerConfiguration Configuration { get; }
 
     /// <summary>取得同一編譯與同一設定物件共用的分類器。</summary>
@@ -46,12 +47,22 @@ internal sealed class RoleClassifier
         AddBuiltIn("compatibility-repository", "ArchPrecept.Contracts.Application", "IDomainRepository`2");
         AddBuiltIn("query-repository", "ArchPrecept.Contracts.Application", "IQueryRepository");
         AddBuiltIn("domain-event-dispatcher", "ArchPrecept.Contracts.Application", "IDomainEventDispatcher");
+        AddBuiltIn("integration-event-publisher", "ArchPrecept.Contracts.Application.Messaging", "IIntegrationEventPublisher");
         AddBuiltIn("event-sourced-aggregate", "ArchPrecept.Contracts.Domain.EventSourcing", "EsAggregateRoot`1");
         AddPlatform("controller", "Microsoft.AspNetCore.Mvc.ControllerBase", "Microsoft.AspNetCore.Mvc.Core");
         AddPlatform("db-context", "Microsoft.EntityFrameworkCore.DbContext", "Microsoft.EntityFrameworkCore");
         AddPlatform("db-set", "Microsoft.EntityFrameworkCore.DbSet`1", "Microsoft.EntityFrameworkCore");
         AddPlatform("bus", "Wolverine.IMessageBus", "Wolverine");
         AddPlatform("bus", "MediatR.IMediator", "MediatR");
+        AddPlatform("service-locator", "CommonServiceLocator.IServiceLocator", "CommonServiceLocator");
+        foreach (var selection in Configuration.PureQueries.Values)
+        {
+            var selectedType = Resolve(selection.MetadataName, selection.AssemblyName, false);
+            if (selectedType is null || selectedType.TypeKind != TypeKind.Class
+                || !Classify(selectedType, "controller").Matched)
+                Configuration.Errors.Add($"PureQuery: cannot resolve a controller {selection.MetadataName} in assembly {selection.AssemblyName}.");
+            else if (selection.Enabled) pureQueryControllers.Add(selectedType);
+        }
     }
 
     /// <summary>以 metadata 名稱與組件身分解析唯一符號，不以短名稱放行。</summary>
@@ -91,6 +102,10 @@ internal sealed class RoleClassifier
 
     /// <summary>確認型別符合指定角色。</summary>
     internal bool Is(ITypeSymbol? type, string role) => Match(type, role).Matched;
+
+    /// <summary>只對精確明選且設定有效的 Controller 開啟 query-only 依賴例外。</summary>
+    internal bool AllowsPureQuery(INamedTypeSymbol controller) =>
+        Configuration.Errors.Count == 0 && pureQueryControllers.Contains(controller);
 
     /// <summary>依明確 mapping、內建契約、繼承與可選慣例的順序分類。</summary>
     private RoleMatch Classify(ITypeSymbol type, string role)
@@ -214,7 +229,7 @@ internal sealed class RoleClassifier
             "query" => name == "IQuery",
             "domain-service" => name.EndsWith("DomainService", StringComparison.Ordinal),
             "bus" => name is "IMessageBus" or "IMediator" or "IDispatcher" || name.EndsWith("Dispatcher", StringComparison.Ordinal),
-            "transport" => InNamespace(type, "Wolverine") || InNamespace(type, "MediatR") || InNamespace(type, "Microsoft.AspNetCore"),
+            "transport" => false,
             "db-context" => name.EndsWith("DbContext", StringComparison.Ordinal),
             "db-set" => name == "DbSet",
             _ => false
@@ -225,17 +240,22 @@ internal sealed class RoleClassifier
     internal bool IsForbiddenUseCaseDependency(ITypeSymbol type)
     {
         if (Is(type, "use-case") || Is(type, "transport")) return true;
-        var local = Match(type, "domain-event-dispatcher");
-        if (!local.Matched) return Is(type, "bus");
+        var local = IsLocalApplicationPort(type);
+        if (!local) return Is(type, "bus");
         // Check each other contract separately: a valid local port cannot launder a bus mix-in.
         foreach (var candidate in TypeClosure(type))
         {
             if (Match(candidate, "bus") is { Matched: true, Evidence: "configured-contract" }) return true;
             if (Is(candidate, "transport") || Is(candidate, "use-case")) return true;
-            if (!Is(candidate, "domain-event-dispatcher") && Is(candidate, "bus")) return true;
+            if (!IsLocalApplicationPort(candidate) && Is(candidate, "bus")) return true;
         }
         return false;
     }
+
+    /// <summary>合法本地 port 只排除自身的低信心 bus 名稱，不會豁免其他禁止契約。</summary>
+    private bool IsLocalApplicationPort(ITypeSymbol type) =>
+        new[] { "domain-event-dispatcher", "integration-event-publisher", "outbox-port" }
+            .Any(role => Match(type, role) is { Matched: true, Confidence: "high" });
 }
 
 /// <summary>記錄角色判定來源、信心與契約證據。</summary>

@@ -19,14 +19,17 @@ jobs:
     outputs:
       version: ${{ steps.state.outputs.version }}
       should-publish: ${{ steps.state.outputs.should-publish }}
+      publication-enabled: ${{ steps.readiness.outputs.publication-enabled }}
     steps:
       - uses: actions/checkout@v4
       - name: Check publication readiness and immutable source
+        id: readiness
         shell: pwsh
         env:
           ENABLED: ${{ vars.PREVIEW_PUBLISH_ENABLED }}
         run: |
-          if ($env:ENABLED -ne 'true') { throw 'Publication disabled: complete License/provenance and visibility review first.' }
+          $enabled = ($env:ENABLED -eq 'true').ToString().ToLowerInvariant()
+          "publication-enabled=$enabled" >> $env:GITHUB_OUTPUT
           if ($env:GITHUB_REF -ne 'refs/heads/main') { throw 'Publish from main only.' }
           $version = ([xml](Get-Content Directory.Build.props -Raw)).Project.PropertyGroup.Version
           if ($version -notmatch '^\d+\.\d+\.\d+-preview(?:\.\d+)?$') { throw 'Invalid preview version.' }
@@ -37,7 +40,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EXPECTED_REPOSITORY: ${{ github.repository }}
+          ENABLED: ${{ vars.PREVIEW_PUBLISH_ENABLED }}
         run: |
+          if ($env:ENABLED -ne 'true') {
+            $version = ([xml](Get-Content Directory.Build.props -Raw)).Project.PropertyGroup.Version
+            "version=$version" >> $env:GITHUB_OUTPUT
+            'should-publish=false' >> $env:GITHUB_OUTPUT
+            'Publication disabled: validate the source candidate only; no upload or registry acceptance.' >> $env:GITHUB_STEP_SUMMARY
+            exit 0
+          }
           $state = ./eng/Get-PreviewReleaseState.ps1 -Repository $env:EXPECTED_REPOSITORY
           "version=$($state.version)" >> $env:GITHUB_OUTPUT
           "should-publish=$($state.shouldPublish.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
@@ -47,7 +58,7 @@ jobs:
     uses: ./.github/workflows/ci.yml
   publish:
     needs: [gate, validate]
-    if: needs.gate.outputs.should-publish == 'true'
+    if: needs.gate.outputs.publication-enabled == 'true' && needs.gate.outputs.should-publish == 'true'
     runs-on: ubuntu-latest
     environment: github-packages-preview
     permissions:
@@ -76,7 +87,7 @@ jobs:
           done
   verify:
     needs: [gate, validate, publish]
-    if: always() && needs.gate.result == 'success' && needs.validate.result == 'success' && (needs.publish.result == 'success' || needs.publish.result == 'skipped')
+    if: always() && needs.gate.outputs.publication-enabled == 'true' && needs.gate.result == 'success' && needs.validate.result == 'success' && (needs.publish.result == 'success' || needs.publish.result == 'skipped')
     runs-on: ubuntu-latest
     permissions:
       contents: read

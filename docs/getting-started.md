@@ -2,6 +2,8 @@
 
 ArchPrecept 的六個套件可依需要選用，執行檢核只需 .NET SDK 與 NuGet，無需 AI、API key 或 Framework。0.0.3-preview 支援 SDK 8／10；是否已發布及實際驗收見 [本版紀錄](releases/0.0.3-preview.md)。
 
+本頁隨目前來源候選交付；新的 PureQuery、精確 predicate 與 XML 補全尚未上傳 feed。安裝現有 0.0.3-preview 時使用 [該版固定使用指南](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.3-preview/docs/getting-started.md)。本機候選必須以獨立 NuGet cache 還原，避免同版號的已發布 bytes 混用；它不是新版發布，詳見[版本定位](releases/rule-contract-candidate.md)。
+
 | 套件 | 用途與必要相依 |
 |---|---|
 | ArchPrecept.Analyzers.Core | 編譯期檢查；無 Contracts runtime 相依 |
@@ -26,6 +28,8 @@ ArchPrecept 的六個套件可依需要選用，執行檢核只需 .NET SDK 與 
 需要參考契約時另加 `ArchPrecept.Contracts.Application` 或所需能力；Analyzer 不要求你換掉自有介面，也不強制繼承產品基底。Contracts-only 可完全不安裝 Analyzer。
 
 本機驗證可使用 `eng/Build-Packages.ps1` 的 nupkg 輸出作為 source；不要用產品 ProjectReference 代替套件安裝證據。
+
+Contracts-only 的最小使用與責任見[各套件使用範例](package-usage.md)；ES、Messaging 與 publisher 亦各有獨立安裝範例，沒有為使用 Analyzer 而強制引用 runtime 契約。
 
 ## 2. 明確選規則與角色
 
@@ -81,6 +85,10 @@ dotnet_diagnostic.DBA1018.severity = error
 例如 Aggregate Repository 的 criteria 查詢應由 query port 找候選 ID，再由命令端載入 Aggregate 並驗證目前狀態；純 Mapper 不負責查詢資料；UseCase 的 Input 不直接承載 HTTP 或 broker 型別。這些都是具體採用政策，其方法論支持與適用條件在各規則說明中列出。
 
 首個不含 `-preview` 後綴的公開版本發布前不提供向後相容保證。安裝或更新時讀取該版本的使用與規則文件；目前文件中的 `legacy` 是已實作設定名稱，不是保留舊版本的承諾。詳見[版本與發布準備政策](releases/version-policy-proposal.md)。
+
+候選包在 `lib/net8.0/<Assembly>.xml` 提供 API 文件；Analyzer 的對應 DLL/XML 在 `analyzers/dotnet/cs/`，不作為 runtime reference。每包的 `docs/` 直接封裝同一份原創說明，`rules/catalog.xml` 保持唯一機器來源。編譯器／IDE 從 DLL 旁 XML 讀 tooltip，AI 或人工可直接讀 XML 的 member ID、summary／param／returns／value／remarks。候選 HelpLink／SARIF 指向組件 informational version 的來源 SHA；無 Git source revision 的開發 build 不符合文件交付驗收。
+
+規則文件中的程式碼與測試相對路徑指向 repository 的同一來源修訂，未把產品原始碼當作 runtime 套件內容。離線閱讀先用隨包 rationale、Diagnostic 手冊與使用指南；追查實作時使用 `.nuspec` repository commit 或 Diagnostic 固定 SHA 連結。
 
 ### 安裝後的常見判讀
 

@@ -30,7 +30,7 @@ public sealed class DiagnosticDocumentationCoverageTests
             .Order()
             .ToArray();
 
-        Assert.Equal(21, diagnosticIds.Length);
+        Assert.Equal(RuleCatalog.Ids.Concat(new[] { "DBA0001", "DBA0002" }).Order(), diagnosticIds);
         Assert.Equal(diagnosticIds.Length, diagnosticIds.Distinct(StringComparer.Ordinal).Count());
 
         var documentationDirectory = Path.Combine(repositoryRoot, "docs", "diagnostics");
@@ -68,7 +68,8 @@ public sealed class DiagnosticDocumentationCoverageTests
             }
 
             Assert.Contains($"[{diagnosticId}]({diagnosticId}.md)", index, StringComparison.Ordinal);
-            Assert.Equal($"https://github.com/YuChia-Wei/ArchPrecept/blob/main/docs/diagnostics/{diagnosticId}.md",
+            Assert.Matches("^[a-f0-9]{40}$", DocumentationLinks.SourceRevision);
+            Assert.Equal($"https://github.com/YuChia-Wei/ArchPrecept/blob/{DocumentationLinks.SourceRevision}/docs/diagnostics/{diagnosticId}.md",
                 descriptors.Single(descriptor => descriptor.Id == diagnosticId).HelpLinkUri);
         }
     }

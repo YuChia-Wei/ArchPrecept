@@ -13,15 +13,20 @@ namespace ArchPrecept.Analyzers.Core;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AggregateInfrastructureDependencyAnalyzer : DiagnosticAnalyzer
 {
+    /// <summary>建立分析器實例；規則與角色設定由每次編譯提供，不保存 consumer 執行期狀態。</summary>
+    public AggregateInfrastructureDependencyAnalyzer() { }
+
     /// <summary>
     /// 取得此分析器支援的 Diagnostic 描述項目。
     /// </summary>
+    /// <value>此分析器可回報的描述項；是否啟用及有效嚴重性由本次設定決定。</value>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(RuleDescriptors.AggregateInfrastructureDependency);
 
     /// <summary>
     /// 初始化分析器並註冊類別宣告的語法節點分析。
     /// </summary>
+    /// <param name="context">Roslyn 提供的註冊環境；由編譯器管理分析與取消生命週期。</param>
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -42,7 +47,7 @@ public sealed class AggregateInfrastructureDependencyAnalyzer : DiagnosticAnalyz
             return;
         }
 
-        foreach (var typeSyntax in classDeclaration.DescendantNodes().OfType<TypeSyntax>())
+        foreach (var typeSyntax in classDeclaration.DescendantNodes(node => node == classDeclaration || node is not TypeDeclarationSyntax).OfType<TypeSyntax>())
         {
             var type = context.SemanticModel.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
             if (type is null || !RoleClassifier.For(context.Compilation, context.Options).Is(type, "db-context"))

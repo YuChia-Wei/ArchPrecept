@@ -25,8 +25,9 @@ public sealed class ControllerComplianceAnalyzerTests
                               new ControllerComplianceAnalyzer(),
                               """
                               using System;
+                              using Microsoft.AspNetCore.Mvc;
 
-                              public sealed class ApiControllerAttribute : Attribute { }
+
                               public interface ICreateResourceUseCase { }
 
                               [ApiController]
@@ -46,8 +47,9 @@ public sealed class ControllerComplianceAnalyzerTests
                               new ControllerComplianceAnalyzer(),
                               """
                               using System;
+                              using Microsoft.AspNetCore.Mvc;
 
-                              public sealed class ApiControllerAttribute : Attribute { }
+
                               public interface IQueryRepository { }
                               public interface IProductQueryRepository : IQueryRepository { }
 
@@ -56,6 +58,10 @@ public sealed class ControllerComplianceAnalyzerTests
                               {
                                   public ProductQueryController(IProductQueryRepository repository) { }
                               }
+                              """, repositoryConfig: """
+                              <ArchPrecept version="1">
+                                <PureQuery type="ProductQueryController" assembly="AnalyzerTests" enabled="true" />
+                              </ArchPrecept>
                               """);
 
         Assert.Empty(diagnostics);
@@ -83,8 +89,9 @@ public sealed class ControllerComplianceAnalyzerTests
                               new ControllerComplianceAnalyzer(),
                               """
                               using System;
+                              using Microsoft.AspNetCore.Mvc;
 
-                              public sealed class ApiControllerAttribute : Attribute { }
+
                               public class DbContext { }
                               public sealed class AppDbContext : DbContext { }
 
@@ -111,8 +118,9 @@ public sealed class ControllerComplianceAnalyzerTests
                               new ControllerComplianceAnalyzer(),
                               """
                               using System;
+                              using Microsoft.AspNetCore.Mvc;
 
-                              public sealed class ApiControllerAttribute : Attribute { }
+
                               public sealed class CreateResourceHandler { }
 
                               [ApiController]
@@ -133,8 +141,9 @@ public sealed class ControllerComplianceAnalyzerTests
                               new ControllerComplianceAnalyzer(),
                               """
                               using System;
+                              using Microsoft.AspNetCore.Mvc;
 
-                              public sealed class ApiControllerAttribute : Attribute { }
+
                               public sealed class CreateResourceHandler { }
 
                               [ApiController]
@@ -160,8 +169,9 @@ public sealed class ControllerComplianceAnalyzerTests
                               new ControllerComplianceAnalyzer(),
                               """
                               using System;
+                              using Microsoft.AspNetCore.Mvc;
 
-                              public sealed class ApiControllerAttribute : Attribute { }
+
                               public interface IMessageBus { }
 
                               [ApiController]
@@ -176,14 +186,15 @@ public sealed class ControllerComplianceAnalyzerTests
     }
 
     [Fact]
-    public async Task Reports_save_changes_call_in_controller()
+    public async Task Does_not_report_unrelated_save_changes_call_in_controller()
     {
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
                               new ControllerComplianceAnalyzer(),
                               """
                               using System;
+                              using Microsoft.AspNetCore.Mvc;
 
-                              public sealed class ApiControllerAttribute : Attribute { }
+
 
                               [ApiController]
                               public sealed class ResourceController
@@ -197,7 +208,6 @@ public sealed class ControllerComplianceAnalyzerTests
                               }
                               """);
 
-        var diagnostic = Assert.Single(diagnostics);
-        Assert.Equal("DBA1005", diagnostic.Id);
+        Assert.Empty(diagnostics);
     }
 }

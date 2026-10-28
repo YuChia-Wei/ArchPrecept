@@ -9,6 +9,7 @@ namespace ArchPrecept.Contracts.Domain;
 /// 2. 實作適當的等同性比較 (通常使用 C# record 即可)
 /// 3. 不應包含任何領域實體參考，只引用其他值物件或基本型別
 /// </summary>
+/// <remarks>Entity-reference-free 是 ArchPrecept 選定的較嚴政策；marker 本身不驗證不可變性或完整 DDD 合規。</remarks>
 public interface IValueObject
 {
     // 標記介面，無方法定義
@@ -18,8 +19,13 @@ public interface IValueObject
 /// <summary>
 /// 提供以相等性元件判斷值物件相等性的基底實作。
 /// </summary>
+/// <remarks>衍生類別須提供穩定、非 null 且至少一個相等性元件。基底不防止可變欄位，
+/// 不複製元件，集合元件依其自己的 Equals 行為比較。請勿在雜湊集合使用期間改變相等性元件。</remarks>
 public abstract class ValueObject : IValueObject
 {
+    /// <summary>初始化由衍生類別提供相等性元件的值物件。</summary>
+    protected ValueObject() { }
+
     /// <summary>
     /// 比較目前值物件與另一個物件的型別及相等性元件是否一致。
     /// </summary>
@@ -40,12 +46,16 @@ public abstract class ValueObject : IValueObject
     /// 取得用於比較值物件相等性的有序元件。
     /// </summary>
     /// <returns>用於相等性比較的元件序列。</returns>
+    /// <remarks>順序有意義；序列及各元件須非 null，且至少一項，才能供此基底的 GetHashCode 使用。</remarks>
     public abstract IEnumerable<object> GetEqualityComponents();
 
     /// <summary>
     /// 依相等性元件計算值物件的雜湊碼。
     /// </summary>
     /// <returns>值物件的雜湊碼。</returns>
+    /// <exception cref="InvalidOperationException">相等性元件序列為空。</exception>
+    /// <exception cref="NullReferenceException">相等性元件包含 null。</exception>
+    /// <remarks>雜湊以元件雜湊的 XOR 計算，碰撞仍需由 Equals 判斷，不作持久化識別碼。</remarks>
     public override int GetHashCode()
     {
         return GetEqualityComponents()

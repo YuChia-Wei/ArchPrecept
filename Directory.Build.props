@@ -22,5 +22,10 @@
     <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="/" Condition="Exists('$(MSBuildThisFileDirectory)LICENSE')" />
     <None Include="$(MSBuildThisFileDirectory)NOTICE" Pack="true" PackagePath="/" />
     <None Include="$(MSBuildThisFileDirectory)THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="/" />
+    <!-- Ship the same authored sources, preserving relative links without a second rule catalog. -->
+    <None Include="$(MSBuildThisFileDirectory)docs/**/*.md" Pack="true" PackagePath="docs/" />
+    <None Include="$(MSBuildThisFileDirectory)rules/catalog.xml" Pack="true" PackagePath="rules/" Condition="'$(MSBuildProjectName)' != 'ArchPrecept.Analyzers.Core'" />
+    <None Include="$(MSBuildThisFileDirectory)rules/configuration.xsd" Pack="true" PackagePath="rules/" />
+    <None Include="$(MSBuildThisFileDirectory)rules/catalog.xsd" Pack="true" PackagePath="rules/" />
   </ItemGroup>
 </Project>

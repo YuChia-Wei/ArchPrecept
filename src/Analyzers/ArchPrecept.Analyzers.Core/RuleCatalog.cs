@@ -34,5 +34,5 @@ internal static class RuleCatalog
     internal static DiagnosticDescriptor Descriptor(string id) => new(
         id, Value(id, "title"), Value(id, "message"), DiagnosticCategories.Architecture,
         (DiagnosticSeverity)Enum.Parse(typeof(DiagnosticSeverity), Value(id, "severity")), true,
-        Value(id, "description"), "https://github.com/YuChia-Wei/ArchPrecept/blob/main/" + Value(id, "document"));
+        Value(id, "description"), DocumentationLinks.For(Value(id, "document")));
 }

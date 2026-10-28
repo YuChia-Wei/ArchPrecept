@@ -1,7 +1,11 @@
 using System.Collections.Immutable;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace ArchPrecept.Analyzers.Core;
 
@@ -11,9 +15,13 @@ namespace ArchPrecept.Analyzers.Core;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
 {
+    /// <summary>建立分析器實例；規則與角色設定由每次編譯提供，不保存 consumer 執行期狀態。</summary>
+    public UseCaseServiceProviderInjectionAnalyzer() { }
+
     /// <summary>
     /// 取得此分析器支援的 Diagnostic 描述項目。
     /// </summary>
+    /// <value>此分析器可回報的描述項；是否啟用及有效嚴重性由本次設定決定。</value>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(
             RuleDescriptors.UseCaseServiceProviderInjection,
@@ -27,12 +35,14 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
     /// <summary>
     /// 初始化分析器並註冊具名型別及物件建立運算式的分析。
     /// </summary>
+    /// <param name="context">Roslyn 提供的註冊環境；由編譯器管理分析與取消生命週期。</param>
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
         context.RegisterSymbolAction(AnalyzeNamedType, SymbolKind.NamedType);
-        context.RegisterSyntaxNodeAction(AnalyzeObjectCreation, Microsoft.CodeAnalysis.CSharp.SyntaxKind.ObjectCreationExpression);
+        context.RegisterSyntaxNodeAction(AnalyzeObjectCreation, SyntaxKind.ObjectCreationExpression, SyntaxKind.ImplicitObjectCreationExpression);
+        context.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
     }
 
     /// <summary>
@@ -67,6 +77,7 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
 
         foreach (var member in type.GetMembers())
         {
+            if (member.IsImplicitlyDeclared) continue;
             if (member is IFieldSymbol field)
             {
                 ReportForbiddenMemberType(context, type, field.Type, field.Locations, field.Name);
@@ -84,6 +95,7 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             {
                 continue;
             }
+            if (method.MethodKind is not (MethodKind.Ordinary or MethodKind.Constructor or MethodKind.ExplicitInterfaceImplementation)) continue;
 
             foreach (var parameter in method.Parameters)
             {
@@ -113,9 +125,7 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static void AnalyzeUseCaseContract(SymbolAnalysisContext context, INamedTypeSymbol type)
     {
-        var methods = type.GetMembers().OfType<IMethodSymbol>()
-            .Where(method => method.MethodKind == MethodKind.Ordinary)
-            .ToArray();
+        var methods = RepositoryPortView.GetEffectiveMethods(type).ToArray();
         var executeMethods = methods.Where(method => method.Name == "ExecuteAsync").ToArray();
 
         if (executeMethods.Length != 1)
@@ -124,9 +134,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (methods.Any(method => method.Name is "Handle" or "HandleAsync"))
+        if (methods.Any(method => method.Name != "ExecuteAsync"))
         {
-            ReportUseCaseShape(context, type, "must not expose Handle or HandleAsync");
+            ReportUseCaseShape(context, type, "must expose only its canonical ExecuteAsync operation");
         }
 
         AnalyzeExecuteAsyncShape(context, type, executeMethods[0]);
@@ -142,8 +152,8 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        var executeMethods = type.GetMembers("ExecuteAsync").OfType<IMethodSymbol>()
-            .Where(method => method.MethodKind == MethodKind.Ordinary)
+        var executeMethods = EffectiveImplementationMethods(type)
+            .Where(method => method.Name == "ExecuteAsync" || method.ExplicitInterfaceImplementations.Any(contract => contract.Name == "ExecuteAsync"))
             .ToArray();
         if (executeMethods.Length != 1)
         {
@@ -154,28 +164,13 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             AnalyzeExecuteAsyncShape(context, type, executeMethods[0]);
         }
 
-        if (type.GetMembers().OfType<IMethodSymbol>()
-            .Any(method => method.Name is "Handle" or "HandleAsync"))
+        if (EffectiveImplementationMethods(type)
+            .Any(method => method.Name is "Handle" or "HandleAsync"
+                || method.ExplicitInterfaceImplementations.Any(contract => contract.Name is "Handle" or "HandleAsync")))
         {
             ReportUseCaseShape(context, type, "must not also expose a Handler entry point");
         }
 
-        foreach (var constructor in type.InstanceConstructors)
-        {
-            foreach (var parameter in constructor.Parameters)
-            {
-                if (!RoleClassifier.For(context.Compilation, context.Options).IsForbiddenUseCaseDependency(parameter.Type))
-                {
-                    continue;
-                }
-
-                DiagnosticReporting.Report(context,
-                    RuleDescriptors.UseCaseForbiddenDependency,
-                    parameter.Locations.FirstOrDefault() ?? type.Locations[0],
-                    type.Name,
-                    parameter.Type.Name);
-            }
-        }
     }
 
     /// <summary>
@@ -186,19 +181,21 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
         INamedTypeSymbol type,
         IMethodSymbol method)
     {
-        if (!IsTask(method.ReturnType))
+        if (method.IsStatic || method.IsGenericMethod || method.Parameters.Any(parameter => parameter.RefKind != RefKind.None))
+            ReportUseCaseShape(context, type, "ExecuteAsync must be an instance, non-generic operation with value parameters");
+        if (!IsTask(method.ReturnType, context.Compilation))
         {
             ReportUseCaseShape(context, type, "ExecuteAsync must return Task or Task<T>");
         }
         else if (method.ReturnType is INamedTypeSymbol { IsGenericType: true } taskType
             && taskType.TypeArguments.Length == 1
-            && IsTransportOutput(taskType.TypeArguments[0]))
+            && ContainsTransport(taskType.TypeArguments[0], RoleClassifier.For(context.Compilation, context.Options), true))
         {
             ReportUseCaseShape(context, type, "HTTP, broker acknowledgement, or framework output is forbidden");
         }
 
         if (method.Parameters.Length == 0
-            || !IsCancellationToken(method.Parameters[method.Parameters.Length - 1].Type)
+            || !KnownSymbols.IsBcl(method.Parameters[method.Parameters.Length - 1].Type, context.Compilation, "System.Threading.CancellationToken")
             || method.Parameters[method.Parameters.Length - 1].IsOptional)
         {
             ReportUseCaseShape(context, type, "ExecuteAsync must end with a non-optional CancellationToken");
@@ -212,14 +209,14 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (inputParameters.Any(parameter => IsTransportContract(parameter.Type, RoleClassifier.For(context.Compilation, context.Options))))
+        if (inputParameters.Any(parameter => ContainsTransport(parameter.Type, RoleClassifier.For(context.Compilation, context.Options), true)))
         {
-            ReportUseCaseShape(context, type, "transport, Command, Query, Request, Message, or Contract input is forbidden");
+            ReportUseCaseShape(context, type, "transport input or a directly exposed transport member is forbidden");
             return;
         }
 
         if (inputParameters.Length == 1
-            && !IsStandardScalar(inputParameters[0].Type)
+            && !IsStandardScalar(inputParameters[0].Type, context.Compilation)
             && !inputParameters[0].Type.Name.EndsWith("Input", System.StringComparison.Ordinal))
         {
             ReportUseCaseShape(context, type, "a non-scalar input type must use the Input suffix");
@@ -231,15 +228,10 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static void AnalyzeDispatchHandler(SymbolAnalysisContext context, INamedTypeSymbol type)
     {
-        var dependencies = type.InstanceConstructors
-            .SelectMany(constructor => constructor.Parameters)
-            .Concat(type.GetMembers().OfType<IMethodSymbol>().SelectMany(method => method.Parameters))
-            .Select(parameter => parameter.Type)
-            .ToArray();
+        var dependencies = DeclaredDependencies(type).ToArray();
         var useCaseDependencies = dependencies
             .Where(dependency => RoleClassifier.For(context.Compilation, context.Options).Is(dependency, "use-case"))
-            .Select(dependency => dependency.ToDisplayString())
-            .Distinct()
+            .Distinct(SymbolEqualityComparer.Default)
             .Count();
 
         if (useCaseDependencies != 1)
@@ -281,7 +273,7 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static void AnalyzeObjectCreation(SyntaxNodeAnalysisContext context)
     {
-        var creation = (Microsoft.CodeAnalysis.CSharp.Syntax.ObjectCreationExpressionSyntax)context.Node;
+        var creation = (BaseObjectCreationExpressionSyntax)context.Node;
         var containingType = context.ContainingSymbol?.ContainingType;
         if (containingType is null || !(RoleClassifier.For(context.Compilation, context.Options).Is(containingType, "use-case") || RoleClassifier.For(context.Compilation, context.Options).Is(containingType, "handler")))
         {
@@ -296,7 +288,7 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
 
         DiagnosticReporting.Report(context,
             RuleDescriptors.UseCaseDirectRepositoryConstruction,
-            creation.Type.GetLocation(),
+            creation is ObjectCreationExpressionSyntax explicitCreation ? explicitCreation.Type.GetLocation() : creation.GetLocation(),
             containingType.Name,
             createdType.Name);
     }
@@ -312,14 +304,17 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
         string memberName)
     {
         var location = locations.Length > 0 ? locations[0] : containingType.Locations[0];
-        if (memberType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::System.IServiceProvider")
+        var classifier = RoleClassifier.For(context.Compilation, context.Options);
+        if (classifier.Is(containingType, "use-case") && classifier.IsForbiddenUseCaseDependency(memberType))
+            DiagnosticReporting.Report(context, RuleDescriptors.UseCaseForbiddenDependency, location, containingType.Name, memberType.Name);
+        if (KnownSymbols.IsBcl(memberType, context.Compilation, "System.IServiceProvider"))
         {
             DiagnosticReporting.Report(context,
                 RuleDescriptors.UseCaseServiceProviderInjection,
                 location,
                 containingType.Name);
         }
-        else if (memberType.Name.EndsWith("ServiceLocator", System.StringComparison.Ordinal))
+        else if (classifier.Is(memberType, "service-locator"))
         {
             DiagnosticReporting.Report(context,
                 RuleDescriptors.UseCaseDependencyResolution,
@@ -339,9 +334,9 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
     {
         foreach (var attribute in property.GetAttributes())
         {
-            var attributeName = attribute.AttributeClass?.Name;
-            if (attributeName is not "Inject" and not "InjectAttribute"
-                and not "FromServices" and not "FromServicesAttribute")
+            var attributeType = attribute.AttributeClass;
+            if (!KnownSymbols.IsPlatform(attributeType, context.Compilation, "Microsoft.AspNetCore.Components.InjectAttribute", "Microsoft.AspNetCore.Components")
+                && !KnownSymbols.IsPlatform(attributeType, context.Compilation, "Microsoft.AspNetCore.Mvc.FromServicesAttribute", "Microsoft.AspNetCore.Mvc.Core"))
             {
                 continue;
             }
@@ -350,32 +345,21 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
                 RuleDescriptors.UseCaseDependencyResolution,
                 property.Locations[0],
                 containingType.Name,
-                attributeName);
+                attributeType!.Name);
         }
     }
 
     /// <summary>
     /// 判斷型別是否為 <c>System.Threading.Tasks.Task</c> 或其泛型形式。
     /// </summary>
-    private static bool IsTask(ITypeSymbol type)
-    {
-        return type.Name == "Task"
-            && type.ContainingNamespace?.ToDisplayString() == "System.Threading.Tasks";
-    }
-
-    /// <summary>
-    /// 判斷型別是否為 <c>System.Threading.CancellationToken</c>。
-    /// </summary>
-    private static bool IsCancellationToken(ITypeSymbol type)
-    {
-        return type.Name == "CancellationToken"
-            && type.ContainingNamespace?.ToDisplayString() == "System.Threading";
-    }
+    private static bool IsTask(ITypeSymbol type, Compilation compilation) =>
+        KnownSymbols.IsBcl(type, compilation, "System.Threading.Tasks.Task")
+        || KnownSymbols.IsBcl(type, compilation, "System.Threading.Tasks.Task`1");
 
     /// <summary>
     /// 判斷型別是否為可直接作為 Use Case 輸入的標準純量型別。
     /// </summary>
-    private static bool IsStandardScalar(ITypeSymbol type)
+    private static bool IsStandardScalar(ITypeSymbol type, Compilation compilation)
     {
         return type.SpecialType is SpecialType.System_Boolean
             or SpecialType.System_Byte
@@ -391,35 +375,84 @@ public sealed class UseCaseServiceProviderInjectionAnalyzer : DiagnosticAnalyzer
             or SpecialType.System_Decimal
             or SpecialType.System_Char
             or SpecialType.System_String
-            || type.Name is "Guid" or "DateTime" or "DateTimeOffset" or "DateOnly" or "TimeOnly";
+            || new[] { "System.Guid", "System.DateTime", "System.DateTimeOffset", "System.DateOnly", "System.TimeOnly" }
+                .Any(metadataName => KnownSymbols.IsBcl(type, compilation, metadataName));
     }
 
     /// <summary>
-    /// 判斷型別是否為傳輸層的 Request、Command、Query、Message 或 Contract。
+    /// 檢查型別／陣列／泛型引數，以及一層公開 instance field/property 的 transport 角色。
     /// </summary>
-    private static bool IsTransportContract(ITypeSymbol type, RoleClassifier classifier)
+    private static bool ContainsTransport(ITypeSymbol type, RoleClassifier classifier, bool inspectMembers,
+        HashSet<ITypeSymbol>? visited = null, int depth = 0)
     {
-        var name = type.Name;
-        return name.EndsWith("Request", System.StringComparison.Ordinal)
-            || name.EndsWith("Command", System.StringComparison.Ordinal)
-            || name.EndsWith("Query", System.StringComparison.Ordinal)
-            || name.EndsWith("Message", System.StringComparison.Ordinal)
-            || name.EndsWith("Contract", System.StringComparison.Ordinal)
-            || classifier.Is(type, "command") || classifier.Is(type, "query");
+        visited ??= new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
+        if (depth > 8 || !visited.Add(type)) return false;
+        if (classifier.Is(type, "transport")) return true;
+        if (type is IArrayTypeSymbol array) return ContainsTransport(array.ElementType, classifier, inspectMembers, visited, depth + 1);
+        if (type is not INamedTypeSymbol named) return false;
+        if (named.TypeArguments.Any(argument => ContainsTransport(argument, classifier, inspectMembers, visited, depth + 1))) return true;
+        return inspectMembers && RoleClassifier.TypeClosure(named).OfType<INamedTypeSymbol>()
+            .SelectMany(candidate => candidate.GetMembers())
+            .Where(member => !member.IsStatic && member.DeclaredAccessibility == Accessibility.Public)
+            .Any(member => member switch
+            {
+                IPropertySymbol property => ContainsTransport(property.Type, classifier, false, visited, depth + 1),
+                IFieldSymbol field => ContainsTransport(field.Type, classifier, false, visited, depth + 1),
+                _ => false
+            });
     }
 
-    /// <summary>
-    /// 判斷輸出型別是否為 HTTP、訊息代理或框架專屬的傳輸結果。
-    /// </summary>
-    private static bool IsTransportOutput(ITypeSymbol type)
+    /// <summary>包含繼承後可見的方法與顯式實作，依 override 或同簽章 hiding 保留最衍生公開操作。</summary>
+    private static IEnumerable<IMethodSymbol> EffectiveImplementationMethods(INamedTypeSymbol type)
     {
-        var name = type.Name;
-        var namespaceName = type.ContainingNamespace?.ToDisplayString() ?? string.Empty;
-        return name is "IActionResult" or "IResult"
-            || name.EndsWith("Acknowledgement", System.StringComparison.Ordinal)
-            || name.EndsWith("Envelope", System.StringComparison.Ordinal)
-            || namespaceName.StartsWith("Microsoft.AspNetCore", System.StringComparison.Ordinal)
-            || namespaceName.StartsWith("Wolverine", System.StringComparison.Ordinal);
+        var contracts = type.AllInterfaces.SelectMany(contract => contract.GetMembers().OfType<IMethodSymbol>())
+            .Select(type.FindImplementationForInterfaceMember).OfType<IMethodSymbol>();
+        var methods = RepositoryPortView.GetEffectiveMethods(type).Concat(contracts)
+            .Distinct<IMethodSymbol>(SymbolEqualityComparer.Default).ToArray();
+        return methods.Where(method => !methods.Any(other => Overrides(other, method) || HidesSameSignature(other, method)));
     }
 
+    /// <summary>公開的同簽章方法隱藏基底操作；不同 overload 與顯式介面操作仍分開計算。</summary>
+    private static bool HidesSameSignature(IMethodSymbol candidate, IMethodSymbol baseMethod)
+    {
+        if (candidate.DeclaredAccessibility != Accessibility.Public || baseMethod.DeclaredAccessibility != Accessibility.Public
+            || candidate.Name != baseMethod.Name || candidate.Arity != baseMethod.Arity
+            || candidate.Parameters.Length != baseMethod.Parameters.Length) return false;
+        for (var index = 0; index < candidate.Parameters.Length; index++)
+            if (candidate.Parameters[index].RefKind != baseMethod.Parameters[index].RefKind
+                || !SymbolEqualityComparer.Default.Equals(candidate.Parameters[index].Type, baseMethod.Parameters[index].Type)) return false;
+        for (var parent = candidate.ContainingType.BaseType; parent is not null; parent = parent.BaseType)
+            if (SymbolEqualityComparer.Default.Equals(parent, baseMethod.ContainingType)) return true;
+        return false;
+    }
+
+    /// <summary>避免把覆寫與其基底宣告重複計算為兩個操作。</summary>
+    private static bool Overrides(IMethodSymbol candidate, IMethodSymbol baseMethod)
+    {
+        for (var current = candidate.OverriddenMethod; current is not null; current = current.OverriddenMethod)
+            if (SymbolEqualityComparer.Default.Equals(current, baseMethod)) return true;
+        return false;
+    }
+
+    /// <summary>計算宣告依賴型別，不將其數量聲稱為執行時呼叫次數。</summary>
+    private static IEnumerable<ITypeSymbol> DeclaredDependencies(INamedTypeSymbol type) =>
+        type.GetMembers().Where(member => !member.IsImplicitlyDeclared).SelectMany(member => member switch
+        {
+            IFieldSymbol field => new[] { field.Type },
+            IPropertySymbol property => new[] { property.Type },
+            IMethodSymbol method => method.Parameters.Select(parameter => parameter.Type),
+            _ => Enumerable.Empty<ITypeSymbol>()
+        });
+
+    /// <summary>補捉方法體直接呼叫禁止 port 的位置；不追蹤跨方法／動態／反射資料流。</summary>
+    private static void AnalyzeInvocation(OperationAnalysisContext context)
+    {
+        var invocation = (IInvocationOperation)context.Operation;
+        var owner = context.ContainingSymbol.ContainingType;
+        var classifier = RoleClassifier.For(context.Compilation, context.Options);
+        if (owner is null || !classifier.Is(owner, "use-case")) return;
+        var dependency = invocation.Instance?.Type ?? invocation.TargetMethod.ContainingType;
+        if (SymbolEqualityComparer.Default.Equals(dependency, owner) || !classifier.IsForbiddenUseCaseDependency(dependency)) return;
+        DiagnosticReporting.Report(context, RuleDescriptors.UseCaseForbiddenDependency, invocation.Syntax.GetLocation(), owner.Name, dependency.Name);
+    }
 }

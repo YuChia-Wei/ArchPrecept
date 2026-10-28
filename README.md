@@ -9,7 +9,7 @@ The analyzer works with your own contracts through explicit role mapping. Instal
 the reference contracts, an AI tool, or a collaboration framework is optional.
 Current supported consumers use .NET 8 or 10.
 
-The current **0.0.3-preview** release contains six public GitHub Packages.
+The current **published 0.0.3-preview** release contains six public GitHub Packages.
 It adds selectable rule profiles, shared role mapping/evidence,
 the domain-event dispatcher correction, two opt-in ValueObject rules and a Products API sample.
 Start with the [installation and usage guide](docs/getting-started.md),
@@ -19,6 +19,11 @@ Start with the [installation and usage guide](docs/getting-started.md),
 The [0.0.3 release record](docs/releases/0.0.3-preview.md) identifies the published
 package and validation evidence; documentation of a target policy does not imply
 that every part is already enforced.
+The current source also contains an **unpublished rule-contract candidate** with
+precise port and platform checks, guarded identity initialization, and packaged
+API XML and rule documentation. See the [candidate scope and version mapping](docs/releases/rule-contract-candidate.md).
+These changes are not available by restoring the existing 0.0.3-preview feed bytes.
+For that release, use the [immutable version documentation](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.3-preview/docs).
 CT-005 adds the optional `ArchPrecept.Contracts.Domain.EventSourcing` package.
 CT-004 separates `ArchPrecept.Contracts.Messaging` message contracts from the
 `ArchPrecept.Contracts.Application.Messaging` publisher port. Transport configuration
@@ -61,8 +66,10 @@ Only the six implemented product projects are packable. Tests and samples do not
 ship. ArchPrecept's own code and documentation are licensed under
 [Apache-2.0](LICENSE); dependencies retain their respective licenses.
 All six current package IDs are approved for public publication. The initial flow
-publishes an unshipped version after main-push CI and verifies public metadata and
-registry consumption on .NET 8 and 10. See the [current release record](docs/releases/0.0.3-preview.md),
+publishes an unshipped version after main-push CI only when `PREVIEW_PUBLISH_ENABLED=true`,
+then verifies public metadata and registry consumption on .NET 8 and 10. With publication
+disabled, main validates the source candidate without upload or registry acceptance.
+See the [current release record](docs/releases/0.0.3-preview.md),
 [0.0.2 record](docs/releases/0.0.2-preview.md), and [first preview record](docs/releases/preview.md) for evidence.
 
 Analyzer Diagnostic 的觸發條件、範例、修正與 suppression 指引，請見

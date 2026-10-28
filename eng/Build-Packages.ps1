@@ -32,6 +32,15 @@ try {
             $entries = @($zip.Entries.FullName)
             $expectedDll = if ($id -eq 'ArchPrecept.Analyzers.Core') { "analyzers/dotnet/cs/$id.dll" } else { "lib/net8.0/$id.dll" }
             if ($expectedDll -notin $entries -or 'README.md' -notin $entries) { throw "Invalid package layout: $id" }
+            $expectedXml = [IO.Path]::ChangeExtension($expectedDll, '.xml')
+            foreach ($document in @($expectedXml, 'rules/catalog.xml', 'rules/catalog.xsd', 'rules/configuration.xsd', 'docs/getting-started.md', 'docs/package-usage.md')) {
+                if ($zip.GetEntry($document).Length -le 0) { throw "Missing or empty package document: $id / $document" }
+            }
+            $catalogReader = [IO.StreamReader]::new($zip.GetEntry('rules/catalog.xml').Open())
+            try { [xml]$catalog = $catalogReader.ReadToEnd() } finally { $catalogReader.Dispose() }
+            foreach ($rule in $catalog.RuleCatalog.Rule) {
+                if ($zip.GetEntry($rule.document).Length -le 0) { throw "Missing rule document: $id / $($rule.document)" }
+            }
             if ($id -eq 'ArchPrecept.Analyzers.Core' -and ($entries -match '^lib/|Microsoft.CodeAnalysis.*\.dll$')) { throw 'Analyzer must not ship runtime or Roslyn assemblies.' }
             $reader = [IO.StreamReader]::new($zip.GetEntry("$id.nuspec").Open())
             try { [xml]$spec = $reader.ReadToEnd() } finally { $reader.Dispose() }

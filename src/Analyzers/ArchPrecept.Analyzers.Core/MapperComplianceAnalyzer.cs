@@ -14,9 +14,13 @@ namespace ArchPrecept.Analyzers.Core;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MapperComplianceAnalyzer : DiagnosticAnalyzer
 {
+    /// <summary>建立分析器實例；規則與角色設定由每次編譯提供，不保存 consumer 執行期狀態。</summary>
+    public MapperComplianceAnalyzer() { }
+
     /// <summary>
     /// 取得此分析器支援的 Diagnostic 描述項目。
     /// </summary>
+    /// <value>此分析器可回報的描述項；是否啟用及有效嚴重性由本次設定決定。</value>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(
             RuleDescriptors.MapperMustBeStatic,
@@ -25,6 +29,7 @@ public sealed class MapperComplianceAnalyzer : DiagnosticAnalyzer
     /// <summary>
     /// 初始化分析器並註冊類別宣告的語法節點分析。
     /// </summary>
+    /// <param name="context">Roslyn 提供的註冊環境；由編譯器管理分析與取消生命週期。</param>
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -33,7 +38,7 @@ public sealed class MapperComplianceAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>
-    /// 分析名稱以 <c>Mapper</c> 結尾的類別是否為靜態且未參考受禁止相依性。
+    /// 分析已辨識 Mapper 是否為靜態且未參考受禁止相依性。
     /// </summary>
     private static void AnalyzeMapper(SyntaxNodeAnalysisContext context)
     {
@@ -52,7 +57,7 @@ public sealed class MapperComplianceAnalyzer : DiagnosticAnalyzer
                 mapperSymbol.Name);
         }
 
-        foreach (var typeSyntax in declaration.DescendantNodes().OfType<TypeSyntax>())
+        foreach (var typeSyntax in declaration.DescendantNodes(node => node == declaration || node is not TypeDeclarationSyntax).OfType<TypeSyntax>())
         {
             var type = context.SemanticModel.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
             if (type is null || !(RoleClassifier.For(context.Compilation, context.Options).Is(type, "repository") || RoleClassifier.For(context.Compilation, context.Options).Is(type, "use-case") || RoleClassifier.For(context.Compilation, context.Options).Is(type, "handler")))

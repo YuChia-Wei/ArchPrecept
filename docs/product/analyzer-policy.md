@@ -1,6 +1,6 @@
-# Analyzer 設定、角色與評估契約（0.0.3-preview）
+# Analyzer 設定、角色與評估契約（目前來源候選）
 
-本文件描述 0.0.3-preview 的實際設定、角色及評估契約。規則的設計理由、方法論支持範圍及取捨見[規則設計依據](rule-design-rationale.md)，官方參考資料見[方法論來源](methodology-references.md)。本產品可獨立使用，無需安裝協作 Framework。
+本文件描述目前來源候選的設定、角色及評估契約；這批 predicate 與 XML 修正尚未發布至 feed。已發布 0.0.3-preview 的原始行為請讀 [v0.0.3-preview 固定文件](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.3-preview/docs/product/analyzer-policy.md)。來源與版本差異見[候選交付說明](../releases/rule-contract-candidate.md)。規則的設計理由、方法論支持範圍及取捨見[規則設計依據](rule-design-rationale.md)，官方參考資料見[方法論來源](methodology-references.md)。本產品可獨立使用，無需安裝協作 Framework。
 
 ## 目前預設與選用
 
@@ -15,19 +15,30 @@
 - Aggregate Repository 保留 identity-load／save，Query Repository 負責 criteria／搜尋及 read model。批次載入與 physical purge 是有明確需求、失敗及一致性語意的個別 port，不擴充所有 Aggregate Repository。
 - 純物件 Mapper 採 static-only；I/O、資料補齊與流程編排由其各自責任承擔。static 檢查不證明純函式，persistence Data Mapper 也不等同本產品的純 mapper 角色。
 - Controller 預設對接 UseCase；dispatch Handler 轉接一個 UseCase 目標。UseCase 採 ExecuteAsync、專屬 Input 及 required CancellationToken，並保留無輸入與標準 scalar 例外。多步驟目標由自己的 UseCase 組織 Domain 與 ports，不串接其他 UseCase。
-- 精確技術符號、繼承後的有效契約及實際 port 視圖，是後續判定改進的方向。每項需說明可分析範圍，不能用局部型別／語法檢查宣稱完整依賴、純度或副作用驗證。
+- 本候選使用精確技術符號、繼承後的有效契約及實際 port 視圖。Repository 按每個 Aggregate／ID 契約及 adapter 實作對應分析；UseCase 支援繼承／override／顯式實作。這些局部型別／語法檢查不證明完整依賴、純度或副作用。
 
 上述政策的理由與成本在規則設計文件直接說明；不把每個具體 .NET 形狀宣稱為方法論定理。其他架構模式須先有獨立的需求與判定契約，未定義的模式不能視為目前已支援。
 
 ### 尚未實現的判定範圍
 
-schema version 1 沒有 endpoint pure-query selector、任意 transition method selector、Repository finder mode 或 Mapper purity engine。DBA1014 目前對 Query Repository／Service 的豁免不驗證 endpoint 是否經明選；DBA1017 計算 UseCase 相依型別，不驗證恰好一次呼叫；DBA1004 在 legacy 也可能檢查一般 MVC Controller，尚未區分 API／MVC 適用性。各規則完整 predicate 與限制見[診斷說明](../diagnostics/README.md)。
+schema version 1 的本候選新增精確 Controller 層級 `PureQuery` 選擇；不提供 action／endpoint method selector、任意 transition method selector、Repository finder mode 或 Mapper purity engine。DBA1014 的例外同時要求明選與 query-only 宣告能力。DBA1017 計算 UseCase 相依型別，不驗證恰好一次呼叫；DBA1004 即使支援有效 inherited／assembly attribute，仍可能檢查一般 MVC Controller，未縮限 API／MVC 適用性。各規則完整 predicate 與限制見[診斷說明](../diagnostics/README.md)。
 
 ## 設定合併
 
 採用者透過 MSBuild `AdditionalFiles` 明確加入 `archprecept.repository.xml` 與／或 `archprecept.project.xml`。檔案必須唯一且符合 `rules/configuration.xsd`。已傳入但無法讀取的檔案、重複、未知鍵／角色／Profile、無效值、無法解析的明確 mapping 均回報 DBA0001；此狀態不算合規。未加入 AdditionalFiles 的設定檔不會被 Analyzer 看見，不能依沒有 DBA0001 就推論設定已載入。
 
 固定優先序：本版預設 → repository 設定 → project 設定 → 個別 Rule 的 enabled／severity → 標準 Roslyn `dotnet_diagnostic.DBAxxxx.severity`／命令列設定。Project 只覆寫明確提供的項目；Profile 集合整組替換，Role mapping／Convention 依 role、Expected 依 type、Rule 依 id 覆寫。選定 Profile 後，個別 Rule 的 enabled 可明確啟用／停用。標準 severity 不會自行啟用被 Profile 排除的規則。
+
+`PureQuery` 以完整 `type` metadata name 與 `assembly` 為鍵，`enabled` 必填；project 同鍵值覆寫 repository。只對該 Controller 生效，不隱含衍生 Controller 或某個方法也獲選。無法唯一解析或選到非 Controller 時回報 DBA0001，不放寬整個 query role。
+
+```xml
+<ArchPrecept version="1" profiles="web-api,framework" namingConventions="false">
+  <Role name="query-service" metadataName="My.Application.IProductReader" assembly="My.Application" />
+  <PureQuery type="My.Api.ProductQueryController" assembly="My.Api" enabled="true" />
+</ArchPrecept>
+```
+
+上述 Controller 仍須由真正 ControllerBase 或明確 controller mapping 辨識。query-only 視圖讀有效公開 methods、properties／indexers、fields／events，拒絕已宣告寫入、ref/out／ref-return、公開可變狀態、Entity／Aggregate 或禁止 port 能力。它只證明這個宣告視圖，不分析方法體是否偷寫資料。
 
 ```xml
 <ArchPrecept version="1" profiles="core,web-api,ddd" namingConventions="false">
@@ -51,6 +62,8 @@ schema version 1 沒有 endpoint pure-query selector、任意 transition method 
 ## 程序內領域事件 port
 
 真正 `ArchPrecept.Contracts.Application.IDomainEventDispatcher`，或明確映射的自有 `domain-event-dispatcher`，可以注入 Use Case。其責任是程序內領域事件分派；不提供 Outbox、交易原子性、持久化或可靠傳遞。衍生 port 若混入禁止的 bus／mediator／transport／另一 Use Case，禁止角色優先，仍產生 DBA1016。只靠同名或改名不得取得合法 port 豁免。
+
+`ArchPrecept.Contracts.Application.Messaging.IIntegrationEventPublisher` 與明確映射的 `integration-event-publisher`／`outbox-port` 同樣是 Application-owned 能力；不由名稱推定 Outbox 原子性。合法 port 只排除自身的低信心 bus 名稱，混入精確 bus／transport／UseCase 仍禁止。`service-locator` 亦可明確映射；內建辨識 CommonServiceLocator 的實際契約，普通名稱尾碼不再構成該能力證據。
 
 ## ValueObject 規則的本版語意
 

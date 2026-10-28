@@ -18,7 +18,8 @@ internal sealed class AnalyzerConfiguration
         "aggregate", "entity", "value-object", "aggregate-repository", "query-repository", "repository",
         "compatibility-repository", "generic-repository", "use-case", "handler", "dispatch-handler", "controller",
         "mapper", "projection", "event-sourced-aggregate", "command", "query", "domain-service",
-        "domain-event-dispatcher", "bus", "transport", "db-context", "db-set");
+        "domain-event-dispatcher", "integration-event-publisher", "outbox-port", "query-service", "service-locator",
+        "bus", "transport", "db-context", "db-set");
     internal static readonly ImmutableHashSet<string> ProfileNames = ImmutableHashSet.Create(StringComparer.Ordinal,
         "legacy", "core", "web-api", "messaging", "event-sourcing", "framework", "ddd");
 
@@ -28,6 +29,7 @@ internal sealed class AnalyzerConfiguration
     internal Dictionary<string, NamingConvention> Conventions { get; } = new(StringComparer.Ordinal);
     internal Dictionary<string, string> Expected { get; } = new(StringComparer.Ordinal);
     internal Dictionary<string, RuleSetting> Rules { get; } = new(StringComparer.Ordinal);
+    internal Dictionary<string, PureQuerySelection> PureQueries { get; } = new(StringComparer.Ordinal);
     internal List<string> Errors { get; } = new();
 
     /// <summary>按 repository、project 順序讀取明確加入 AdditionalFiles 的兩層設定。</summary>
@@ -84,7 +86,8 @@ internal sealed class AnalyzerConfiguration
             if (selected is not null && selected.Any(profile => !ProfileNames.Contains(profile)))
                 errors.Add("profiles: use legacy, core, web-api, messaging, event-sourcing, framework or ddd.");
             foreach (var group in root.Elements().GroupBy(element => element.Name.LocalName + ":" +
-                         (string?)(element.Attribute("name") ?? element.Attribute("type") ?? element.Attribute("role") ?? element.Attribute("id"))))
+                         (string?)(element.Attribute("name") ?? element.Attribute("type") ?? element.Attribute("role") ?? element.Attribute("id"))
+                         + (element.Name == "PureQuery" ? "," + (string?)element.Attribute("assembly") : "")))
                 if (group.Count() > 1) errors.Add($"Duplicate entry {group.Key}.");
             foreach (var element in root.Elements())
             {
@@ -117,6 +120,11 @@ internal sealed class AnalyzerConfiguration
                     case "Expected":
                         Expected[(string)element.Attribute("type")!] = (string)element.Attribute("role")!;
                         break;
+                    case "PureQuery":
+                        var selection = new PureQuerySelection((string)element.Attribute("type")!,
+                            (string)element.Attribute("assembly")!, (bool)element.Attribute("enabled")!);
+                        PureQueries[selection.MetadataName + "," + selection.AssemblyName] = selection;
+                        break;
                     case "Rule":
                         var id = (string)element.Attribute("id")!;
                         Rules.TryGetValue(id, out var existing);
@@ -143,6 +151,17 @@ internal sealed class AnalyzerConfiguration
 
     /// <summary>取得個別規則 severity；標準 Roslyn severity 仍由編譯器最後處理。</summary>
     internal string? Severity(string id) => Rules.TryGetValue(id, out var setting) ? setting.Severity : null;
+}
+
+/// <summary>明選整個 Controller 的 pure-query 例外；不傳遞至衍生型別或任意 action。</summary>
+internal sealed class PureQuerySelection
+{
+    internal string MetadataName { get; }
+    internal string AssemblyName { get; }
+    internal bool Enabled { get; }
+    /// <summary>保存明確型別、組件與兩層設定覆寫值。</summary>
+    internal PureQuerySelection(string metadataName, string assemblyName, bool enabled)
+    { MetadataName = metadataName; AssemblyName = assemblyName; Enabled = enabled; }
 }
 
 /// <summary>保存明確契約的 metadata 名稱及組件名稱。</summary>

@@ -14,12 +14,16 @@ namespace ArchPrecept.Analyzers.Core;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
 {
+    /// <summary>建立分析器實例；規則與角色設定由每次編譯提供，不保存 consumer 執行期狀態。</summary>
+    public ControllerComplianceAnalyzer() { }
+
     private static readonly ImmutableHashSet<string> PersistenceMethods =
         ImmutableHashSet.Create(StringComparer.Ordinal, "SaveChanges", "SaveChangesAsync");
 
     /// <summary>
     /// 取得此分析器支援的 Diagnostic 描述項目。
     /// </summary>
+    /// <value>此分析器可回報的描述項；是否啟用及有效嚴重性由本次設定決定。</value>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(
             RuleDescriptors.ControllerApiAttribute,
@@ -30,6 +34,7 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
     /// <summary>
     /// 初始化分析器並註冊 Controller 類別宣告的語法節點分析。
     /// </summary>
+    /// <param name="context">Roslyn 提供的註冊環境；由編譯器管理分析與取消生命週期。</param>
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -66,7 +71,7 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
         {
             foreach (var parameter in constructor.Parameters)
             {
-                if (!IsForbiddenControllerDependency(parameter.Type, RoleClassifier.For(context.Compilation, context.Options)))
+                if (!IsForbiddenControllerDependency(parameter.Type, controllerSymbol, RoleClassifier.For(context.Compilation, context.Options)))
                 {
                     continue;
                 }
@@ -84,11 +89,12 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
     /// <summary>
     /// 判斷注入型別是否違反 Controller 應依賴 Use Case 邊界的規則。
     /// </summary>
-    private static bool IsForbiddenControllerDependency(ITypeSymbol type, RoleClassifier classifier)
+    private static bool IsForbiddenControllerDependency(ITypeSymbol type, INamedTypeSymbol controller, RoleClassifier classifier)
     {
         return classifier.Is(type, "handler") || classifier.Is(type, "bus")
             || classifier.Is(type, "domain-event-dispatcher") || classifier.Is(type, "domain-service")
-            || (classifier.Is(type, "repository") && !classifier.Is(type, "query-repository"));
+            || ((classifier.Is(type, "repository") || classifier.Is(type, "query-service"))
+                && !(classifier.AllowsPureQuery(controller) && RepositoryPortView.IsQueryOnly(type, classifier)));
     }
 
     /// <summary>
@@ -99,10 +105,13 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
         TypeDeclarationSyntax declaration,
         INamedTypeSymbol controllerSymbol)
     {
-        var hasApiControllerAttribute = controllerSymbol
-            .GetAttributes()
-            .Any(attribute =>
-                attribute.AttributeClass?.Name is "ApiControllerAttribute" or "ApiController");
+        var hasApiControllerAttribute = RoleClassifier.TypeClosure(controllerSymbol).OfType<INamedTypeSymbol>()
+            .Where(type => type.TypeKind == TypeKind.Class)
+            .SelectMany(type => type.GetAttributes())
+            .Concat(controllerSymbol.ContainingAssembly.GetAttributes())
+            .Any(attribute => attribute.AttributeClass is { } attributeType && RoleClassifier.TypeClosure(attributeType)
+                .Any(candidate => KnownSymbols.IsPlatform(candidate, context.Compilation,
+                    "Microsoft.AspNetCore.Mvc.ApiControllerAttribute", "Microsoft.AspNetCore.Mvc.Core")));
 
         if (hasApiControllerAttribute)
         {
@@ -122,7 +131,7 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
         SyntaxNodeAnalysisContext context,
         TypeDeclarationSyntax declaration)
     {
-        foreach (var typeSyntax in declaration.DescendantNodes().OfType<TypeSyntax>())
+        foreach (var typeSyntax in OwnedNodes(declaration).OfType<TypeSyntax>())
         {
             var type = context.SemanticModel.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
             if (!RoleClassifier.For(context.Compilation, context.Options).Is(type, "db-context"))
@@ -137,11 +146,10 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
                 type?.Name ?? typeSyntax.ToString());
         }
 
-        foreach (var invocation in declaration.DescendantNodes().OfType<InvocationExpressionSyntax>())
+        foreach (var invocation in OwnedNodes(declaration).OfType<InvocationExpressionSyntax>())
         {
             var method = context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol as IMethodSymbol;
-            var methodName = method?.Name ?? GetInvokedMethodName(invocation);
-            if (methodName is null || !PersistenceMethods.Contains(methodName))
+            if (method is null || !PersistenceWriteFacts.IsWrite(method, RoleClassifier.For(context.Compilation, context.Options)))
             {
                 continue;
             }
@@ -150,7 +158,7 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
                 RuleDescriptors.ControllerPersistenceAccess,
                 invocation.GetLocation(),
                 declaration.Identifier.ValueText,
-                methodName);
+                method.Name);
         }
     }
 
@@ -161,10 +169,10 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
         SyntaxNodeAnalysisContext context,
         TypeDeclarationSyntax declaration)
     {
-        foreach (var creation in declaration.DescendantNodes().OfType<ObjectCreationExpressionSyntax>())
+        foreach (var creation in OwnedNodes(declaration).OfType<BaseObjectCreationExpressionSyntax>())
         {
             var type = context.SemanticModel.GetTypeInfo(creation, context.CancellationToken).Type;
-            var typeName = type?.Name ?? creation.Type.ToString();
+            var typeName = type?.Name ?? "unresolved";
             if (!RoleClassifier.For(context.Compilation, context.Options).Is(type, "handler")
                 && !RoleClassifier.For(context.Compilation, context.Options).Is(type, "use-case"))
             {
@@ -173,7 +181,7 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
 
             DiagnosticReporting.Report(context,
                 RuleDescriptors.ControllerDirectConstruction,
-                creation.Type.GetLocation(),
+                creation is ObjectCreationExpressionSyntax explicitCreation ? explicitCreation.Type.GetLocation() : creation.GetLocation(),
                 declaration.Identifier.ValueText,
                 typeName);
         }
@@ -182,13 +190,6 @@ public sealed class ControllerComplianceAnalyzer : DiagnosticAnalyzer
     /// <summary>
     /// 從呼叫語法取得可辨識的方法名稱。
     /// </summary>
-    private static string? GetInvokedMethodName(InvocationExpressionSyntax invocation)
-    {
-        return invocation.Expression switch
-        {
-            IdentifierNameSyntax identifier => identifier.Identifier.ValueText,
-            MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.ValueText,
-            _ => null
-        };
-    }
+    private static System.Collections.Generic.IEnumerable<SyntaxNode> OwnedNodes(TypeDeclarationSyntax declaration) =>
+        declaration.DescendantNodes(node => node == declaration || node is not TypeDeclarationSyntax);
 }

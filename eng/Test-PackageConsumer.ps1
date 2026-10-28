@@ -144,6 +144,125 @@ public sealed class InvalidAggregate : EsAggregateRoot<string>
             $global:LASTEXITCODE = 0
         }
     }
+    # Exercise exact custom roles and inherited/explicit ports from the installed analyzer without Contracts.
+    New-Item -ItemType Directory 'custom-ports' | Out-Null
+    @"
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net$SdkMajor.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><AssemblyName>CustomPorts</AssemblyName><WarningsAsErrors>CS8032;CS9057;AD0001</WarningsAsErrors></PropertyGroup><ItemGroup><PackageReference Include="ArchPrecept.Analyzers.Core" Version="[$version]" PrivateAssets="all" /><AdditionalFiles Include="archprecept.project.xml" /></ItemGroup></Project>
+"@ | Set-Content 'custom-ports/Consumer.csproj'
+    $customConfiguration = @'
+<ArchPrecept version="1" profiles="core,framework" namingConventions="false">
+  <Role name="aggregate" metadataName="Custom.IAggregate`1" assembly="CustomPorts" />
+  <Role name="aggregate-repository" metadataName="Custom.IWrite`2" assembly="CustomPorts" />
+  <Role name="query-repository" metadataName="Custom.IRead" assembly="CustomPorts" />
+  <Role name="controller" metadataName="Custom.Entry" assembly="CustomPorts" />
+  <PureQuery type="Custom.ReadEndpoint" assembly="CustomPorts" enabled="true" />
+</ArchPrecept>
+'@
+    $customConfiguration | Set-Content 'custom-ports/archprecept.project.xml'
+    @'
+namespace Custom;
+public interface IAggregate<TId> { }
+public sealed class Customer : IAggregate<string> { }
+public sealed class Invoice : IAggregate<int> { }
+public interface IWrite<T, TId> where T : IAggregate<TId>
+{
+    Task<T?> FindByIdAsync(TId id, CancellationToken ct);
+    Task SaveAsync(T aggregate, CancellationToken ct);
+}
+public interface IIntermediate<T> : IWrite<T, string> where T : IAggregate<string> { }
+public interface ICustomers : IIntermediate<Customer> { }
+public interface IRead { }
+public interface IList : IRead { Task<string[]> ListAsync(); }
+public sealed class Store : ICustomers, IWrite<Invoice, int>, IList
+{
+    Task<Customer?> IWrite<Customer, string>.FindByIdAsync(string id, CancellationToken ct) => Task.FromResult<Customer?>(null);
+    Task IWrite<Customer, string>.SaveAsync(Customer aggregate, CancellationToken ct) => Task.CompletedTask;
+    Task<Invoice?> IWrite<Invoice, int>.FindByIdAsync(int id, CancellationToken ct) => Task.FromResult<Invoice?>(null);
+    Task IWrite<Invoice, int>.SaveAsync(Invoice aggregate, CancellationToken ct) => Task.CompletedTask;
+    Task<string[]> IList.ListAsync() => Task.FromResult(Array.Empty<string>());
+}
+public abstract class Entry { }
+public sealed class ReadEndpoint : Entry
+{
+    public ReadEndpoint(IList reader) { }
+}
+'@ | Set-Content 'custom-ports/Ports.cs'
+    dotnet build 'custom-ports/Consumer.csproj' -c Release
+    $customAssets = Get-Content 'custom-ports/obj/project.assets.json' -Raw | ConvertFrom-Json
+    if ($customAssets.libraries.PSObject.Properties.Name -match '^ArchPrecept.Contracts\.') { throw 'Custom ports acquired a Contracts dependency.' }
+    $customConfiguration.Replace('enabled="true"', 'enabled="false"') | Set-Content 'custom-ports/archprecept.project.xml'
+    $PSNativeCommandUseErrorActionPreference = $false
+    $diagnostics = dotnet build 'custom-ports/Consumer.csproj' -c Release --no-restore -t:Rebuild 2>&1 | Out-String
+    $code = $LASTEXITCODE
+    $PSNativeCommandUseErrorActionPreference = $true
+    $diagnostics | Set-Content 'custom-ports/unselected-query.log'
+    if ($code -eq 0 -or $diagnostics -notmatch 'error DBA1014' -or $diagnostics -match 'CS8032|CS9057|AD0001|error CS\d+') { throw "Unselected query exception was accepted: $diagnostics" }
+    $global:LASTEXITCODE = 0
+    $customConfiguration.Replace('</ArchPrecept>', '<PureQuery type="Custom.MixedEndpoint" assembly="CustomPorts" enabled="true" /></ArchPrecept>') | Set-Content 'custom-ports/archprecept.project.xml'
+    @'
+namespace Custom;
+public interface IInvalidCustomers : ICustomers { Task<Customer[]> FindByStatusAsync(string status); }
+public sealed class MixedEndpoint : Entry
+{
+    public MixedEndpoint(Store concreteAdapter) { }
+}
+'@ | Set-Content 'custom-ports/Violations.cs'
+    $PSNativeCommandUseErrorActionPreference = $false
+    $diagnostics = dotnet build 'custom-ports/Consumer.csproj' -c Release --no-restore -t:Rebuild '-p:ErrorLog=custom-ports.sarif' 2>&1 | Out-String
+    $code = $LASTEXITCODE
+    $PSNativeCommandUseErrorActionPreference = $true
+    $diagnostics | Set-Content 'custom-ports/expected-violations.log'
+    if ($code -eq 0 -or $diagnostics -notmatch 'error DBA1001' -or $diagnostics -notmatch 'error DBA1014' -or $diagnostics -match 'CS8032|CS9057|AD0001|error CS\d+') { throw "Custom port negative fixtures failed: $diagnostics" }
+    $global:LASTEXITCODE = 0
+    $analyzerCache = Join-Path $env:NUGET_PACKAGES "archprecept.analyzers.core/$version"
+    $analyzerSpec = [xml](Get-Content (Join-Path $analyzerCache 'archprecept.analyzers.core.nuspec') -Raw)
+    $packageRevision = $analyzerSpec.package.metadata.repository.commit
+    $customSarif = Get-Content 'custom-ports/custom-ports.sarif' -Raw
+    if ($packageRevision -notmatch '^[0-9a-f]{40}$' -or $customSarif -notmatch "blob/$packageRevision/docs/diagnostics/DBA1001.md") {
+        throw 'Installed analyzer HelpLink/SARIF does not identify its packaged source revision.'
+    }
+    foreach ($relative in @('docs/diagnostics/DBA1001.md', 'docs/diagnostics/DBA1014.md', 'docs/product/rule-design-rationale.md', 'rules/catalog.xml')) {
+        if (!(Test-Path (Join-Path $analyzerCache $relative))) { throw "Missing version-local rule documentation: $relative" }
+    }
+    # Use the selected SDK's actual ASP.NET Core reference assemblies, including general MVC scope.
+    New-Item -ItemType Directory 'platform-controller' | Out-Null
+    @"
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net$SdkMajor.0</TargetFramework><Nullable>enable</Nullable><WarningsAsErrors>DBA1004;CS8032;CS9057;AD0001</WarningsAsErrors></PropertyGroup><ItemGroup><FrameworkReference Include="Microsoft.AspNetCore.App" /><PackageReference Include="ArchPrecept.Analyzers.Core" Version="[$version]" PrivateAssets="all" /><AdditionalFiles Include="archprecept.project.xml" /></ItemGroup></Project>
+"@ | Set-Content 'platform-controller/Consumer.csproj'
+    '<ArchPrecept version="1" profiles="web-api" namingConventions="false" />' | Set-Content 'platform-controller/archprecept.project.xml'
+    @'
+using Microsoft.AspNetCore.Mvc;
+namespace Platform;
+[ApiController]
+public sealed class DirectController : ControllerBase { }
+[ApiController]
+public abstract class AttributedBase : ControllerBase { }
+public sealed class InheritedController : AttributedBase { }
+'@ | Set-Content 'platform-controller/Controllers.cs'
+    dotnet build 'platform-controller/Consumer.csproj' -c Release
+    @'
+namespace Platform
+{
+    public sealed class MvcController : Microsoft.AspNetCore.Mvc.Controller { }
+    [Fake.ApiController]
+    public sealed class SameNamedAttributeController : Microsoft.AspNetCore.Mvc.ControllerBase { }
+}
+namespace Fake
+{
+    public sealed class ApiControllerAttribute : System.Attribute { }
+}
+'@ | Set-Content 'platform-controller/Mvc.cs'
+    $PSNativeCommandUseErrorActionPreference = $false
+    $diagnostics = dotnet build 'platform-controller/Consumer.csproj' -c Release --no-restore -t:Rebuild 2>&1 | Out-String
+    $code = $LASTEXITCODE
+    $PSNativeCommandUseErrorActionPreference = $true
+    $diagnostics | Set-Content 'platform-controller/mvc-and-unrelated-attribute.log'
+    if ($code -eq 0 -or $diagnostics -notmatch 'DBA1004.*MvcController' -or $diagnostics -notmatch 'DBA1004.*SameNamedAttributeController' -or $diagnostics -match 'DBA1004.*(?:DirectController|InheritedController)|CS8032|CS9057|AD0001|error CS\d+') {
+        throw "Actual ASP.NET Controller/attribute scope regression: $diagnostics"
+    }
+    $global:LASTEXITCODE = 0
+    '[assembly: Microsoft.AspNetCore.Mvc.ApiController]' | Set-Content 'platform-controller/Assembly.cs'
+    dotnet build 'platform-controller/Consumer.csproj' -c Release --no-restore -t:Rebuild
     # All rule fixtures share one compiler process per severity/profile, not one project per case.
     New-Item -ItemType Directory 'policy' | Out-Null
     @"
@@ -154,6 +273,7 @@ public sealed class InvalidAggregate : EsAggregateRoot<string>
   <Role name="value-object" metadataName="IValue" assembly="Consumer" />
   <Role name="entity" metadataName="IEntity" assembly="Consumer" />
   <Role name="domain-event-dispatcher" metadataName="ILocalEvents" assembly="Consumer" />
+  <Role name="service-locator" metadataName="ServiceLocator" assembly="Consumer" />
   <Expected type="Money" role="value-object" />
   <Expected type="MissingExpectedType" role="use-case" />
 </ArchPrecept>
@@ -164,7 +284,8 @@ public sealed class InvalidAggregate : EsAggregateRoot<string>
     dotnet restore 'policy/Consumer.csproj'
     $policyAssets = Get-Content 'policy/obj/project.assets.json' -Raw | ConvertFrom-Json
     if ($policyAssets.libraries.PSObject.Properties.Name -match '^ArchPrecept.Contracts\.') { throw 'Analyzer-only policy consumer gained Contracts runtime dependency.' }
-    $ruleIds = @(1001..1019 | ForEach-Object { "DBA$_" })
+    $installedCatalog = Join-Path $env:NUGET_PACKAGES "archprecept.analyzers.core/$version/rules/catalog.xml"
+    $ruleIds = @(([xml](Get-Content $installedCatalog -Raw)).RuleCatalog.Rule.diagnostic)
     foreach ($severity in @('error', 'warning', 'none')) {
         (@('root = true', '[*.cs]', 'dotnet_diagnostic.DBA0002.severity = warning') + @($ruleIds | ForEach-Object { "dotnet_diagnostic.$_.severity = $severity" })) | Set-Content 'policy/.editorconfig'
         $PSNativeCommandUseErrorActionPreference = $false

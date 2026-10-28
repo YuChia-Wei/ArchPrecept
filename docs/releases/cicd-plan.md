@@ -7,7 +7,7 @@
 - 六個現行套件均採 **public**；舊 Messaging.Abstractions 不新增轉接版本。
 - 版號由具體發布決策選定，不自動遞增。Gate 必須讀回 registry，確認選定版本是否存在；不能只依本機判斷未發布。
 - 初期在工作分支完成 review 與必要驗證，使用 `git merge --ff-only` 回 main，然後直接推送 main。
-- **main push 觸發完整建置、測試、封裝、發布與 registry 驗證**。不另要求 PR、required reviewers 或新增 branch protection。
+- **main push 觸發完整建置、測試與封裝**；發布開關啟用時再依 registry 狀態進入上傳與發布驗證。停用時只驗證來源候選。不另要求 PR、required reviewers 或新增 branch protection。
 - 已發布 NuGet 版本可依授權補建 `v<PackageVersion>` annotated tag，指向實際產生成品的來源 commit；以發布 run 與成品證據核對，不指向後補發布紀錄的 commit，不移動或覆寫既有 tag。Tag 用於來源定位，不觸發發布；GitHub Release 與其他觸發方式仍另行評估。
 - 發布來源仍為 GitHub Packages，nuget.org 不在此次範圍。
 
@@ -51,7 +51,10 @@ flowchart LR
 呼叫 [Package CI](../../.github/workflows/ci.yml)。Package CI 的獨立 push 觸發只保留 `codex/**`，
 另外保留 PR／workflow_call；main 不重複執行另一份同樣的建置。
 
-`PREVIEW_PUBLISH_ENABLED=true` 才通過發布 gate；此 variable 是維護者可用的停用開關。
+`PREVIEW_PUBLISH_ENABLED=true` 才啟用上傳與 registry 驗證路徑；此 variable 是維護者可用的停用開關。
+停用或未設定時，main 仍完成候選建置／測試／封裝，明確輸出 `should-publish=false`，
+跳過上傳、發布 metadata 與 registry consumer；這是來源候選驗證，不是新成品發布或既有 feed 驗收。
+未發布行為修正沿用來源版號進行整合時應停用發布，避免用新來源 fixture 冒稱舊版成品接受了新契約。
 Main gate 仍驗證 preview 版號與 LICENSE。只有 publish job 取得 `packages: write`，
 使用 `GITHUB_TOKEN`；Environment 保留現有設定，沒有新增人工審批要求。
 同一發布 concurrency group 串行且不中斷進行中的 run。
@@ -88,7 +91,7 @@ public 可見性及所有版本分頁。403 或其他 API 錯誤會失敗，只�
 與 [REST Packages API](https://docs.github.com/en/rest/packages/packages)。
 
 新上傳成功時，registry consumer 在獨立 cache 還原六套件，逐一比對還原 nupkg 與同次 run artifact 的
-SHA-256 及 `.nupkg.metadata` source，再完成 SDK 8／10 的六種消費模式。
+SHA-256 及 `.nupkg.metadata` source，再完成 SDK 8／10 的七種消費模式。
 已存在版本的後續 main run 不拿重新 build 的 bytes 與舊版本比較；只做 registry metadata 與消費行為驗證，
 首次發布 bytes 的證據保留於原發布 run。獨立 verify 同樣不宣稱已執行 artifact hash 比對。
 

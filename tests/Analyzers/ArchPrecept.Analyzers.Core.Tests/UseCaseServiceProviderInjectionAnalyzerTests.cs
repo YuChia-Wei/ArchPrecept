@@ -97,7 +97,7 @@ public sealed class UseCaseServiceProviderInjectionAnalyzerTests
     }
 
     [Fact]
-    public async Task Reports_attribute_property_injection()
+    public async Task Does_not_treat_unrelated_inject_attribute_as_injection()
     {
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
                               new UseCaseServiceProviderInjectionAnalyzer(),
@@ -113,8 +113,7 @@ public sealed class UseCaseServiceProviderInjectionAnalyzerTests
                               }
                               """);
 
-        var diagnostic = Assert.Single(diagnostics);
-        Assert.Equal("DBA1010", diagnostic.Id);
+        Assert.Empty(diagnostics);
     }
 
     [Fact]
@@ -185,7 +184,7 @@ public sealed class UseCaseServiceProviderInjectionAnalyzerTests
     }
 
     [Fact]
-    public async Task Reports_http_result_as_use_case_output()
+    public async Task Does_not_treat_unrelated_action_result_as_transport()
     {
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
                               new UseCaseServiceProviderInjectionAnalyzer(),
@@ -201,8 +200,7 @@ public sealed class UseCaseServiceProviderInjectionAnalyzerTests
                               }
                               """);
 
-        var diagnostic = Assert.Single(diagnostics);
-        Assert.Equal("DBA1015", diagnostic.Id);
+        Assert.Empty(diagnostics);
     }
 
     [Fact]
@@ -292,7 +290,7 @@ public sealed class UseCaseServiceProviderInjectionAnalyzerTests
     }
 
     [Fact]
-    public async Task Reports_transport_command_as_use_case_input()
+    public async Task Reports_application_command_as_noncanonical_input_without_transport_claim()
     {
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
                               new UseCaseServiceProviderInjectionAnalyzer(),
@@ -312,6 +310,7 @@ public sealed class UseCaseServiceProviderInjectionAnalyzerTests
 
         var diagnostic = Assert.Single(diagnostics);
         Assert.Equal("DBA1015", diagnostic.Id);
+        Assert.Contains("Input suffix", diagnostic.GetMessage());
     }
 
     [Fact]

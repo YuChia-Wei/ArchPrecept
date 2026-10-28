@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -6,38 +6,19 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ArchPrecept.Analyzers.Core;
 
-/// <summary>
-/// 驗證聚合儲存庫、查詢儲存庫與相容性儲存庫契約的語意邊界。
-/// </summary>
+/// <summary>驗證 Aggregate identity-load/save 與 query port 的有效繼承契約；adapter 依其實作的窄 port 分別評估。</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class RepositoryQueryMethodAnalyzer : DiagnosticAnalyzer
 {
-    private static readonly ImmutableHashSet<string> AllowedAggregateMethods =
-        ImmutableHashSet.Create(StringComparer.Ordinal, "FindByIdAsync", "SaveAsync");
+    /// <summary>建立分析器實例；規則與角色設定由每次編譯提供，不保存 consumer 執行期狀態。</summary>
+    public RepositoryQueryMethodAnalyzer() { }
 
-    private static readonly string[] WriteMethodPrefixes =
-    {
-        "Save",
-        "Add",
-        "Create",
-        "Insert",
-        "Update",
-        "Delete",
-        "Remove",
-        "Upsert",
-        "Persist",
-        "Purge"
-    };
+    /// <summary>取得此分析器支援的儲存庫契約 Diagnostic。</summary>
+    /// <value>此分析器可回報的描述項；是否啟用及有效嚴重性由本次設定決定。</value>
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(RuleDescriptors.RepositoryQueryMethod);
 
-    /// <summary>
-    /// 取得此分析器支援的 Diagnostic 描述項目。
-    /// </summary>
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(RuleDescriptors.RepositoryQueryMethod);
-
-    /// <summary>
-    /// 初始化分析器並註冊具名型別的符號分析。
-    /// </summary>
+    /// <summary>註冊型別符號分析；略過產生的程式碼。</summary>
+    /// <param name="context">Roslyn 提供的註冊環境；由編譯器管理分析與取消生命週期。</param>
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -45,226 +26,100 @@ public sealed class RepositoryQueryMethodAnalyzer : DiagnosticAnalyzer
         context.RegisterSymbolAction(AnalyzeNamedType, SymbolKind.NamedType);
     }
 
-    /// <summary>
-    /// 分析介面型別是否為受限制的通用寫入儲存庫、聚合儲存庫或查詢儲存庫。
-    /// </summary>
+    /// <summary>依角色與每個有效 port 檢查來源型別，將 adapter 的實作方法對回介面能力。</summary>
     private static void AnalyzeNamedType(SymbolAnalysisContext context)
     {
         var type = (INamedTypeSymbol)context.Symbol;
-        if (type.TypeKind is not (TypeKind.Interface or TypeKind.Class or TypeKind.Struct))
+        if (type.TypeKind is not (TypeKind.Interface or TypeKind.Class or TypeKind.Struct)) return;
+        var classifier = RoleClassifier.For(context.Compilation, context.Options);
+        if (classifier.Configuration.Errors.Count != 0) return;
+        if (type.TypeKind == TypeKind.Interface && classifier.IsDirectContract(type, "generic-repository"))
         {
+            Report(context, type, type, $"public generic writable repository '{type.Name}' is prohibited");
+            return;
+        }
+        var contracts = RepositoryPortView.AggregateContracts(type, classifier);
+        var query = classifier.Is(type, "query-repository");
+        if (contracts.IsEmpty && !query) return;
+        if (classifier.IsDirectContract(type, "compatibility-repository")
+            && !type.AllInterfaces.Any(candidate => classifier.IsDirectContract(candidate, "aggregate-repository")))
+            Report(context, type, type, "compatibility repository contract must inherit an aggregate repository contract");
+        foreach (var aggregate in contracts.Select(contract => contract.TypeArguments[0]).Distinct<ITypeSymbol>(SymbolEqualityComparer.Default))
+            if (!classifier.Is(aggregate, "aggregate"))
+                Report(context, type, type, $"aggregate repository type '{aggregate.ToDisplayString()}' is not an Aggregate Root");
+        foreach (var contract in contracts)
+            if (!RepositoryPortView.HasCompatibleIdentity(contract.TypeArguments[0], contract.TypeArguments[1], classifier))
+                Report(context, type, type, $"repository ID '{contract.TypeArguments[1].ToDisplayString()}' does not match its Aggregate identity contract");
+
+        if (type.TypeKind == TypeKind.Interface)
+        {
+            foreach (var method in RepositoryPortView.GetEffectiveMethods(type))
+            {
+                if (!contracts.IsEmpty) CheckAggregate(context, type, method, contracts);
+                if (query) CheckQuery(context, type, method, classifier);
+            }
             return;
         }
 
-        if (type.TypeKind == TypeKind.Interface && RoleClassifier.For(context.Compilation, context.Options).IsDirectContract(type, "generic-repository"))
+        // Each interface view owns its restrictions. A shared adapter may implement separate write/read ports.
+        var mapped = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
+        var checkedAggregate = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
+        var checkedQuery = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
+        foreach (var port in type.AllInterfaces)
         {
-            Report(context, type, $"public generic writable repository '{type.Name}' is prohibited");
-            return;
+            var portContracts = RepositoryPortView.AggregateContracts(port, classifier);
+            var queryPort = classifier.Is(port, "query-repository");
+            if (portContracts.IsEmpty && !queryPort) continue;
+            foreach (var method in RepositoryPortView.GetEffectiveMethods(port))
+            {
+                var implementation = type.FindImplementationForInterfaceMember(method);
+                if (implementation is null) continue; // Compiler owns an unimplemented interface member.
+                mapped.Add(implementation);
+                // The port itself is analyzed when source-owned; external contracts need evidence at this adapter.
+                if (!method.Locations.Any(location => location.IsInSource))
+                {
+                    if (!portContracts.IsEmpty && checkedAggregate.Add(method)) CheckAggregate(context, type, method, portContracts);
+                    if (queryPort && checkedQuery.Add(method)) CheckQuery(context, type, method, classifier);
+                }
+            }
         }
-
-        var aggregateContracts = GetAggregateContracts(type, RoleClassifier.For(context.Compilation, context.Options));
-        if (!aggregateContracts.IsEmpty)
+        foreach (var method in RepositoryPortView.GetEffectiveMethods(type))
         {
-            AnalyzeAggregateRepository(context, type, aggregateContracts);
-        }
-
-        if (RoleClassifier.For(context.Compilation, context.Options).Is(type, "query-repository"))
-        {
-            AnalyzeQueryRepository(context, type);
+            if (mapped.Contains(method)) continue;
+            if (!contracts.IsEmpty) CheckAggregate(context, type, method, contracts);
+            else if (query) CheckQuery(context, type, method, classifier);
         }
     }
 
-    /// <summary>
-    /// 檢查聚合儲存庫的相容性繼承、聚合根型別與允許的方法簽章。
-    /// </summary>
-    private static void AnalyzeAggregateRepository(
-        SymbolAnalysisContext context,
-        INamedTypeSymbol type,
-        ImmutableArray<INamedTypeSymbol> aggregateContracts)
+    /// <summary>以方法所屬 port 的 Aggregate／ID 替換驗證 identity-load/save 最小簽章。</summary>
+    private static void CheckAggregate(SymbolAnalysisContext context, INamedTypeSymbol type, IMethodSymbol method,
+        ImmutableArray<INamedTypeSymbol> contracts)
     {
-        if (RoleClassifier.For(context.Compilation, context.Options).IsDirectContract(type, "compatibility-repository")
-            && !type.AllInterfaces.Any(candidate => RoleClassifier.For(context.Compilation, context.Options).IsDirectContract(candidate, "aggregate-repository")))
-        {
-            Report(
-                context,
-                type,
-                "IDomainRepository is a compatibility contract and must inherit IAggregateRepository");
-        }
-
-        var invalidAggregate = aggregateContracts
-            .Select(contract => contract.TypeArguments[0])
-            .FirstOrDefault(candidate => !RoleClassifier.For(context.Compilation, context.Options).Is(candidate, "aggregate"));
-
-        if (invalidAggregate is not null)
-        {
-            Report(
-                context,
-                type,
-                $"aggregate repository type '{invalidAggregate.ToDisplayString()}' is not an Aggregate Root");
-        }
-
-        foreach (var method in type.GetMembers().OfType<IMethodSymbol>())
-        {
-            if (method.MethodKind != MethodKind.Ordinary)
-            {
-                continue;
-            }
-
-            if (!AllowedAggregateMethods.Contains(method.Name))
-            {
-                Report(
-                    context,
-                    method,
-                    $"aggregate repository member '{method.Name}' is outside the FindByIdAsync/SaveAsync contract");
-                continue;
-            }
-
-            var contract = aggregateContracts.First();
-            if (!HasApprovedAggregateMethodSignature(
-                    method,
-                    contract.TypeArguments[0],
-                    contract.TypeArguments[1]))
-            {
-                Report(
-                    context,
-                    method,
-                    $"aggregate repository member '{method.Name}' does not match the approved asynchronous signature");
-            }
-        }
+        // A member inherited from an Aggregate port is bound to that port, including its type substitution.
+        var ownerContracts = RepositoryPortView.AggregateContracts(method.ContainingType, RoleClassifier.For(context.Compilation, context.Options));
+        var candidates = ownerContracts.IsEmpty ? contracts : ownerContracts;
+        if (candidates.Any(contract => RepositoryPortView.IsAggregateMethod(method, contract.TypeArguments[0], contract.TypeArguments[1], context.Compilation))) return;
+        var reason = method.Name is "FindByIdAsync" or "SaveAsync"
+            ? "does not match the approved asynchronous signature"
+            : "is outside the FindByIdAsync/SaveAsync contract";
+        Report(context, type, method, $"aggregate repository member '{method.Name}' {reason}");
     }
 
-    /// <summary>
-    /// 檢查查詢儲存庫不暴露寫入方法或可變動的領域物件回傳型別。
-    /// </summary>
-    private static void AnalyzeQueryRepository(
-        SymbolAnalysisContext context,
-        INamedTypeSymbol type)
+    /// <summary>檢查查詢方法是否宣告寫入動詞或回傳可變領域物件。</summary>
+    private static void CheckQuery(SymbolAnalysisContext context, INamedTypeSymbol type, IMethodSymbol method, RoleClassifier classifier)
     {
-        foreach (var method in type.GetMembers().OfType<IMethodSymbol>())
-        {
-            if (method.MethodKind != MethodKind.Ordinary)
-            {
-                continue;
-            }
-
-            if (LooksLikeWriteMethod(method.Name))
-            {
-                Report(
-                    context,
-                    method,
-                    $"query repository member '{method.Name}' exposes a persistence write");
-                continue;
-            }
-
-            if (ContainsMutableDomainType(method.ReturnType, RoleClassifier.For(context.Compilation, context.Options), new System.Collections.Generic.HashSet<ITypeSymbol>(SymbolEqualityComparer.Default)))
-            {
-                Report(
-                    context,
-                    method,
-                    $"query repository member '{method.Name}' returns an Aggregate Root or Domain Entity");
-            }
-        }
+        if (RepositoryPortView.IsWriteMethod(method.Name))
+            Report(context, type, method, $"query repository member '{method.Name}' exposes a persistence write");
+        else if (RepositoryPortView.ContainsMutableDomainType(method.ReturnType, classifier))
+            Report(context, type, method, $"query repository member '{method.Name}' returns an Aggregate Root or Domain Entity");
     }
 
-    /// <summary>收集中央分類器辨識的兩參數聚合 repository 契約，保留實際泛型引數。</summary>
-    private static ImmutableArray<INamedTypeSymbol> GetAggregateContracts(INamedTypeSymbol type, RoleClassifier classifier) =>
-        RoleClassifier.TypeClosure(type).OfType<INamedTypeSymbol>()
-            .Where(candidate => candidate.TypeArguments.Length == 2
-                && (classifier.IsDirectContract(candidate, "aggregate-repository")
-                    || classifier.IsDirectContract(candidate, "compatibility-repository")))
-            .ToImmutableArray();
-
-    /// <summary>
-    /// 判斷聚合儲存庫方法是否符合 <c>FindByIdAsync</c> 或 <c>SaveAsync</c> 的核准非同步簽章。
-    /// </summary>
-    private static bool HasApprovedAggregateMethodSignature(
-        IMethodSymbol method,
-        ITypeSymbol aggregateType,
-        ITypeSymbol idType)
+    /// <summary>將直接成員違規定位到成員，繼承或來源外違規定位到實際暴露能力的來源型別。</summary>
+    private static void Report(SymbolAnalysisContext context, INamedTypeSymbol analyzedType, ISymbol member, string reason)
     {
-        if (method.Parameters.Length < 1 || method.Parameters.Length > 2)
-        {
-            return false;
-        }
-
-        if (method.Parameters.Length == 2
-            && !IsCancellationToken(method.Parameters[1].Type))
-        {
-            return false;
-        }
-
-        if (method.Name == "FindByIdAsync")
-        {
-            return SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, idType)
-                && IsTaskOf(method.ReturnType, aggregateType);
-        }
-
-        return method.Name == "SaveAsync"
-            && SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, aggregateType)
-            && IsTask(method.ReturnType);
-    }
-
-    /// <summary>
-    /// 判斷型別是否為承載指定結果型別的 <c>Task&lt;T&gt;</c>。
-    /// </summary>
-    private static bool IsTaskOf(ITypeSymbol type, ITypeSymbol resultType) =>
-        type is INamedTypeSymbol namedType
-        && namedType.Name == "Task"
-        && namedType.ContainingNamespace.ToDisplayString() == "System.Threading.Tasks"
-        && namedType.TypeArguments.Length == 1
-        && SymbolEqualityComparer.Default.Equals(namedType.TypeArguments[0], resultType);
-
-    /// <summary>
-    /// 判斷型別是否為不承載結果的 <c>Task</c>。
-    /// </summary>
-    private static bool IsTask(ITypeSymbol type) =>
-        type is INamedTypeSymbol namedType
-        && namedType.Name == "Task"
-        && namedType.ContainingNamespace.ToDisplayString() == "System.Threading.Tasks"
-        && namedType.TypeArguments.Length == 0;
-
-    /// <summary>
-    /// 判斷型別是否為 <c>System.Threading.CancellationToken</c>。
-    /// </summary>
-    private static bool IsCancellationToken(ITypeSymbol type) =>
-        type.Name == "CancellationToken"
-        && type.ContainingNamespace.ToDisplayString() == "System.Threading";
-
-    /// <summary>在有界的宣告回傳型別內檢查 Entity／Aggregate 與陣列、泛型引數。</summary>
-    private static bool ContainsMutableDomainType(ITypeSymbol type, RoleClassifier classifier,
-        System.Collections.Generic.HashSet<ITypeSymbol> visited)
-    {
-        if (!visited.Add(type)) return false;
-        if (classifier.Is(type, "aggregate") || classifier.Is(type, "entity")) return true;
-        if (type is IArrayTypeSymbol array) return ContainsMutableDomainType(array.ElementType, classifier, visited);
-        return type is INamedTypeSymbol named
-            && named.TypeArguments.Any(argument => ContainsMutableDomainType(argument, classifier, visited));
-    }
-
-    /// <summary>
-    /// 判斷方法名稱是否以已知的持久化寫入動詞開頭。
-    /// </summary>
-    private static bool LooksLikeWriteMethod(string methodName) =>
-        WriteMethodPrefixes.Any(prefix =>
-            methodName.StartsWith(prefix, StringComparison.Ordinal));
-
-    /// <summary>
-    /// 在符號的來源位置回報儲存庫契約違規 Diagnostic。
-    /// </summary>
-    private static void Report(
-        SymbolAnalysisContext context,
-        ISymbol symbol,
-        string reason)
-    {
-        var location = symbol.Locations.FirstOrDefault(candidate => candidate.IsInSource);
-        if (location is null)
-        {
-            return;
-        }
-
-        DiagnosticReporting.Report(context,
-            RuleDescriptors.RepositoryQueryMethod,
-            location,
-            reason);
+        var location = SymbolEqualityComparer.Default.Equals(member.ContainingType, analyzedType)
+            ? member.Locations.FirstOrDefault(candidate => candidate.IsInSource) : null;
+        location ??= analyzedType.Locations.FirstOrDefault(candidate => candidate.IsInSource);
+        if (location is not null) DiagnosticReporting.Report(context, RuleDescriptors.RepositoryQueryMethod, location, reason);
     }
 }

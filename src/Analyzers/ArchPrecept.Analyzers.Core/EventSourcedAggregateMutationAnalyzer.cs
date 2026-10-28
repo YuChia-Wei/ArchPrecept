@@ -1,8 +1,10 @@
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace ArchPrecept.Analyzers.Core;
 
@@ -12,6 +14,9 @@ namespace ArchPrecept.Analyzers.Core;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class EventSourcedAggregateMutationAnalyzer : DiagnosticAnalyzer
 {
+    /// <summary>建立分析器實例；規則與角色設定由每次編譯提供，不保存 consumer 執行期狀態。</summary>
+    public EventSourcedAggregateMutationAnalyzer() { }
+
     private static readonly ImmutableArray<SyntaxKind> AssignmentKinds =
         ImmutableArray.Create(
             SyntaxKind.SimpleAssignmentExpression,
@@ -25,17 +30,20 @@ public sealed class EventSourcedAggregateMutationAnalyzer : DiagnosticAnalyzer
             SyntaxKind.OrAssignmentExpression,
             SyntaxKind.LeftShiftAssignmentExpression,
             SyntaxKind.RightShiftAssignmentExpression,
+            SyntaxKind.UnsignedRightShiftAssignmentExpression,
             SyntaxKind.CoalesceAssignmentExpression);
 
     /// <summary>
     /// 取得此分析器支援的 Diagnostic 描述項目。
     /// </summary>
+    /// <value>此分析器可回報的描述項；是否啟用及有效嚴重性由本次設定決定。</value>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(RuleDescriptors.EventSourcedAggregateDirectMutation);
 
     /// <summary>
     /// 初始化分析器並註冊指定指派與遞增遞減語法的分析。
     /// </summary>
+    /// <param name="context">Roslyn 提供的註冊環境；由編譯器管理分析與取消生命週期。</param>
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -82,20 +90,38 @@ public sealed class EventSourcedAggregateMutationAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static void AnalyzeMutation(SyntaxNodeAnalysisContext context, ExpressionSyntax target)
     {
-        var method = target.FirstAncestorOrSelf<MethodDeclarationSyntax>();
-        if (method is null || method.Identifier.ValueText == "When")
+        var declaration = target.FirstAncestorOrSelf<MethodDeclarationSyntax>();
+        if (declaration is null)
         {
             return;
         }
 
         var aggregateSymbol = context.ContainingSymbol?.ContainingType;
-        if (aggregateSymbol is null || !RoleClassifier.For(context.Compilation, context.Options).Is(aggregateSymbol, "event-sourced-aggregate"))
+        var classifier = RoleClassifier.For(context.Compilation, context.Options);
+        if (aggregateSymbol is null || !classifier.Is(aggregateSymbol, "event-sourced-aggregate"))
         {
             return;
         }
 
-        var member = context.SemanticModel.GetSymbolInfo(target, context.CancellationToken).Symbol;
-        if (member is not IFieldSymbol and not IPropertySymbol
+        // A lambda/local function is a separate execution boundary even when declared inside When.
+        var separateExecution = target.Ancestors().TakeWhile(node => node != declaration)
+            .Any(node => node is AnonymousFunctionExpressionSyntax or LocalFunctionStatementSyntax);
+        if (!separateExecution && context.ContainingSymbol is IMethodSymbol method && IsTransition(method, classifier)) return;
+
+        var operation = context.SemanticModel.GetOperation(target, context.CancellationToken);
+        var member = operation switch
+        {
+            IFieldReferenceOperation field => (ISymbol)field.Field,
+            IPropertyReferenceOperation property => property.Property,
+            _ => null
+        };
+        var receiver = operation switch
+        {
+            IFieldReferenceOperation field => field.Instance,
+            IPropertyReferenceOperation property => property.Instance,
+            _ => null
+        };
+        if (member is null || receiver is not IInstanceReferenceOperation { ReferenceKind: InstanceReferenceKind.ContainingTypeInstance }
             || member.ContainingType is null
             || !IsAggregateMember(aggregateSymbol, member.ContainingType))
         {
@@ -107,6 +133,23 @@ public sealed class EventSourcedAggregateMutationAnalyzer : DiagnosticAnalyzer
             target.GetLocation(),
             aggregateSymbol.Name,
             member.Name);
+    }
+
+    /// <summary>只承認內建或精確映射 ES 根所宣告的 canonical transition 及其覆寫鏈。</summary>
+    private static bool IsTransition(IMethodSymbol method, RoleClassifier classifier)
+    {
+        if (method.MethodKind != MethodKind.Ordinary || method.IsStatic || method.Name != "When"
+            || !method.ReturnsVoid || method.Parameters.Length != 1
+            || method.Parameters[0].RefKind != RefKind.None) return false;
+        for (var current = method; current is not null; current = current.OverriddenMethod)
+        {
+            if (!(current.IsAbstract || current.IsVirtual || current.IsOverride)) continue;
+            var owner = current.ContainingType;
+            if (classifier.IsDirectContract(owner, "event-sourced-aggregate")
+                && classifier.Match(owner, "event-sourced-aggregate") is { Matched: true, Confidence: "high" })
+                return true;
+        }
+        return false;
     }
 
     /// <summary>

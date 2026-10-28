@@ -11,11 +11,16 @@ namespace ArchPrecept.Analyzers.Core;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ValueObjectAnalyzer : DiagnosticAnalyzer
 {
+    /// <summary>建立分析器實例；規則與角色設定由每次編譯提供，不保存 consumer 執行期狀態。</summary>
+    public ValueObjectAnalyzer() { }
+
     /// <summary>取得兩條獨立 VO 診斷與未評估狀態診斷。</summary>
+    /// <value>此分析器可回報的描述項；是否啟用及有效嚴重性由本次設定決定。</value>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
         RuleDescriptors.ValueObjectMutableState, RuleDescriptors.ValueObjectEntityReference, ConfigurationCoverageAnalyzer.Coverage);
 
     /// <summary>註冊具名型別分析，略過 generated code。</summary>
+    /// <param name="context">Roslyn 提供的註冊環境；由編譯器管理分析與取消生命週期。</param>
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);

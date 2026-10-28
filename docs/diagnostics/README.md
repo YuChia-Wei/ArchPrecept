@@ -1,8 +1,8 @@
 ---
 title: "ArchPrecept 分析器 Diagnostic 說明書"
 document_id: DOC-DIAGNOSTICS
-document_version: 0.4
-last_reviewed: 2026-10-25
+document_version: 0.5
+last_reviewed: 2026-10-29
 status: draft
 lang: zh-TW
 canonical_path: docs/diagnostics/README.md
@@ -32,8 +32,8 @@ canonical_path: docs/diagnostics/README.md
 | [DBA0002](DBA0002.md) | 明確宣告範圍與部分未評估狀態。 | `info` |
 | [DBA1001](DBA1001.md) | 維持 Aggregate、Query 與相容性 Repository 合約的語意邊界。 | `error` |
 | [DBA1002](DBA1002.md) | 禁止 Use Case 或 Handler 注入 `IServiceProvider`。 | `error` |
-| [DBA1003](DBA1003.md) | 禁止 Aggregate／Entity 相依基礎設施型別。 | `warning` |
-| [DBA1004](DBA1004.md) | 要求 API Controller 宣告 `ApiControllerAttribute`。 | `warning` |
+| [DBA1003](DBA1003.md) | 禁止 Aggregate／Entity 相依已辨識 DbContext。 | `warning` |
+| [DBA1004](DBA1004.md) | 要求已辨識 Controller 具有有效 `ApiControllerAttribute`。 | `warning` |
 | [DBA1005](DBA1005.md) | 禁止 Controller 直接存取持久化。 | `error` |
 | [DBA1006](DBA1006.md) | 禁止 Controller 直接建立 Handler 或 Use Case。 | `error` |
 | [DBA1007](DBA1007.md) | 要求 Mapper 為 `static` 類別。 | `warning` |
@@ -46,7 +46,7 @@ canonical_path: docs/diagnostics/README.md
 | [DBA1014](DBA1014.md) | 要求 Controller 依賴 Use Case 邊界。 | `error` |
 | [DBA1015](DBA1015.md) | 驗證 Use Case 的標準契約形狀。 | `error` |
 | [DBA1016](DBA1016.md) | 禁止 Use Case 依賴被禁止的型別。 | `error` |
-| [DBA1017](DBA1017.md) | 要求派送 Handler 轉接至剛好一個 Use Case。 | `error` |
+| [DBA1017](DBA1017.md) | 要求派送 Handler 宣告剛好一個不同 Use Case 相依型別。 | `error` |
 | [DBA1018](DBA1018.md) | VO 不得包含一般 setter、mutable field 或已知可變集合。 | `warning`，ddd opt-in |
 | [DBA1019](DBA1019.md) | VO 不得直接或經已知容器參考 Entity。 | `warning`，ddd opt-in |
 

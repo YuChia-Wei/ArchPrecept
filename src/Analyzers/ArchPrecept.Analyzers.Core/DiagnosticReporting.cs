@@ -10,6 +10,13 @@ namespace ArchPrecept.Analyzers.Core;
 /// <summary>統一套用 Profile、規則覆寫與角色證據，不重複維護各 Analyzer 的設定。</summary>
 internal static class DiagnosticReporting
 {
+    /// <summary>回報 operation 分析結果，沿用設定及角色證據。</summary>
+    internal static void Report(OperationAnalysisContext context, DiagnosticDescriptor descriptor, Location location, params object[] arguments)
+    {
+        var diagnostic = Create(RoleClassifier.For(context.Compilation, context.Options), descriptor, location,
+            context.ContainingSymbol.ContainingType, arguments);
+        if (diagnostic is not null) context.ReportDiagnostic(diagnostic);
+    }
     /// <summary>回報符號分析結果，保留共同的規則與角色 metadata。</summary>
     internal static void Report(SymbolAnalysisContext context, DiagnosticDescriptor descriptor, Location location, params object[] arguments)
     {

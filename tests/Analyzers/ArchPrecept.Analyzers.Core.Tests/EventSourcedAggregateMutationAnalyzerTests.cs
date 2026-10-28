@@ -5,7 +5,7 @@ namespace ArchPrecept.Analyzers.Core.Tests;
 public sealed class EventSourcedAggregateMutationAnalyzerTests
 {
     [Fact]
-    public async Task Allows_state_mutation_inside_when()
+    public async Task Does_not_exempt_unrelated_method_named_when()
     {
         var diagnostics = await AnalyzerTestHelper.GetDiagnosticsAsync(
                               new EventSourcedAggregateMutationAnalyzer(),
@@ -23,7 +23,7 @@ public sealed class EventSourcedAggregateMutationAnalyzerTests
                               }
                               """);
 
-        Assert.Empty(diagnostics);
+        Assert.Equal("DBA1009", Assert.Single(diagnostics).Id);
     }
 
     [Fact]
@@ -94,8 +94,8 @@ public sealed class EventSourcedAggregateMutationAnalyzerTests
                               }
                               """);
 
-        var diagnostic = Assert.Single(diagnostics);
-        Assert.Equal("DBA1009", diagnostic.Id);
+        Assert.Equal(2, diagnostics.Length);
+        Assert.All(diagnostics, diagnostic => Assert.Equal("DBA1009", diagnostic.Id));
     }
 
     [Fact]

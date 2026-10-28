@@ -13,18 +13,20 @@ namespace ArchPrecept.Analyzers.Core;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ProjectionReadOnlyAnalyzer : DiagnosticAnalyzer
 {
-    private static readonly ImmutableHashSet<string> WriteMethods =
-        ImmutableHashSet.Create(StringComparer.Ordinal, "Add", "AddAsync", "Update", "Remove");
+    /// <summary>建立分析器實例；規則與角色設定由每次編譯提供，不保存 consumer 執行期狀態。</summary>
+    public ProjectionReadOnlyAnalyzer() { }
 
     /// <summary>
     /// 取得此分析器支援的 Diagnostic 描述項目。
     /// </summary>
+    /// <value>此分析器可回報的描述項；是否啟用及有效嚴重性由本次設定決定。</value>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(RuleDescriptors.ProjectionWriteOperation);
 
     /// <summary>
     /// 初始化分析器並註冊方法呼叫運算式的語法節點分析。
     /// </summary>
+    /// <param name="context">Roslyn 提供的註冊環境；由編譯器管理分析與取消生命週期。</param>
     public override void Initialize(AnalysisContext context)
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -45,7 +47,7 @@ public sealed class ProjectionReadOnlyAnalyzer : DiagnosticAnalyzer
         }
 
         var method = context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol as IMethodSymbol;
-        if (method is null || !IsPersistenceWrite(method, RoleClassifier.For(context.Compilation, context.Options)))
+        if (method is null || !PersistenceWriteFacts.IsWrite(method, RoleClassifier.For(context.Compilation, context.Options)))
         {
             return;
         }
@@ -55,21 +57,6 @@ public sealed class ProjectionReadOnlyAnalyzer : DiagnosticAnalyzer
             invocation.GetLocation(),
             projectionType.Name,
             method.Name);
-    }
-
-    /// <summary>
-    /// 判斷方法是否為 <c>DbContext</c> 或 <c>DbSet</c> 的持久化寫入作業。
-    /// </summary>
-    private static bool IsPersistenceWrite(IMethodSymbol method, RoleClassifier classifier)
-    {
-        if (method.Name is "SaveChanges" or "SaveChangesAsync")
-        {
-            return classifier.Is(method.ContainingType, "db-context");
-        }
-
-        return WriteMethods.Contains(method.Name)
-            && (classifier.Is(method.ContainingType, "db-context")
-                || classifier.Is(method.ContainingType, "db-set"));
     }
 
 }
