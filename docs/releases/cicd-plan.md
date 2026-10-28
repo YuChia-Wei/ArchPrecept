@@ -8,7 +8,7 @@
 - 版號由具體發布決策選定，不自動遞增。Gate 必須讀回 registry，確認選定版本是否存在；不能只依本機判斷未發布。
 - 初期在工作分支完成 review 與必要驗證，使用 `git merge --ff-only` 回 main，然後直接推送 main。
 - **main push 觸發完整建置、測試、封裝、發布與 registry 驗證**。不另要求 PR、required reviewers 或新增 branch protection。
-- 暫不建立 tag／GitHub Release，也不以 tag 觸發；後期再評估其他觸發與治理方式。
+- 已發布 NuGet 版本可依授權補建 `v<PackageVersion>` annotated tag，指向實際產生成品的來源 commit；以發布 run 與成品證據核對，不指向後補發布紀錄的 commit，不移動或覆寫既有 tag。Tag 用於來源定位，不觸發發布；GitHub Release 與其他觸發方式仍另行評估。
 - 發布來源仍為 GitHub Packages，nuget.org 不在此次範圍。
 
 ## 發布要求觸發的文件與規則檢查
@@ -99,7 +99,7 @@ GitHub NuGet 的 public 套件安裝仍需要驗證；Actions 使用具存取權
 
 合併前本機驗證、main hosted CI、push 成功、public metadata、registry consumer 是分開的結果。
 本文件描述執行規則；實際版本結果分別記於 [0.0.3-preview 發布紀錄](0.0.3-preview.md) 與 [0.0.2-preview 歷史紀錄](0.0.2-preview.md)。
-後期才評估 tag／Release、PR 與 branch protection、required reviewers、nuget.org 及正式版維護線；
+後期才評估 GitHub Release、PR 與 branch protection、required reviewers、nuget.org 及正式版維護線；
 這些不作為目前初期發布的前置條件。
 
 首個不帶 `-preview` 的公開版本另需逐規則設計理由、完整套件使用說明，以及有語意且隨 `.nupkg` 交付、由 consumer 可讀的 API XML 證據。這是待落實的產品 gate，並非現有 preview workflow 已自動檢查或本次已通過；正式版發布機制需另行實作與驗證。
