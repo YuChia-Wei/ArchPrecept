@@ -1,8 +1,8 @@
 # 安裝與使用 ArchPrecept
 
-ArchPrecept 的六個套件可依需要選用，執行檢核只需 .NET SDK 與 NuGet，無需 AI、API key 或 Framework。0.0.3-preview 支援 SDK 8／10；是否已發布及實際驗收見 [本版紀錄](releases/0.0.3-preview.md)。
+ArchPrecept 的六個套件可依需要選用，執行檢核只需 .NET SDK 與 NuGet，無需 AI、API key 或 Framework。0.0.4-preview 支援 SDK 8／10；是否已發布及實際驗收見 [本版紀錄](releases/0.0.4-preview.md)。
 
-本頁隨目前來源候選交付；新的 PureQuery、精確 predicate 與 XML 補全尚未上傳 feed。安裝現有 0.0.3-preview 時使用 [該版固定使用指南](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.3-preview/docs/getting-started.md)。本機候選必須以獨立 NuGet cache 還原，避免同版號的已發布 bytes 混用；它不是新版發布，詳見[版本定位](releases/rule-contract-candidate.md)。
+本頁對應 0.0.4-preview；feed 可用性與驗收狀態以[發布紀錄](releases/0.0.4-preview.md)為準。舊版使用其固定版本文件，不以目前 main 的行為推論舊成品。
 
 | 套件 | 用途與必要相依 |
 |---|---|
@@ -21,7 +21,7 @@ ArchPrecept 的六個套件可依需要選用，執行檢核只需 .NET SDK 與 
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="ArchPrecept.Analyzers.Core" Version="[0.0.3-preview]" PrivateAssets="all" />
+  <PackageReference Include="ArchPrecept.Analyzers.Core" Version="[0.0.4-preview]" PrivateAssets="all" />
 </ItemGroup>
 ```
 
@@ -33,7 +33,7 @@ Contracts-only 的最小使用與責任見[各套件使用範例](package-usage.
 
 ## 2. 明確選規則與角色
 
-0.0.3-preview 不加設定時會採用 `legacy`，啟用 DBA1001–DBA1017 與命名慣例。需要控制規則及精確角色時，可建立 `archprecept.project.xml`：
+0.0.4-preview 不加設定時會採用 `legacy`，啟用 DBA1001–DBA1017 與命名慣例。需要控制規則及精確角色時，可建立 `archprecept.project.xml`：
 
 ```xml
 <ArchPrecept version="1" profiles="core,ddd" namingConventions="false">

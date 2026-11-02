@@ -1,6 +1,6 @@
 # 各套件的最小使用與責任
 
-本頁說明目前**未發布來源候選**。安裝版本、GitHub Packages 認證、SDK 8／10 與 AdditionalFiles 接線見[安裝指南](getting-started.md)；既有 feed 版本的文件見[版本定位](releases/rule-contract-candidate.md)。下列 C# 範例使用一般 SDK implicit usings；套件各自可安裝，不需要 AI 工具或 Framework。
+本頁說明 **0.0.4-preview**；發布狀態見[本版紀錄](releases/0.0.4-preview.md)。安裝版本、GitHub Packages 認證、SDK 8／10 與 AdditionalFiles 接線見[安裝指南](getting-started.md)；既有 feed 版本的文件見[版本定位](releases/rule-contract-candidate.md)。下列 C# 範例使用一般 SDK implicit usings；套件各自可安裝，不需要 AI 工具或 Framework。
 
 ## Analyzer-only 與自有契約
 
@@ -62,7 +62,7 @@ Replay 不新增 pending events；append 成功後才用 `MarkChangesAsCommitted
 
 ```csharp
 using ArchPrecept.Contracts.Messaging;
-public sealed record OrderAccepted(Guid OrderId) : IIntegrationEvent;
+public sealed record OrderAccepted(Guid OrderId, DateTime OccurredOn) : IIntegrationEvent;
 ```
 
 事件代表已發生的事實；request 表達請求。marker 不提供序列化、schema registry、deep immutability、去重或 transport。宿主負責 broker、認證、組態與契約演進；完整責任見 [CT-004](product/messaging-contract.md)。
@@ -75,11 +75,11 @@ public sealed record OrderAccepted(Guid OrderId) : IIntegrationEvent;
 using ArchPrecept.Contracts.Application.Messaging;
 using ArchPrecept.Contracts.Messaging;
 
-public sealed record OrderAccepted(Guid OrderId) : IIntegrationEvent;
+public sealed record OrderAccepted(Guid OrderId, DateTime OccurredOn) : IIntegrationEvent;
 public static class Publication
 {
     public static Task PublishAsync(IIntegrationEventPublisher publisher, Guid orderId, Guid stableMessageId)
-        => publisher.PublishAsync(new OrderAccepted(orderId), new IntegrationMessageDelivery(stableMessageId));
+        => publisher.PublishAsync(new OrderAccepted(orderId, DateTime.UtcNow), new IntegrationMessageDelivery(stableMessageId));
 }
 ```
 

@@ -1,6 +1,6 @@
-# Analyzer 設定、角色與評估契約（目前來源候選）
+# Analyzer 設定、角色與評估契約（0.0.4-preview）
 
-本文件描述目前來源候選的設定、角色及評估契約；這批 predicate 與 XML 修正尚未發布至 feed。已發布 0.0.3-preview 的原始行為請讀 [v0.0.3-preview 固定文件](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.3-preview/docs/product/analyzer-policy.md)。來源與版本差異見[候選交付說明](../releases/rule-contract-candidate.md)。規則的設計理由、方法論支持範圍及取捨見[規則設計依據](rule-design-rationale.md)，官方參考資料見[方法論來源](methodology-references.md)。本產品可獨立使用，無需安裝協作 Framework。
+本文件描述 0.0.4-preview 的設定、角色及評估契約；發布狀態見[本版紀錄](../releases/0.0.4-preview.md)。已發布 0.0.3-preview 的原始行為請讀 [v0.0.3-preview 固定文件](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.3-preview/docs/product/analyzer-policy.md)。來源與版本差異見[候選交付說明](../releases/rule-contract-candidate.md)。規則的設計理由、方法論支持範圍及取捨見[規則設計依據](rule-design-rationale.md)，官方參考資料見[方法論來源](methodology-references.md)。本產品可獨立使用，無需安裝協作 Framework。
 
 ## 目前預設與選用
 

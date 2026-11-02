@@ -1,6 +1,6 @@
 # 規則契約與 API 文件候選
 
-狀態：**未發布的來源候選**。本頁描述 #12～#15、#17 與 Id 初始化修正的產品差異，不是 NuGet 發布紀錄。已發布版仍為 0.0.3-preview；本機重建暫沿用來源版號，其 bytes 不得上傳覆寫既有版本。需要交付更新到 feed 時，須另選未發布版本並完成發布前檢查。
+狀態：**0.0.4-preview 的規則契約差異**。本頁描述 #12～#15、#17 與 Id 初始化修正；實際上傳及驗收狀態見[發布紀錄](0.0.4-preview.md)。0.0.3-preview 的既有 bytes 保持不變。
 
 ## 相對已發布 0.0.3-preview 的差異
 
@@ -40,6 +40,6 @@ Rule／Diagnostic ID、Profile 與 severity 保持目前 Catalog。未提供設�
 
 驗證依實際變更選取 Analyzer 正反例、同名干擾、未辨識／設定失敗與 severity，Domain／ES identity 生命週期、必要 nupkg entries，以及受影響的 SDK 8／10 package consumer、custom-contract 與版本文件定位。實際結果依對應來源及執行範圍判讀，不能由本頁存在推定通過，也不因提交 SHA 改變而重跑所有檢查。
 
-低成本模型發布前審查需在候選成品與差異完成後執行；模型、候選 SHA、發現及複查保存在現有工作證據，不預填發布成功。本輪不建立新的 NuGet 版本，後續真正 feed 發布仍須其自己的成品與 consumer 證據。
+低成本模型發布前審查需在候選成品與差異完成後執行；模型、候選 SHA、發現及複查保存在現有工作證據，不預填發布成功。0.0.4-preview 的 feed 發布仍須其自己的成品與 consumer 證據。
 
 全面禁止 static Aggregate factory、跨 BC 限 MQ 的理由及條件仍未決，不新增 Analyzer 禁令，也不藉這次 predicate 修正放寬既有已選政策。任意 helper effect、projector store ownership、深層不可變性、交易／broker 交付，以及完整架構合規均不在本候選的靜態證明範圍。

@@ -9,21 +9,17 @@ The analyzer works with your own contracts through explicit role mapping. Instal
 the reference contracts, an AI tool, or a collaboration framework is optional.
 Current supported consumers use .NET 8 or 10.
 
-The current **published 0.0.3-preview** release contains six public GitHub Packages.
-It adds selectable rule profiles, shared role mapping/evidence,
-the domain-event dispatcher correction, two opt-in ValueObject rules and a Products API sample.
-Start with the [installation and usage guide](docs/getting-started.md),
-[rule design rationale](docs/product/rule-design-rationale.md),
-[methodology references](docs/product/methodology-references.md), and
-[analyzer configuration](docs/product/analyzer-policy.md).
-The [0.0.3 release record](docs/releases/0.0.3-preview.md) identifies the published
-package and validation evidence; documentation of a target policy does not imply
-that every part is already enforced.
-The current source also contains an **unpublished rule-contract candidate** with
-precise port and platform checks, guarded identity initialization, and packaged
-API XML and rule documentation. See the [candidate scope and version mapping](docs/releases/rule-contract-candidate.md).
-These changes are not available by restoring the existing 0.0.3-preview feed bytes.
-For that release, use the [immutable version documentation](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.3-preview/docs).
+This source targets **0.0.4-preview**, with six independently usable packages.
+It refines repository ports, PureQuery capabilities, application boundaries and
+platform symbol recognition, and guards uninitialized domain identity access.
+Start with the [installation guide](docs/getting-started.md),
+[package usage](docs/package-usage.md), [rule rationale](docs/product/rule-design-rationale.md),
+and [configuration](docs/product/analyzer-policy.md).
+See the [0.0.4 release record](docs/releases/0.0.4-preview.md) for publication and
+validation status; the version in source alone does not establish feed availability.
+The [rule-contract changes](docs/releases/rule-contract-candidate.md) describe the
+changes from [0.0.3-preview](docs/releases/0.0.3-preview.md).
+For older packages use their [immutable documentation](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.3-preview/docs).
 CT-005 adds the optional `ArchPrecept.Contracts.Domain.EventSourcing` package.
 CT-004 separates `ArchPrecept.Contracts.Messaging` message contracts from the
 `ArchPrecept.Contracts.Application.Messaging` publisher port. Transport configuration
@@ -69,7 +65,7 @@ All six current package IDs are approved for public publication. The initial flo
 publishes an unshipped version after main-push CI only when `PREVIEW_PUBLISH_ENABLED=true`,
 then verifies public metadata and registry consumption on .NET 8 and 10. With publication
 disabled, main validates the source candidate without upload or registry acceptance.
-See the [current release record](docs/releases/0.0.3-preview.md),
+See the [current release record](docs/releases/0.0.4-preview.md),
 [0.0.2 record](docs/releases/0.0.2-preview.md), and [first preview record](docs/releases/preview.md) for evidence.
 
 Analyzer Diagnostic 的觸發條件、範例、修正與 suppression 指引，請見
