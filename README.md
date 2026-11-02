@@ -31,12 +31,13 @@ Domain and Analyzer users do not need either optional capability.
 The [release rules and CI/CD guide](docs/releases/cicd-plan.md) define the initial
 fast-forward merge to main and main-push build/publication flow for six public packages.
 
-Before the first public release without a `-preview` suffix, APIs, rule IDs,
+Before the first public release without any prerelease suffix, APIs, rule IDs,
 configuration and defaults may change without backward compatibility support.
 Use the documentation for the package version you install. Stable-release readiness
 requires source-backed rule explanations, complete usage guidance and readable
 API XML documentation delivered in the packages; see the
-[version and readiness policy](docs/releases/version-policy-proposal.md).
+[version and readiness policy](docs/releases/version-policy-proposal.md) and
+[stable release and documentation roadmap](docs/releases/stable-release-roadmap.md).
 
 ArchPrecept adopts concrete, sometimes stricter policies from DDD, Clean Architecture,
 Hexagonal Architecture and SOLID principles. A diagnostic checks its documented

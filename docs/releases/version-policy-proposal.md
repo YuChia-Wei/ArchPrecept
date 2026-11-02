@@ -1,10 +1,10 @@
 # 版本政策與首個正式版條件
 
-狀態：首個不帶 `-preview` 後綴的公開版本之前，採本文件的 Preview 演進政策；正式版的版號模型、維護線與相容承諾仍待決定。本文件定義要求，不代表已通過正式版驗收或已核准發布。
+狀態：首個不帶任何 prerelease 後綴的公開版本之前，採本文件的 Preview 演進政策；正式版的版號模型、維護線與相容承諾仍待決定。本文件定義要求，不代表已通過正式版驗收或已核准發布。
 
 ## Preview 演進政策
 
-首個不帶 `-preview` 後綴的公開版本之前，不考慮向後相容。可依已接受的產品政策直接調整 Diagnostic／Rule ID、設定 schema、預設值、公開 API 與套件邊界；不為既有 preview 強制維持 legacy 模式、雙軌 API、obsolete wrapper、replacement rule、type forwarding 或 migration scaffolding。這項政策不自動核准任何具體行為變更。
+首個不帶任何 prerelease 後綴的公開版本之前，不考慮向後相容。可依已接受的產品政策直接調整 Diagnostic／Rule ID、設定 schema、預設值、公開 API 與套件邊界；不為既有 preview 強制維持 legacy 模式、雙軌 API、obsolete wrapper、replacement rule、type forwarding 或 migration scaffolding。這項政策不自動核准任何具體行為變更。
 
 每個版本內的 Rule／Diagnostic ID 仍須唯一，文件、設定、實作與測試必須一致。變更說明應清楚列出新版本的使用方式與受影響範圍，讓採用者能理解當前契約；不必為舊 preview 提供相容路徑。歷史語意由 Git 與既有發布紀錄保存，不在現行規則本文堆疊版本沿革。
 
@@ -22,7 +22,7 @@
 | 更新會隨包交付的 README、API XML、其他內容或套件 metadata，並要讓下游取得更新 | 必須使用尚未發布的新 preview 版本，即使執行行為沒有改變 |
 | 發布 Analyzer predicate、Diagnostic、Catalog／schema、公開契約、套件相依或其他產品行為的變更 | 必須使用尚未發布的新 preview 版本，完成受影響行為及套件驗證，清楚描述當版能力與限制 |
 | 只重新建置或驗證既有版本，沒有發布新成品 | 不因重建自動升版；重建產物不得覆寫既有版本，也不得冒稱為原發布 bytes |
-| 發布首個不帶 `-preview` 的公開版本 | 先完成本文件的正式版閘門、版本政策決策及正式版發布機制驗證；文件合併或 CI 成功不代表已具備條件 |
+| 發布首個不帶任何 prerelease 後綴的公開版本 | 先完成本文件的正式版閘門、版本政策決策及正式版發布機制驗證；文件合併或 CI 成功不代表已具備條件 |
 
 根目錄 `README.md` 目前由 `Directory.Build.props` 納入套件，因此文件變更也可能改變封裝內容。判斷時須檢查實際 pack 設定；不能一律將「只改 Markdown」視為套件 bytes 不變。只更新 repository 文件時，既有套件仍保留原內附內容；若要把更新交付至 feed，才依上表選定新版本。
 
@@ -41,7 +41,7 @@
 
 SDK 8／10 consumer 的 restore、build 與預期 Diagnostic 是套件安裝及載入證據。它不等於全部 API 的跨框架行為驗證，也不等於所有 Visual Studio／Rider 版本已驗證。可編譯或一次 smoke test 通過，不自行形成新的持續支援承諾。
 
-## 首個不帶 `-preview` 公開版本的文件閘門
+## 首個不帶任何 prerelease 後綴的公開版本的文件閘門
 
 以下各項必須有實際交付與檢查證據，不能只由文件存在、XML 可產生或 CI exit 0 推定完成：
 
@@ -58,3 +58,7 @@ SDK 8／10 consumer 的 restore、build 與預期 Diagnostic 是套件安裝及�
 轉正式版前須明確選定產品 SemVer 或平台 major、共同版號範圍、維護線、支援期限及公開 API／Diagnostic／設定／報告的相容承諾。若採產品 SemVer，可評估以 major 表示不相容變更，minor 表示相容擴充，patch 表示相容修復；此處是待決方案，尚未生效。
 
 平台版本與產品版本分別治理，不因產品 major 數字而自行提高 Contracts 最低 TFM。平台 EOL 與產品是否延長支援亦需分別決策。正式版政策尚未選定，不妨礙依 Preview 政策整理當前產品契約。
+
+## 後續發布與官方文件安排
+
+版號與尾綴慣例、相容承諾提案及線上官方文件排程見[正式版與線上文件路線](stable-release-roadmap.md)。`-rc.N` 仍是 prerelease；此處正式版門檻指無任何 prerelease 後綴的版本。現行 pipeline 仍僅接受 preview，擴充 RC／穩定版／nuget.org 發布另依規劃實作。

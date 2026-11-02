@@ -1,6 +1,6 @@
 # 初期 CI/CD 與公開 Preview 發布規則
 
-本文件定義現行公開 Preview 發布流程。首次不帶 `-preview` 後綴的公開版本另須滿足[版本政策與文件閘門](version-policy-proposal.md)；現有 pipeline 仍只接受 preview，不因文件要求而自動具備正式版發布能力。
+本文件定義現行公開 Preview 發布流程。首次不帶任何 prerelease 後綴的公開版本另須滿足[版本政策與文件閘門](version-policy-proposal.md)；現有 pipeline 仍只接受 preview，不因文件要求而自動具備正式版發布能力。
 
 ## 已決定的規則
 
@@ -72,7 +72,7 @@ public 可見性及所有版本分頁。403 或其他 API 錯誤會失敗，只�
 | 既有 package 非 public、連結錯誤或權限不足 | 停止並回報，不能把 API 錯誤視為尚未發布 |
 
 新版產品內容若需發布不同 bytes，必須先改用未發布的新版本；main push 不自動遞增版本。文件整合、隨包內容更新與產品行為變更的升版判斷，統一依[合併與升版判準](version-policy-proposal.md#合併與升版判準)。
-首個不帶 `-preview` 公開版本之前不考慮向後相容，可直接調整 ID、schema、defaults 與 API；不強制 legacy／replacement／migration scaffolding。具體政策與正式版文件閘門見[版本政策](version-policy-proposal.md)。
+首個不帶任何 prerelease 後綴的公開版本之前不考慮向後相容，可直接調整 ID、schema、defaults 與 API；不強制 legacy／replacement／migration scaffolding。具體政策與正式版文件閘門見[版本政策](version-policy-proposal.md)。
 沒有使用 `--skip-duplicate`。六次 push 不是原子交易，不可刪除、覆寫或重建同版號後盲目重試。
 
 上傳與 metadata verification 分為不同 jobs：上傳成功後若只因 metadata／可見性檢查失敗，
@@ -105,4 +105,4 @@ GitHub NuGet 的 public 套件安裝仍需要驗證；Actions 使用具存取權
 後期才評估 GitHub Release、PR 與 branch protection、required reviewers、nuget.org 及正式版維護線；
 這些不作為目前初期發布的前置條件。
 
-首個不帶 `-preview` 的公開版本另需逐規則設計理由、完整套件使用說明，以及有語意且隨 `.nupkg` 交付、由 consumer 可讀的 API XML 證據。這是待落實的產品 gate，並非現有 preview workflow 已自動檢查或本次已通過；正式版發布機制需另行實作與驗證。
+首個不帶任何 prerelease 後綴的公開版本另需逐規則設計理由、完整套件使用說明，以及有語意且隨 `.nupkg` 交付、由 consumer 可讀的 API XML 證據。這是待落實的產品 gate，並非現有 preview workflow 已自動檢查或本次已通過；正式版發布機制需另行實作與驗證。
