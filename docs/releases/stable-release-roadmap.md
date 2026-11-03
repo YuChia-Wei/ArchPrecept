@@ -1,6 +1,6 @@
 # 正式版與線上文件路線
 
-規劃日期：2026-11-02。0.0.4-preview 已選定為本次交付；後續版本與網站為規劃，不表示已發布或已部署。nuget.org 帳號及 ownership 準備可與 consumer 驗證並行，不以穩定版版號為前提。
+規劃更新：2026-11-03。0.0.4-preview 已發布到 GitHub Packages；後續版本與網站仍為規劃。nuget.org 發布工作已延後，尚無重新啟動日期；下列版本與工作窗口不代表目前正在執行或已排定發布。帳號及 ownership 的既有準備狀態未在本文件確認。
 
 ## 社群慣例與本產品選擇
 
@@ -35,12 +35,26 @@
 
 | 階段／目標窗口 | 工作 | 完成條件 |
 |---|---|---|
-| 2026-11-02 起：0.0.4-preview | GitHub Packages 發布；MQ／Web API lab 隔離 worktree 驗證；使用者並行準備 nuget.org | 發布及 feed consumer 證據、各 lab 通過／失敗與限制分開回報 |
+| 已完成第一輪：0.0.4-preview | GitHub Packages 已發布；MQ／Web API lab 隔離 worktree 試用已執行但未通過採用驗收 | [發布證據](0.0.4-preview.md)與[consumer 結果](0.0.4-consumer-validation.md)分開保存 |
 | 第一輪 consumer 結果後，預估 1–2 工作日 | 整理誤報／漏判或採用問題，固定首版六套件範圍、相容承諾及支援政策 | 接受的修正範圍與剩餘限制可查；沒有為符合規則強迫 consumer 改架構 |
 | 與修正並行，預估 2–3 工作日 | 線上官方文件最小網站、版本導覽及 API 參考 | 可瀏覽的候選網站，主要採用路徑與版本連結人工抽查通過 |
-| nuget.org 準備及必要修正完成後 | `0.1.0-preview.1`；打通實際 nuget.org 安裝與匿名 restore | 六包 ownership／metadata、真正 feed 安裝及最小 consumer 通過 |
+| 延後，重新安排且必要條件完成後 | `0.1.0-preview.1` 規劃目標；打通實際 nuget.org 安裝與匿名 restore | 六包 ownership／metadata、真正 feed 安裝及最小 consumer 通過 |
 | 契約凍結及文件就緒後 | `0.1.0-rc.1`，預留至少一輪兩個 lab 的候選回饋 | 無未處理的首版阻擋；正式版文件與既有發布門檻有證據 |
 | RC 結果接受後 | `0.1.0`；後續按實際採用經驗評估 1.0 | 穩定相容承諾、維護線與支援期限明確；不以等待固定天數代替驗收 |
+
+## 後續工作來源
+
+工作狀態與驗收條件由 GitHub Issues 保存，本文件只維持規劃及相依關係：
+
+| 工作 | 追蹤 |
+|---|---|
+| Web API identity 生命週期採用 | [#18](https://github.com/YuChia-Wei/ArchPrecept/issues/18)；與 MQ 判讀可分別處理 |
+| MQ Repository 公開能力／多 port adapter 判讀 | [#19](https://github.com/YuChia-Wei/ArchPrecept/issues/19)；不預設誤報或強制改架構 |
+| 首個穩定版範圍、版本及相容承諾 | [#20](https://github.com/YuChia-Wei/ArchPrecept/issues/20)；引用採用結果決定 RC／穩定版資格 |
+| 版本可辨識的官方文件網站 | [#21](https://github.com/YuChia-Wei/ArchPrecept/issues/21)；可先規劃候選網站，DocFX／Pages 仍為方案 |
+| nuget.org 發布及匿名 restore | [#22](https://github.com/YuChia-Wei/ArchPrecept/issues/22)；延後，依賴候選範圍、必要採用修正及文件入口 |
+
+既有 [#10](https://github.com/YuChia-Wei/ArchPrecept/issues/10)跨專案依賴邊界、[#16](https://github.com/YuChia-Wei/ArchPrecept/issues/16) Domain／EventSourcing 能力拆分保持獨立選配工作，不因本路線自動成為首個穩定版的阻擋。全面禁止 Aggregate static factory、跨 BC 限 MQ 的政策理由仍沿既有規則設計來源處理，不能據未決討論新增禁令。
 
 ## 線上官方文件最小範圍
 
