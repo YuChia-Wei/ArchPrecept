@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: github-packages-preview
+  group: github-packages
   cancel-in-progress: false
 
 jobs:
@@ -57,7 +57,7 @@ jobs:
     needs: [gate, validate]
     if: needs.gate.outputs.should-publish == 'true'
     runs-on: ubuntu-latest
-    environment: github-packages-preview
+    environment: github-packages
     permissions:
       contents: read
       packages: write
