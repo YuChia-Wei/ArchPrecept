@@ -63,7 +63,9 @@ ALWAYS prefer MCP graph tools over grep/glob/file-search for code discovery.
 - 優先使用語言、編譯器、SDK 與既有測試／建置入口。測試應針對可觀察行為或必要交付結果，不綁定非契約性的內部結構、文字格式、生成細節或固定數量；正常重構與等價寫法不應迫使維護者同步修改測試。
 - 不為滿足自訂測試而新增產品不需要的程式、補件、相依或建置步驟。遇到這種情況先縮減或移除不合理檢查，不能以測試全綠當成設計合理或使用者接受的證明。
 - 依實際影響選取最小足夠的驗證。文件修改先核對內容、來源、連結及差異；Analyzer 行為修改選相關正反例、誤判與自有契約案例；套件邊界受影響時才選對應 consumer 情境。明選的必要閘門依其適用範圍執行，不因文件、SHA、交接或驗證報告改變而重跑無關測試、完整矩陣或模型審查。
-- 本機 SDK 依 [global.json](global.json)。完整建置／測試／封裝入口為 [eng/Build-Packages.ps1](eng/Build-Packages.ps1)；consumer 驗證入口為 [eng/Test-PackageConsumer.ps1](eng/Test-PackageConsumer.ps1)。這些入口有不同成本，不因文件或 SHA 改變就一律執行。
+- 開發與封裝先用開發主機的 `dotnet --list-sdks` 盤點已安裝 SDK，優先選主機已有的最新正式版，以 `dotnet --version` 核對實際解析結果；[global.json](global.json) 應與此選擇一致。遇到舊 pin 或 PATH 未找到 dotnet，先查主機既有安裝並調整選擇。唯一允許使用已安裝舊版的情境是處理具體安全性或相容性議題，例如驗證明列支援的 consumer SDK。
+- 禁止主動下載或安裝指定版本的 .NET SDK，不得為滿足舊 pin 下載、安裝舊版；RAM 磁碟、暫存目錄、隔離安裝及工作區同樣適用。只有主機尚未安裝所需新版時，才可詢問使用者是否要更新至新版，須取得明確同意後才能執行。
+- 完整建置／測試／封裝入口為 [eng/Build-Packages.ps1](eng/Build-Packages.ps1)；consumer 驗證入口為 [eng/Test-PackageConsumer.ps1](eng/Test-PackageConsumer.ps1)。依實際影響選擇驗證。
 - 暫存或可重建驗證資料先確認 RAM 磁碟映射與容量，再使用`F:\tmp` 下有界任務目錄；不得靜默退回 C:。持久決策、憑證及正式安裝復原紀錄留在獲准的持久位置。不修改全機 TEMP/TMP。
 - 跨 repo／線上聊天研究、討論與中間設計資料在各階段完成及長工作接續前保存到該 F: 任務目錄，保留來源定位及必要摘錄；需要時讀回原資料，不只依賴對話摘要。正式整合時只將有效設計理由、契約及權威參考寫入 docs，不搬入研究歷程。
 - 文件與程式直接修改有效內容；不在文內堆疊修改日誌或被取代的提案。完成可審閱且已檢查的功能／任務時，以聚焦的 Git commit 保存。提交前評估尚未分享的零碎提交是否適合整理；已分享歷史不因減少數量而逕行重寫，發布紀錄與必要授權來源證據另依其責任保留。

@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "YuChia-Wei",
+  "classifications": [
+    "ArchPrecept",
+    "Architecture"
+  ],
+  "identity": "ArchPrecept.Templates.Starter",
+  "name": "ArchPrecept starter",
+  "shortName": "ap-starter",
+  "description": "Create a runnable product example with ArchPrecept analysis enabled.",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "SampleShop",
+  "preferNameDirectory": true,
+  "symbols": {
+    "contracts": {
+      "type": "parameter",
+      "datatype": "choice",
+      "defaultValue": "reference",
+      "replaces": "STARTER_CONTRACT_MODE",
+      "choices": [
+        {
+          "choice": "reference",
+          "description": "Use ArchPrecept.Contracts.Domain.IValueObject."
+        },
+        {
+          "choice": "custom",
+          "description": "Use a consumer-owned value object marker."
+        }
+      ],
+      "description": "Value object contract used by the target project."
+    },
+    "CustomContracts": {
+      "type": "computed",
+      "value": "(contracts == \"custom\")"
+    },
+    "framework": {
+      "type": "parameter",
+      "datatype": "choice",
+      "defaultValue": "net8.0",
+      "choices": [
+        {
+          "choice": "net8.0"
+        },
+        {
+          "choice": "net10.0"
+        }
+      ],
+      "description": "Target framework for the generated project.",
+      "replaces": "TARGET_FRAMEWORK"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!CustomContracts)",
+          "exclude": [
+            "Domain/IDomainValue.cs"
+          ]
+        }
+      ]
+    }
+  ]
+}

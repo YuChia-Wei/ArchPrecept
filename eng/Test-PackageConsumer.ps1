@@ -21,7 +21,7 @@ New-Item -ItemType Directory -Path $work -Force | Out-Null
 @{sdk = @{version = "$SdkMajor.0.100"; rollForward = 'latestFeature'; allowPrerelease = $false}} | ConvertTo-Json | Set-Content (Join-Path $work 'global.json')
 $escapedFeed = [Security.SecurityElement]::Escape($feed)
 # Exercise consumers whose feeds allow individual package IDs, including transitive dependencies.
-$packageIds = @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging', 'ArchPrecept.Contracts.Application.Messaging', 'ArchPrecept.Contracts.Domain.EventSourcing')
+$packageIds = @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging', 'ArchPrecept.Contracts.Application.Messaging', 'ArchPrecept.Contracts.Domain.EventSourcing', 'ArchPrecept.Templates')
 $sourceMappings = ($packageIds | ForEach-Object { "<package pattern=`"$_`" />" }) -join ''
 @"
 <configuration><packageSources><clear /><add key="local" value="$escapedFeed" /><add key="nuget.org" value="https://api.nuget.org/v3/index.json" /></packageSources><packageSourceMapping><packageSource key="local">$sourceMappings</packageSource><packageSource key="nuget.org"><package pattern="*" /></packageSource></packageSourceMapping></configuration>
@@ -32,6 +32,16 @@ Push-Location $work
 try {
     $selected = dotnet --version
     if ($selected -notlike "$SdkMajor.*") { throw "Wrong SDK selected: $selected" }
+    # Stage the actual template nupkg from the selected feed without adding a runtime reference.
+    @"
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net$SdkMajor.0</TargetFramework></PropertyGroup>
+  <ItemGroup><PackageDownload Include="ArchPrecept.Templates" Version="[$version]" /></ItemGroup>
+</Project>
+"@ | Set-Content 'TemplateDownload.csproj'
+    dotnet restore 'TemplateDownload.csproj'
+    $templatePackage = Join-Path $env:NUGET_PACKAGES "archprecept.templates/$version/archprecept.templates.$version.nupkg"
+    & (Join-Path $PSScriptRoot 'Test-TemplateConsumer.ps1') -PackageFile $templatePackage -SdkMajor $SdkMajor -ScratchRoot $work
     foreach ($mode in @('analyzer-only', 'contracts', 'contracts-only', 'event-sourcing', 'messages', 'publisher', 'host-configuration')) {
         New-Item -ItemType Directory $mode | Out-Null
         $usesAnalyzer = $mode -in @('analyzer-only', 'contracts', 'event-sourcing')
@@ -344,9 +354,9 @@ namespace Fake
             $metadata = Get-Content (Join-Path $cacheFolder '.nupkg.metadata') -Raw | ConvertFrom-Json
             if ($metadata.source.TrimEnd('/') -ne $feed.TrimEnd('/')) { throw "Unexpected restore source: $id" }
         }
-        Write-Host 'All six restored nupkg hashes and cache sources match the tested artifact and selected feed.'
+        Write-Host "All $($packageIds.Count) restored nupkg hashes and cache sources match the tested artifact and selected feed."
     }
-    Write-Host "Package consumers passed on SDK $selected (net$SdkMajor.0): seven adoption modes, all 19 rules/severities, explicit mapping, profiles, coverage, generated exclusions, invalid settings, Products HTTP/use-case tests and repair; no AI dependency."
+    Write-Host "Package consumers passed on SDK $selected (net$SdkMajor.0): A1 templates (reference and custom), seven adoption modes, all 19 rules/severities, explicit mapping, profiles, coverage, generated exclusions, invalid settings, Products HTTP/use-case tests and repair; no AI dependency."
 } finally {
     Pop-Location
     $env:NUGET_PACKAGES = $previousPackages

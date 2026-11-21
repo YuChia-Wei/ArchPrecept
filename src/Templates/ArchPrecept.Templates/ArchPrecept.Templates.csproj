@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <PackageType>Template</PackageType>
+    <PackageTags>dotnet-new;templates;csharp;architecture</PackageTags>
+    <Description>Project and value object templates for consumers of ArchPrecept.</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="content/**/*" Exclude="**/bin/**;**/obj/**" Pack="true"
+          PackagePath="content/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

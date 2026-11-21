@@ -1,6 +1,6 @@
 # 正式版與線上文件路線
 
-規劃更新：2026-11-03。0.0.4-preview 已發布到 GitHub Packages；後續版本與網站仍為規劃。nuget.org 發布工作已延後，尚無重新啟動日期；下列版本與工作窗口不代表目前正在執行或已排定發布。帳號及 ownership 的既有準備狀態未在本文件確認。
+0.0.5-preview 是核心功能試用的下一版。0.0.n-preview 使用 GitHub Packages，試用結果決定後續修正與下一個 n。核心功能確認、簡易官網完成後，進入 #20 的版本政策複核，並以 0.1.0 為首個無後綴版本及 nuget.org 發布目標。
 
 ## 社群慣例與本產品選擇
 
@@ -9,21 +9,21 @@
 | 來源 | 觀察 | ArchPrecept 採用方式 |
 |---|---|---|
 | [Microsoft .NET library guidance](https://learn.microsoft.com/en-us/dotnet/standard/library-guidance/versioning) | 建議以 SemVer 表達套件變更，非穩定套件使用 prerelease 後綴 | 採產品 SemVer；套件版號不與最低 TFM 綁定 |
-| [Microsoft.Extensions.DependencyInjection](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection) | 使用 preview／rc，部分版本帶額外 build 識別 | 採 preview.N → rc.N → 無後綴；目前不需要長 build 序號 |
+| [Microsoft.Extensions.DependencyInjection](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection) | 使用 preview／rc，部分版本帶額外 build 識別 | 核心試用期用 0.0.n-preview；0.1.0 前另行確認是否使用 RC |
 | [Azure SDK release policy](https://azure.github.io/azure-sdk/policies_releases.html) | 以 beta.N 迭代公開預覽 | 說明 Microsoft 內部也無單一尾綴；本產品不混用 beta 與 preview |
 | [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json/) | 套件歷史有 beta1／beta2 形式 | 不照搬文字數字黏合格式，使用 SemVer 數字段 N |
 | [.NET SDK／Runtime versioning](https://learn.microsoft.com/en-us/dotnet/core/versions/) | SDK 有 feature bands，runtime 有平台發布節奏 | 不套用 SDK feature bands、年度 major 或平台 LTS 承諾 |
 
 本產品的階段定義：
 
-- `X.Y.Z-preview.N`：公開試用，容許目標契約調整；N 從 1 遞增。當目標 X.Y.Z 改變時重新編號。本次既有序列保留 `0.0.4-preview`，不另發相同內容只為補 `.1`。
+- `0.0.n-preview`：核心試用階段。每次需要交付不同 bytes 時增加 n，例如 0.0.5-preview → 0.0.6-preview。進入 0.y.z（y ≥ 1）後的候選版尾綴與相容承諾由 #20 複核。
 - `X.Y.Z-rc.N`：目標範圍、公開 API／Diagnostic／設定及文件已收斂；剩餘工作為候選驗收與必要修錯。重大範圍變化應重新評估候選資格。RC 不等於 NuGet 保證品質或適合 production。
 - `X.Y.Z`：無任何 prerelease 後綴，NuGet 視為穩定版，包括 `0.1.0`。`-stable`、`-release` 或 `-ga` 仍會被 NuGet 當成 prerelease，因此不使用。
 - 後綴降低穩定版安裝／更新流程選到候選的機會，不是存取控制；明確指定或容許 prerelease 的相依圖仍可使用。詳見 [NuGet 預覽版](https://learn.microsoft.com/en-us/nuget/create-packages/prerelease-packages)及[相依解析](https://learn.microsoft.com/en-us/nuget/concepts/dependency-resolution)。
 
 ### 相容承諾提案
 
-後續首個穩定目標建議為 `0.1.0`，尚不以本規劃宣告門檻通過或授權發布。`0.1.x` 保持相容，破壞性變更進入下一個 `0.y.0`；進入 `1.0.0` 後依 SemVer，以 major 表示不相容、minor 表示相容能力擴充、patch 表示相容修復。六套件維持共同 release train。
+首個無後綴版本的目標為 `0.1.0`，尚不以本規劃宣告門檻通過或授權發布。`0.1.x` 保持相容，破壞性變更進入下一個 `0.y.0`；進入 `1.0.0` 後依 SemVer，以 major 表示不相容、minor 表示相容能力擴充、patch 表示相容修復。目前套件採共同 release train，其適用範圍於 #20 重新確認。
 
 公開契約涵蓋 API、套件相依／最低平台、Diagnostic ID 與語意、預設 Profile／severity、設定 schema 及公開報告格式。新增預設啟用診斷或提高 severity 可能破壞 consumer 建置，不能只因 C# API 沒變便當作相容修復；新增 opt-in 規則可按相容擴充評估。修正誤報、漏判仍須說明建置影響，不能以 bugfix 名義隱藏破壞性結果。
 
@@ -36,11 +36,10 @@
 | 階段／目標窗口 | 工作 | 完成條件 |
 |---|---|---|
 | 已完成第一輪：0.0.4-preview | GitHub Packages 已發布；MQ／Web API lab 隔離 worktree 試用已執行但未通過採用驗收 | [發布證據](0.0.4-preview.md)與[consumer 結果](0.0.4-consumer-validation.md)分開保存 |
-| 第一輪 consumer 結果後，預估 1–2 工作日 | 整理誤報／漏判或採用問題，固定首版六套件範圍、相容承諾及支援政策 | 接受的修正範圍與剩餘限制可查；沒有為符合規則強迫 consumer 改架構 |
-| 與修正並行，預估 2–3 工作日 | 線上官方文件最小網站、版本導覽及 API 參考 | 可瀏覽的候選網站，主要採用路徑與版本連結人工抽查通過 |
-| 延後，重新安排且必要條件完成後 | `0.1.0-preview.1` 規劃目標；打通實際 nuget.org 安裝與匿名 restore | 六包 ownership／metadata、真正 feed 安裝及最小 consumer 通過 |
-| 契約凍結及文件就緒後 | `0.1.0-rc.1`，預留至少一輪兩個 lab 的候選回饋 | 無未處理的首版阻擋；正式版文件與既有發布門檻有證據 |
-| RC 結果接受後 | `0.1.0`；後續按實際採用經驗評估 1.0 | 穩定相容承諾、維護線與支援期限明確；不以等待固定天數代替驗收 |
+| 0.0.5-preview | A1 starter 與 VO 範本，公開至 GitHub Packages 後供新專案試用 | 安裝、生成、兩種契約的 DBA1018 違規與修正證據；參見[本版紀錄](0.0.5-preview.md) |
+| 後續 0.0.n-preview | 依實際試用修正核心缺口並重新試用 | 核心功能經確認，接受的限制與未完成項目可查 |
+| 進入 #20 前 | 完成簡易官網與可辨識版本的安裝、API 及規則文件 | 主要導覽與採用範例可用 |
+| 0.1.0 起的 0.y.z（y ≥ 1） | 重新確認版本／支援政策、成品範圍與正式版條件，完成 #22 的 nuget.org 發布及匿名安裝 | 實際發布及 feed consumer 驗證分別留證，發布機制須支援無後綴版本 |
 
 ## 後續工作來源
 
@@ -52,7 +51,7 @@
 | MQ Repository 公開能力／多 port adapter 判讀 | [#19](https://github.com/YuChia-Wei/ArchPrecept/issues/19)；不預設誤報或強制改架構 |
 | 首個穩定版範圍、版本及相容承諾 | [#20](https://github.com/YuChia-Wei/ArchPrecept/issues/20)；引用採用結果決定 RC／穩定版資格 |
 | 版本可辨識的官方文件網站 | [#21](https://github.com/YuChia-Wei/ArchPrecept/issues/21)；可先規劃候選網站，DocFX／Pages 仍為方案 |
-| nuget.org 發布及匿名 restore | [#22](https://github.com/YuChia-Wei/ArchPrecept/issues/22)；延後，依賴候選範圍、必要採用修正及文件入口 |
+| nuget.org 發布及匿名 restore | [#22](https://github.com/YuChia-Wei/ArchPrecept/issues/22)；目標為 0.1.0 起的發布，依賴核心採用驗收及簡易官網 |
 
 既有 [#10](https://github.com/YuChia-Wei/ArchPrecept/issues/10)跨專案依賴邊界、[#16](https://github.com/YuChia-Wei/ArchPrecept/issues/16) Domain／EventSourcing 能力拆分保持獨立選配工作，不因本路線自動成為首個穩定版的阻擋。全面禁止 Aggregate static factory、跨 BC 限 MQ 的政策理由仍沿既有規則設計來源處理，不能據未決討論新增禁令。
 
@@ -62,7 +61,7 @@
 
 `docs/` 與來源 XML 保持唯一 authored source；網站只產生展示內容，不複製另一份 Rule Catalog 或維護兩套規則文字。最低導覽包括：
 
-1. 產品定位、支援平台、六套件選擇與安裝。
+1. 產品定位、支援平台、套件選擇與安裝。
 2. Analyzer-only、自有契約 mapping、參考契約的最小使用路徑。
 3. Diagnostic 目錄、設定／Profile／severity、修正與已知限制。
 4. Contracts API 參考、Messaging／ES 責任與保證界線。
@@ -70,4 +69,4 @@
 
 每個公開版本保留固定文件路徑，例如 `/versions/0.1.0/`；`/preview/` 顯示清楚的預覽版提示，首個穩定版之後才設 `/stable/` 導向。未發布的 main 文件不得冒充穩定版本文件。初期可將歷史版本連回 immutable Git tag，不要求一次重建所有歷史網站。
 
-網站在第一個 nuget.org preview 前應有可用的安裝／規則入口；RC 前完成首版 API 參考與版本導覽。只驗證產生、關鍵連結與實際閱讀路徑，不因 Markdown 或生成工具版本改變重跑全套產品測試。網站部署、正式網域及 NuGet PackageProjectUrl 更新在實作時另行確認，不在本次規劃中預填完成。
+進入 #20 前完成簡易官網，提供安裝／規則入口、首版 API 參考與版本導覽。只驗證產生、關鍵連結與實際閱讀路徑，不因 Markdown 或生成工具版本改變重跑全套產品測試。網站部署、正式網域及 NuGet PackageProjectUrl 更新在實作時另行確認，不在本次規劃中預填完成。

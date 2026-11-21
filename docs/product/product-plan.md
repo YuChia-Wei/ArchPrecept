@@ -179,7 +179,7 @@ ArchPrecept 將明確的產品政策轉成可執行檢查，同時保留人工�
 | DEC-016 | 本機目錄保留 `dotnet-architecture-kit` | 已確認 | 本機路徑無須與遠端名稱一致 |
 | DEC-017 | ES 核心採獨立 `Contracts.Domain.EventSourcing` 套件；ES Analyzer 留在 Core | 已確認 | ES 能力選配；完整 storage／projection runtime 另案評估 |
 | DEC-018 | Messaging 分為訊息契約與 Application publisher port | 已確認 | 依責任解耦；host／adapter 擁有組態與具體傳輸機制 |
-| DEC-019 | 六套件 public；review 與驗證後 ff-only 回 main，再由 main push 發布 preview | 已確認 | 現行流程見[CI/CD](../releases/cicd-plan.md)，不新增 PR／reviewer 必經門檻 |
+| DEC-019 | 現行發布套件 public；review 與驗證後 ff-only 回 main，再由 main push 發布 preview | 已確認 | 現行流程見[CI/CD](../releases/cicd-plan.md)，不新增 PR／reviewer 必經門檻 |
 | DEC-020 | 核心 Analyzer 採共用分類與明確設定／範圍證據 | 已確認 | 現行交付見[設定與角色政策](analyzer-policy.md)；目標語意與已交付範圍分開 |
 | DEC-021 | 保留嚴格 Repository、static Mapper 及 UseCase／薄 Handler 政策，優先修正判定精確度 | 已確認 | 理由、方法論支持界線與代價見[規則設計依據](rule-design-rationale.md)；來源未完整處仍明列待補 |
 | DEC-022 | 首個不帶 `-preview` 公開版本之前不考慮向後相容 | 已確認 | 可直接整理 ID、schema、defaults、API，不強制 legacy／replacement／migration scaffolding；已發布 bytes 不可覆寫 |
@@ -585,7 +585,7 @@ ArchPrecept/
 
 首個不帶 `-preview` 後綴的公開版本之前不考慮向後相容。可直接調整 ID、schema、defaults 與 API，不為舊 preview 強制保留 legacy 模式、replacement rule、雙軌 API 或 migration scaffolding。版本內識別仍須唯一、文件與實作一致；已發布 Package ID／version 的 bytes 不可覆寫。
 
-六個現行套件暫採共同 release train，各自仍可獨立安裝。正式版的版號模型、維護線與相容承諾待選定；本文件不自動選定下一版本或授權發布。詳見[版本政策與首個正式版條件](../releases/version-policy-proposal.md)。
+現行套件暫採共同 release train，各自仍可獨立安裝。正式版的版號模型、維護線與相容承諾待選定；本文件不自動選定下一版本或授權發布。詳見[版本政策與首個正式版條件](../releases/version-policy-proposal.md)。
 
 ### 13.3 發布閘門
 

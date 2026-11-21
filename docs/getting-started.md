@@ -1,11 +1,12 @@
 # 安裝與使用 ArchPrecept
 
-ArchPrecept 的六個套件可依需要選用，執行檢核只需 .NET SDK 與 NuGet，無需 AI、API key 或 Framework。0.0.4-preview 支援 SDK 8／10；是否已發布及實際驗收見 [本版紀錄](releases/0.0.4-preview.md)。
+ArchPrecept 的七個套件可依需要選用，執行檢核只需 .NET SDK 與 NuGet，無需 AI、API key 或 Framework。0.0.5-preview 支援 SDK 8／10；是否已發布及實際驗收見 [本版紀錄](releases/0.0.5-preview.md)。
 
-本頁對應 0.0.4-preview；feed 可用性與驗收狀態以[發布紀錄](releases/0.0.4-preview.md)為準。舊版使用其固定版本文件，不以目前 main 的行為推論舊成品。
+本頁對應 0.0.5-preview；feed 可用性與驗收狀態以[發布紀錄](releases/0.0.5-preview.md)為準。舊版使用其固定版本文件，不以目前 main 的行為推論舊成品。
 
 | 套件 | 用途與必要相依 |
 |---|---|
+| ArchPrecept.Templates | 安裝至 .NET SDK 的 starter／Value Object 範本，見 [Price 操作流程](templates.md) |
 | ArchPrecept.Analyzers.Core | 編譯期檢查；無 Contracts runtime 相依 |
 | ArchPrecept.Contracts.Domain | 選配的 Entity／Aggregate／VO／Domain Event 契約 |
 | ArchPrecept.Contracts.Application | Repository、Result、程序內領域事件 port；依賴 Domain |
@@ -21,7 +22,7 @@ ArchPrecept 的六個套件可依需要選用，執行檢核只需 .NET SDK 與 
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="ArchPrecept.Analyzers.Core" Version="[0.0.4-preview]" PrivateAssets="all" />
+  <PackageReference Include="ArchPrecept.Analyzers.Core" Version="[0.0.5-preview]" PrivateAssets="all" />
 </ItemGroup>
 ```
 
@@ -33,7 +34,7 @@ Contracts-only 的最小使用與責任見[各套件使用範例](package-usage.
 
 ## 2. 明確選規則與角色
 
-0.0.4-preview 不加設定時會採用 `legacy`，啟用 DBA1001–DBA1017 與命名慣例。需要控制規則及精確角色時，可建立 `archprecept.project.xml`：
+0.0.5-preview 不加設定時會採用 `legacy`，啟用 DBA1001–DBA1017 與命名慣例。需要控制規則及精確角色時，可建立 `archprecept.project.xml`：
 
 ```xml
 <ArchPrecept version="1" profiles="core,ddd" namingConventions="false">
@@ -86,7 +87,7 @@ dotnet_diagnostic.DBA1018.severity = error
 
 首個不含 `-preview` 後綴的公開版本發布前不提供向後相容保證。安裝或更新時讀取該版本的使用與規則文件；目前文件中的 `legacy` 是已實作設定名稱，不是保留舊版本的承諾。詳見[版本與發布準備政策](releases/version-policy-proposal.md)。
 
-候選包在 `lib/net8.0/<Assembly>.xml` 提供 API 文件；Analyzer 的對應 DLL/XML 在 `analyzers/dotnet/cs/`，不作為 runtime reference。每包的 `docs/` 直接封裝同一份原創說明，`rules/catalog.xml` 保持唯一機器來源。編譯器／IDE 從 DLL 旁 XML 讀 tooltip，AI 或人工可直接讀 XML 的 member ID、summary／param／returns／value／remarks。候選 HelpLink／SARIF 指向組件 informational version 的來源 SHA；無 Git source revision 的開發 build 不符合文件交付驗收。
+Contracts 套件在 `lib/net8.0/<Assembly>.xml` 提供 API 文件；Analyzer 的對應 DLL/XML 在 `analyzers/dotnet/cs/`，不作為 runtime reference。每包的 `docs/` 直接封裝同一份原創說明，`rules/catalog.xml` 保持唯一機器來源。編譯器／IDE 從 DLL 旁 XML 讀 tooltip，AI 或人工可直接讀 XML 的 member ID、summary／param／returns／value／remarks。候選 HelpLink／SARIF 指向組件 informational version 的來源 SHA；無 Git source revision 的開發 build 不符合文件交付驗收。
 
 規則文件中的程式碼與測試相對路徑指向 repository 的同一來源修訂，未把產品原始碼當作 runtime 套件內容。離線閱讀先用隨包 rationale、Diagnostic 手冊與使用指南；追查實作時使用 `.nuspec` repository commit 或 Diagnostic 固定 SHA 連結。
 

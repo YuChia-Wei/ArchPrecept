@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>TARGET_FRAMEWORK</TargetFramework>
+    <AssemblyName>SampleShop</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ArchPrecept.Analyzers.Core" Version="[0.0.5-preview]" PrivateAssets="all" />
+    <!--#if (!CustomContracts) -->
+    <PackageReference Include="ArchPrecept.Contracts.Domain" Version="[0.0.5-preview]" />
+    <!--#endif -->
+    <AdditionalFiles Include="archprecept.project.xml" />
+  </ItemGroup>
+</Project>

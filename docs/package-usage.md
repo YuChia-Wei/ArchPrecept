@@ -1,6 +1,10 @@
 # 各套件的最小使用與責任
 
-本頁說明 **0.0.4-preview**；發布狀態見[本版紀錄](releases/0.0.4-preview.md)。安裝版本、GitHub Packages 認證、SDK 8／10 與 AdditionalFiles 接線見[安裝指南](getting-started.md)；既有 feed 版本的文件見[版本定位](releases/rule-contract-candidate.md)。下列 C# 範例使用一般 SDK implicit usings；套件各自可安裝，不需要 AI 工具或 Framework。
+本頁說明 **0.0.5-preview**；發布狀態見[本版紀錄](releases/0.0.5-preview.md)。安裝版本、GitHub Packages 認證、SDK 8／10 與 AdditionalFiles 接線見[安裝指南](getting-started.md)；既有 feed 版本的文件見[版本定位](releases/rule-contract-candidate.md)。下列 C# 範例使用一般 SDK implicit usings；套件各自可安裝，不需要 AI 工具或 Framework。
+
+## ArchPrecept.Templates
+
+以 `dotnet new install` 安裝至 SDK。`ap-starter` 建立含角色設定的專案，`ap-vo` 在既有專案新增純量 Value Object。安裝來源、必要參數、覆寫衝突、兩種契約與 DBA1018 修正見 [範本使用指南](templates.md)。
 
 ## Analyzer-only 與自有契約
 

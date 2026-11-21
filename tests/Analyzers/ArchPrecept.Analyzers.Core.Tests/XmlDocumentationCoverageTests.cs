@@ -12,10 +12,13 @@ public sealed class XmlDocumentationCoverageTests
     {
         var repositoryRoot = FindRepositoryRoot();
         var sourceRoot = Path.Combine(repositoryRoot, "src");
+        // These files are SDK template inputs and are never compiled into an ArchPrecept assembly.
+        var templateContent = Path.Combine(sourceRoot, "Templates", "ArchPrecept.Templates", "content") + Path.DirectorySeparatorChar;
         var missingDocumentation = new List<string>();
 
         foreach (var filePath in Directory.EnumerateFiles(sourceRoot, "*.cs", SearchOption.AllDirectories)
-                     .Where(IsProductSourceFile))
+                     .Where(IsProductSourceFile)
+                     .Where(path => !path.StartsWith(templateContent, StringComparison.Ordinal)))
         {
             var syntaxTree = CSharpSyntaxTree.ParseText(File.ReadAllText(filePath));
             var root = syntaxTree.GetRoot();

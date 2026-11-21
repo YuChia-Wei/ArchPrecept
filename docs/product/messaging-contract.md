@@ -69,5 +69,5 @@ Central Package Management、NuGet source mapping、lock file 與容器還原設
 | Adapter 回傳失敗 Task | 呼叫端觀察到原始例外 |
 | Host 接管設定來源 | InMemory、Kafka、AMQP／AMQPS 正例及未知／缺漏／錯誤設定反例通過 |
 
-六套件的 nuspec 相依也由既有封裝檢查驗證。範例使用本機替身，
+產品套件的 nuspec 相依也由既有封裝檢查驗證。範例使用本機替身，
 不代表任何真實 broker 的交付、去重或連線驗證。

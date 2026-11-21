@@ -14,7 +14,6 @@ try {
     dotnet test ArchPrecept.slnx -c Release --no-build --logger trx --results-directory $resultsDirectory @buildArguments
     dotnet pack ArchPrecept.slnx -c Release --no-build -o $OutputDirectory @buildArguments
     $version = ([xml](Get-Content Directory.Build.props -Raw)).Project.PropertyGroup.Version
-    $ids = @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging', 'ArchPrecept.Contracts.Application.Messaging', 'ArchPrecept.Contracts.Domain.EventSourcing')
     $expectedDependencies = @{
         'ArchPrecept.Analyzers.Core' = @()
         'ArchPrecept.Contracts.Domain' = @()
@@ -22,7 +21,9 @@ try {
         'ArchPrecept.Contracts.Messaging' = @()
         'ArchPrecept.Contracts.Application.Messaging' = @('ArchPrecept.Contracts.Messaging')
         'ArchPrecept.Contracts.Domain.EventSourcing' = @('ArchPrecept.Contracts.Domain')
+        'ArchPrecept.Templates' = @()
     }
+    $ids = $expectedDependencies.Keys
     $packages = @(Get-ChildItem $OutputDirectory -Filter *.nupkg)
     if ($packages.Count -ne $ids.Count) { throw "Expected exactly $($ids.Count) packages; use a fresh output directory." }
     foreach ($id in $ids) {
@@ -30,10 +31,17 @@ try {
         $zip = [IO.Compression.ZipFile]::OpenRead((Resolve-Path $file))
         try {
             $entries = @($zip.Entries.FullName)
-            $expectedDll = if ($id -eq 'ArchPrecept.Analyzers.Core') { "analyzers/dotnet/cs/$id.dll" } else { "lib/net8.0/$id.dll" }
-            if ($expectedDll -notin $entries -or 'README.md' -notin $entries) { throw "Invalid package layout: $id" }
-            $expectedXml = [IO.Path]::ChangeExtension($expectedDll, '.xml')
-            foreach ($document in @($expectedXml, 'rules/catalog.xml', 'rules/catalog.xsd', 'rules/configuration.xsd', 'docs/getting-started.md', 'docs/package-usage.md')) {
+            $documents = @('README.md', 'rules/catalog.xml', 'rules/catalog.xsd', 'rules/configuration.xsd', 'docs/getting-started.md', 'docs/package-usage.md')
+            if ($id -eq 'ArchPrecept.Templates') {
+                if (!($entries -match '^content/.*/\.template\.config/template\.json$') -or ($entries -match '^(lib|analyzers)/')) {
+                    throw "Invalid template package layout: $id"
+                }
+            } else {
+                $expectedDll = if ($id -eq 'ArchPrecept.Analyzers.Core') { "analyzers/dotnet/cs/$id.dll" } else { "lib/net8.0/$id.dll" }
+                if ($expectedDll -notin $entries) { throw "Invalid package layout: $id" }
+                $documents += [IO.Path]::ChangeExtension($expectedDll, '.xml')
+            }
+            foreach ($document in $documents) {
                 if ($zip.GetEntry($document).Length -le 0) { throw "Missing or empty package document: $id / $document" }
             }
             $catalogReader = [IO.StreamReader]::new($zip.GetEntry('rules/catalog.xml').Open())
@@ -45,6 +53,7 @@ try {
             $reader = [IO.StreamReader]::new($zip.GetEntry("$id.nuspec").Open())
             try { [xml]$spec = $reader.ReadToEnd() } finally { $reader.Dispose() }
             if ($spec.package.metadata.version -ne $version -or $spec.package.metadata.id -ne $id) { throw 'Package identity mismatch.' }
+            if ($id -eq 'ArchPrecept.Templates' -and $spec.package.metadata.packageTypes.packageType.name -notcontains 'Template') { throw 'Expected NuGet Template package type.' }
             $dependencies = @($spec.package.metadata.dependencies.group.dependency | Where-Object { $_ })
             $expected = $expectedDependencies[$id]
             if ($dependencies.Count -ne $expected.Count) { throw "Unexpected runtime dependency count: $id" }

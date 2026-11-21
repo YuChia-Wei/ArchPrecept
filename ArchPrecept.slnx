@@ -10,6 +10,9 @@
   <Folder Name="/src/Analyzers/">
     <Project Path="src/Analyzers/ArchPrecept.Analyzers.Core/ArchPrecept.Analyzers.Core.csproj" />
   </Folder>
+  <Folder Name="/src/Templates/">
+    <Project Path="src/Templates/ArchPrecept.Templates/ArchPrecept.Templates.csproj" />
+  </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/Analyzers/">
     <Project Path="tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ArchPrecept.Analyzers.Core.Tests.csproj" />

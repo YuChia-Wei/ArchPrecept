@@ -27,7 +27,7 @@ try {
     foreach ($mode in @('absent', 'new-version', 'published', 'pagination')) {
         $state = & $scriptUnderTest -Repository 'YuChia-Wei/ArchPrecept'
         $expectedPublish = $mode -in @('absent', 'new-version')
-        if ($state.shouldPublish -ne $expectedPublish -or $state.packages.Count -ne 6) { throw "Incorrect publication decision: $mode" }
+        if ($state.shouldPublish -ne $expectedPublish -or 'ArchPrecept.Templates' -notin $state.packages.id) { throw "Incorrect publication decision: $mode" }
     }
     foreach ($mode in @('partial', 'private', 'wrong-repo', 'forbidden')) {
         $failed = $false

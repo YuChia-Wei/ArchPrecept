@@ -22,4 +22,4 @@
 dotnet test tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ArchPrecept.Analyzers.Core.Tests.csproj
 ```
 
-此專案為可封裝的六個產品專案之一；Roslyn 與第三方 DLL 不會隨 Analyzer nupkg 內嵌。發布狀態以 [版本紀錄](../../../docs/releases/0.0.3-preview.md) 為準。標準 IDE style preferences 與架構 Diagnostic 的 CI 接線是不同責任，單純安裝套件不會替整個 repository 建立完整 gate。
+此專案為可封裝的產品專案之一；Roslyn 與第三方 DLL 不會隨 Analyzer nupkg 內嵌。發布狀態以 [版本紀錄](../../../docs/releases/0.0.5-preview.md) 為準。標準 IDE style preferences 與架構 Diagnostic 的 CI 接線是不同責任，單純安裝套件不會替整個 repository 建立完整 gate。

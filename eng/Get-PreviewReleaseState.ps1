@@ -7,7 +7,7 @@ if (!$env:GH_TOKEN) { throw 'GH_TOKEN is required to inspect package state.' }
 $version = ([xml](Get-Content (Join-Path (Split-Path $PSScriptRoot) 'Directory.Build.props') -Raw)).Project.PropertyGroup.Version
 $owner = $Repository.Split('/')[0]
 $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28' }
-$ids = @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging', 'ArchPrecept.Contracts.Application.Messaging', 'ArchPrecept.Contracts.Domain.EventSourcing')
+$ids = @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging', 'ArchPrecept.Contracts.Application.Messaging', 'ArchPrecept.Contracts.Domain.EventSourcing', 'ArchPrecept.Templates')
 $records = @(foreach ($id in $ids) {
     $uri = "https://api.github.com/users/$owner/packages/nuget/$id"
     try { $package = Invoke-RestMethod -Uri $uri -Headers $headers }
@@ -31,7 +31,7 @@ $records = @(foreach ($id in $ids) {
     [pscustomobject]@{ id = $id; version = $version; published = $found; visibility = $package.visibility }
 })
 $publishedCount = @($records | Where-Object published).Count
-if ($RequirePublished -and $publishedCount -ne $ids.Count) { throw "Expected all six public packages at $version; found $publishedCount." }
+if ($RequirePublished -and $publishedCount -ne $ids.Count) { throw "Expected $($ids.Count) public packages at $version; found $publishedCount." }
 if ($publishedCount -ne 0 -and $publishedCount -ne $ids.Count) {
     throw "Partial release at $version ($publishedCount/$($ids.Count)). Recover missing packages from the original run artifacts; do not rebuild or overwrite existing versions."
 }

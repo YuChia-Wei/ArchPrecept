@@ -8,7 +8,7 @@
 
 每個版本內的 Rule／Diagnostic ID 仍須唯一，文件、設定、實作與測試必須一致。變更說明應清楚列出新版本的使用方式與受影響範圍，讓採用者能理解當前契約；不必為舊 preview 提供相容路徑。歷史語意由 Git 與既有發布紀錄保存，不在現行規則本文堆疊版本沿革。
 
-已發布的 Package ID／version 與 bytes 不得覆寫。不同 bytes 必須使用尚未發布的新版本；main push 不自動升版，也不因本文件而選定任何下一版號。六個現行套件暫採共同 release train，且各自可獨立安裝。實際發布流程見[CI/CD 規則](cicd-plan.md)。
+已發布的 Package ID／version 與 bytes 不得覆寫。不同 bytes 必須使用尚未發布的新版本。核心試用期採 `0.0.n-preview`：`0.0.5-preview` 加入 A1，後續依試用結果以新的 n 遞增。main push 不自動升版。核心功能確認並完成簡易官網後，依 [#20](https://github.com/YuChia-Wei/ArchPrecept/issues/20) 重新確認相容政策，再進入 `0.1.0` 與 nuget.org 發布階段。七個現行套件暫採共同 release train，且各自可獨立安裝。實際發布流程見[CI/CD 規則](cicd-plan.md)。
 
 ## 合併與升版判準
 
@@ -26,9 +26,9 @@
 
 根目錄 `README.md` 目前由 `Directory.Build.props` 納入套件，因此文件變更也可能改變封裝內容。判斷時須檢查實際 pack 設定；不能一律將「只改 Markdown」視為套件 bytes 不變。只更新 repository 文件時，既有套件仍保留原內附內容；若要把更新交付至 feed，才依上表選定新版本。
 
-維持版號推送 main 仍會觸發現行 pipeline。`PREVIEW_PUBLISH_ENABLED` 停用或未設定時只建置、測試與封裝來源候選，跳過 registry 讀取、上傳及 feed 驗收。開關為 `true` 時，Gate 才讀回六個套件的版本狀態：全部已存在時執行驗證並跳過上傳；全部不存在時會進入新發布路徑；部分存在或權限／metadata 檢查失敗時停止。不得只憑未修改版號推定一定不會發布，執行界線依[CI/CD 規則](cicd-plan.md)及當次授權確認。
+維持版號推送 main 仍會觸發現行 pipeline。`PREVIEW_PUBLISH_ENABLED` 停用或未設定時只建置、測試與封裝來源候選，跳過 registry 讀取、上傳及 feed 驗收。開關為 `true` 時，Gate 才讀回七個套件的版本狀態：全部已存在時執行驗證並跳過上傳；全部不存在時會進入新發布路徑；部分存在或權限／metadata 檢查失敗時停止。不得只憑未修改版號推定一定不會發布，執行界線依[CI/CD 規則](cicd-plan.md)及當次授權確認。
 
-尚未完成的產品 Issue 或來源缺口，若已如實標示且不影響本次內容正確性，不自動阻擋文件合併；仍須依其適用範圍保留後續實作或正式版驗收要求。具體新版本由發布決策選定，不由本表自動遞增，六套件沿用共同 release train。
+尚未完成的產品 Issue 或來源缺口，若已如實標示且不影響本次內容正確性，不自動阻擋文件合併；仍須依其適用範圍保留後續實作或正式版驗收要求。具體新版本由發布決策選定，不由本表自動遞增，七套件沿用共同 release train。
 
 ## 平台、成品與支援範圍
 

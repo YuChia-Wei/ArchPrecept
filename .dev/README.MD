@@ -11,7 +11,7 @@
 | Event Sourcing | [CT-005](../docs/product/event-sourcing-contract.md) | Replay／pending／version／commit 及基底行為限制 |
 | Messaging | [CT-004](../docs/product/messaging-contract.md) | 訊息契約、Application port、host／adapter 的責任邊界 |
 | 文件與規則追溯 | [治理規範](../docs/governance/document-governance-and-traceability.md) | 保留 `docs/`、`rules/` 與 `.dev/` 的不同 ownership |
-| 套件／發布 | [現行發布紀錄](../docs/releases/0.0.4-preview.md)、[consumer 試用](../docs/releases/0.0.4-consumer-validation.md)、[正式版路線](../docs/releases/stable-release-roadmap.md)、[CI/CD 規則](../docs/releases/cicd-plan.md) | 分清 build、package、registry publication 與 consumer 證據；nuget.org 工作延後 |
+| 套件／發布 | [當版發布紀錄](../docs/releases/0.0.5-preview.md)、[consumer 試用](../docs/releases/0.0.4-consumer-validation.md)、[正式版路線](../docs/releases/stable-release-roadmap.md)、[CI/CD 規則](../docs/releases/cicd-plan.md) | 分清 build、package、registry publication 與 consumer 證據；0.1.0 階段準備 nuget.org |
 | 接手開發 | [GitHub Issues](https://github.com/YuChia-Wei/ArchPrecept/issues) | 以 live Issue 的 scope、驗收與當次授權開始，不將本頁當第二份 backlog |
 
 ## 既有交付與後續工作索引
