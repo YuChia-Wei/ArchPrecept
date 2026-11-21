@@ -54,9 +54,8 @@ DDD 工作說明共同語言、Bounded Context、Aggregate 不變條件及例子
 
 ## Framework 導入狀態
 
-- 正式 v0.21.0 選配與逐檔預覽見 本機 `.dev/planning/framework-adoption-2026-10-24/PLAN.md`（依使用者指示不提交）；共享選配來源為 [installation.json](../.ai/project/installation.json)。此計畫的內容確認與安裝授權依使用者當次指示。
-- `AGENTS.md` 與本頁是導覽；[採納文件](standards/framework-adoption.md) 保存已採納範圍及差異。它們不證明 skill 已被 runtime 發現或執行。
-- 不建立 `project-config.yaml`、新的 backlog／SQLite store 或空的 ADR／Workflow 目錄。既有來源已足夠時直接引用。
-- 16 skills／2 knowledge／16 reference bindings 已按正式成品重建。選入不等於執行；三個 context skills 分別處理初始化／事實 refresh、政策維護及唯讀稽核。舊版預演不是本版安裝證據。
-- 本次安裝與指引已獲授權；產品程式、NuGet、CI 與 GitHub Issues 不屬於此次變更。後續操作仍依當次指示。
+- Framework v0.23.1 的選配為 Codex adapter、原始 skill 命名、16 個 skills、`engineering-common@0.4.3` 及 `dotnet@0.3.5`。16 個 bindings 全部作為參考，其中 6 個 .NET bindings 要求任務明選 `dotnet-backend` profile。選配與受管版本分別見 [installation.json](../.ai/project/installation.json) 和 [framework.lock](../.ai/framework.lock)。
+- 下游應用的規則設計與 consumer 範例可使用所選 .NET 知識。ArchPrecept 本身的 Analyzer、Contracts 與套件政策由產品決策定義。[採納文件](standards/framework-adoption.md)保留 v0.21.0 的原始採納依據，另說明現行 skill 與 binding 允許的資源。
+- 以 installer inspect 判讀受管檔案狀態。installed reader 的任務結果及用戶端實際發現、執行 skill 的情形，須依各自的執行證據判讀。三個 context skills 分別處理初始化／事實更新、政策維護及唯讀稽核。
+- 專案沿用既有 backlog 與工作紀錄位置。此選配未啟用 Framework sub-agents、Claude adapter 或 workflow-records store。
 - adr-author／pr-author 的工具操作需 Python、PyYAML、jsonschema，以及操作所需的 filesystem／Git／gh。此次只安裝能力，不建立預設 notes/adrs、notes/pull-requests 或其他 store；首次記錄工作先明選符合既有文件治理的位置。

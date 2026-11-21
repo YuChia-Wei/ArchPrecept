@@ -75,7 +75,7 @@ ALWAYS prefer MCP graph tools over grep/glob/file-search for code discovery.
 
 ## Framework 與協作狀態
 
-選配基線為 Framework v0.21.0：16 個工程／context skills、engineering-common 0.4.0、dotnet-backend 0.1.6、Codex adapter、original naming。精確 selection 保存位置為 `.ai/project/installation.json`；安裝狀態以實際 lock 與 inspect 讀回為準，selection 或本文件存在不代表已安裝。知識僅作明選範圍內的參考，沒有 normative-rule bindings；software-architect 的完整 UseCase 關係／playbook 讀取缺口仍須揭露。
+本專案使用 Framework v0.23.1，選用 16 個工程／context skills、engineering-common 0.4.3、dotnet 0.3.5、Codex adapter 與 original naming。精確選配見 [.ai/project/installation.json](.ai/project/installation.json)，受管狀態由 lock 與 installer inspect 核對。六個 .NET 知識綁定僅在任務明選 `dotnet-backend` 技術範圍時提供參考，例如判讀下游 VO 或 Repository 規則。讀取範圍取決於 skill allowlist 與專案 binding 的交集，採納界線見 [Framework 採納文件](.dev/standards/framework-adoption.md)。產品規範依本專案既有決策與 Rule Catalog，選配中沒有 normative-rule bindings。
 
 不把來源 repository 的 `.dev` 政策、provider、記憶服務、模型偏好或 sub-agent 設定移植到本專案。此選配未包含 Framework sub-agent profiles、Claude adapter 或 workflow-records store。若日後需要，另以具體用途評估。
 

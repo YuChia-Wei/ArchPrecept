@@ -1,9 +1,9 @@
 {
   "selection_version": 2,
   "catalog": {
-    "identity": "catalog:1:0.21.0:221695622dde248a2dc84ffb9fc675d7c45d0768:2e924c8314edfb763e8662dab29dbd24c2ee6c0f8318429fa967171e3b24053e",
-    "catalog_sha256": "ca2b9c23eb0ed6552acfed4406ab93f96b3991f5320c1e57f40de5a22fa842f3",
-    "files_sha256": "636a2d82a4dbab3cd292ab2d3a6599db84e4342c41fdb23beddd1fd5b9575366"
+    "identity": "catalog:1:0.23.1:5616b9236ab15cf41d16e16eca79f9171e039f3d:fc8e6aa4ef496a06587ba748f3da1b309c30c3f33889aaff31bff66f1ff2380d",
+    "catalog_sha256": "bcc2456a4f0655c915b1c09b71730cc8c921bf5181ff3516f715e1e4c7c6cfbd",
+    "files_sha256": "061d8f74998e91800b9a159e1827e94a3943fef058031b99f34eb7bc51b41402"
   },
   "skills": [
     "adr-author",
@@ -24,7 +24,7 @@
     "test-designer"
   ],
   "knowledge": [
-    "dotnet-backend",
+    "dotnet",
     "engineering-common"
   ],
   "adapters": [
@@ -505,11 +505,11 @@
     },
     {
       "id": "dotnet-domain-model-reference",
-      "package": "dotnet-backend",
+      "package": "dotnet",
       "resources": [
         "engineering-rule-catalog",
-        "member:standards/DESIGN-BY-CONTRACT.md",
-        "member:standards/coding-standards/aggregate-standards.md"
+        "member:architecture/ddd-cqrs/aggregate-standards.md",
+        "member:core/design-by-contract.md"
       ],
       "use_as": "knowledge",
       "selector": {
@@ -551,16 +551,16 @@
     },
     {
       "id": "dotnet-implementation-reference",
-      "package": "dotnet-backend",
+      "package": "dotnet",
       "resources": [
         "engineering-rule-catalog",
-        "member:standards/DESIGN-BY-CONTRACT.md",
-        "member:standards/coding-standards/aggregate-standards.md",
-        "member:standards/coding-standards/controller-standards.md",
-        "member:standards/coding-standards/repository-standards.md",
-        "member:standards/coding-standards/test-standards.md",
-        "member:standards/coding-standards/transactional-messaging-standards.md",
-        "member:standards/coding-standards/usecase-standards.md"
+        "member:application-types/web-api/controller-standards.md",
+        "member:architecture/ddd-cqrs/aggregate-standards.md",
+        "member:architecture/ddd-cqrs/usecase-standards.md",
+        "member:core/design-by-contract.md",
+        "member:integration/messaging/transactional-messaging-standards.md",
+        "member:integration/persistence/repository-standards.md",
+        "member:testing/test-standards.md"
       ],
       "use_as": "knowledge",
       "selector": {
@@ -601,14 +601,14 @@
     },
     {
       "id": "dotnet-local-change-reference",
-      "package": "dotnet-backend",
+      "package": "dotnet",
       "resources": [
         "engineering-rule-catalog",
-        "member:standards/coding-standards/aggregate-standards.md",
-        "member:standards/coding-standards/controller-standards.md",
-        "member:standards/coding-standards/repository-standards.md",
-        "member:standards/coding-standards/test-standards.md",
-        "member:standards/coding-standards/usecase-standards.md"
+        "member:application-types/web-api/controller-standards.md",
+        "member:architecture/ddd-cqrs/aggregate-standards.md",
+        "member:architecture/ddd-cqrs/usecase-standards.md",
+        "member:integration/persistence/repository-standards.md",
+        "member:testing/test-standards.md"
       ],
       "use_as": "knowledge",
       "selector": {
@@ -649,16 +649,16 @@
     },
     {
       "id": "dotnet-review-reference",
-      "package": "dotnet-backend",
+      "package": "dotnet",
       "resources": [
         "engineering-rule-catalog",
-        "member:review/review-routing.yaml",
-        "member:standards/DESIGN-BY-CONTRACT.md",
-        "member:standards/coding-standards/aggregate-standards.md",
-        "member:standards/coding-standards/controller-standards.md",
-        "member:standards/coding-standards/repository-standards.md",
-        "member:standards/coding-standards/test-standards.md",
-        "member:standards/coding-standards/usecase-standards.md"
+        "member:application-types/web-api/controller-standards.md",
+        "member:architecture/ddd-cqrs/aggregate-standards.md",
+        "member:architecture/ddd-cqrs/usecase-standards.md",
+        "member:core/design-by-contract.md",
+        "member:integration/persistence/repository-standards.md",
+        "member:references/review-routing.yaml",
+        "member:testing/test-standards.md"
       ],
       "use_as": "knowledge",
       "selector": {
@@ -699,14 +699,14 @@
     },
     {
       "id": "dotnet-software-architecture-reference",
-      "package": "dotnet-backend",
+      "package": "dotnet",
       "resources": [
         "engineering-rule-catalog",
-        "member:standards/BUILDING-BLOCKS-RECONSTRUCTION-CONTRACT.md",
-        "member:standards/DESIGN-BY-CONTRACT.md",
-        "member:standards/coding-standards/transactional-messaging-standards.md",
-        "member:standards/coding-standards/usecase-standards.md",
-        "member:standards/project-structure.md"
+        "member:architecture/ddd-cqrs/building-blocks-reconstruction.md",
+        "member:architecture/ddd-cqrs/project-structure.md",
+        "member:architecture/ddd-cqrs/usecase-standards.md",
+        "member:core/design-by-contract.md",
+        "member:integration/messaging/transactional-messaging-standards.md"
       ],
       "use_as": "knowledge",
       "selector": {
@@ -748,10 +748,10 @@
     },
     {
       "id": "dotnet-test-design-reference",
-      "package": "dotnet-backend",
+      "package": "dotnet",
       "resources": [
         "engineering-rule-catalog",
-        "member:standards/coding-standards/test-standards.md"
+        "member:testing/test-standards.md"
       ],
       "use_as": "knowledge",
       "selector": {

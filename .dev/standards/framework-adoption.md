@@ -1,9 +1,10 @@
 ---
 title: "ArchPrecept Framework 規範採納"
 document_id: "DOC-DEV-FRAMEWORK-ADOPTION"
-document_version: "0.2"
+document_version: "0.3"
 status: "adopted"
 date: "2026-10-24"
+last_reviewed: "2026-11-21"
 owners:
   - "YuChia Wei"
 proposed_path: ".dev/standards/framework-adoption.md"
@@ -16,7 +17,7 @@ normative_binding_status: "not-adopted"
 
 本文件保存 Framework 知識在 ArchPrecept 的適用範圍、既有產品決策、採納慣例與例外。依 2026-10-24 使用者授權，在無阻擋問題的分析結論下採納本文件並安裝所選成品；安裝結果仍以 lock／inspect 證據為準，不因此修改產品程式。
 
-Framework v0.21.0 已於 2026-10-24 00:34:42 台灣時間正式發布。本文改以已校驗的 release commit `221695622dde248a2dc84ffb9fc675d7c45d0768` 為來源；目標已交付 ArchPrecept 0.0.3-preview。新增條文在本文件明列範圍生效；既有決策持續有效。
+下表已採納的工程慣例以 Framework v0.21.0 提交 `221695622dde248a2dc84ffb9fc675d7c45d0768` 為固定來源。升級工具時保留這些引用，變更已採納的政策須另有產品決定。現行選配及讀取範圍見[Framework 版本與知識讀取](#framework-版本與知識讀取)。
 
 ## 適用範圍
 
@@ -59,7 +60,7 @@ Framework v0.21.0 已於 2026-10-24 00:34:42 台灣時間正式發布。本文�
 | DEC-020、[0.0.3-preview](../../docs/releases/0.0.3-preview.md) | 負責人同意且已交付 | 核心 #1／#6／#7／#8／#9／#11 已交付；本輪不得退回舊版缺陷敘述或重開已完成規則決策 |
 | [License 與來源評估](../../docs/releases/licensing-assessment.md)、產品規劃書第 14 節 | 已有明確決定 | 自有內容採 Apache-2.0，第三方條款分開；不因 Framework 導入重開已完成選型 |
 
-產品與 repository 身分、套件 ID 及發布流程依[產品規劃書的現行決策](../../docs/product/product-plan.md#3-已確認的關鍵決策)、README 與[現行 CI/CD 規則](../../docs/releases/cicd-plan.md)判讀；已發布成品的證據見 [0.0.3-preview 發布紀錄](../../docs/releases/0.0.3-preview.md)。歷史內容由 Git 與各版本發布紀錄保存，不重新要求決定已核准的六個套件 ID 或 public 範圍。
+產品與 repository 身分、套件 ID 及發布流程依[產品規劃書的現行決策](../../docs/product/product-plan.md#3-已確認的關鍵決策)、README 與[現行 CI/CD 規則](../../docs/releases/cicd-plan.md)判讀。七個公開套件與 consumer 驗收見 [0.0.5-preview 發布紀錄](../../docs/releases/0.0.5-preview.md)。
 
 ## DDD CA 與 Hex Arch 慣例的採納範圍
 
@@ -69,7 +70,7 @@ Framework v0.21.0 已於 2026-10-24 00:34:42 台灣時間正式發布。本文�
 |---|---|---|
 | [DDD discovery／strategic／tactical][fw-ddd] | 用共同語言、Bounded Context、Aggregate 不變條件、Entity 身分與 VO 值語意說明模型；需求與規格可使用 DDD／BDD | 人工探索、設計及審查；不得用資料夾結構或 class suffix 代替語意 |
 | [CA 與 Hex 架構][fw-playbook] | Domain 保持 transport／ORM／broker 中立；Application 擁有 UseCase 與 ports，adapters 處理外部機制 | 對應產品部分診斷與未來架構驗證；Backend 四層目錄不套到 Analyzer 庫 |
-| [Controller／UseCase／Handler 關係][fw-relationship] | 同步 API 預設 Controller 直接呼叫 UseCase interface；不經一般派送 Handler 繞一層。不建立預設 ApplicationService 中介層 | DBA1004／1005／1006／1014 為目前相關診斷；完整角色文件的 skill 讀取仍有缺口 |
+| [Controller／UseCase／Handler 關係][fw-relationship] | 同步 API 預設 Controller 直接呼叫 UseCase interface；不經一般派送 Handler 繞一層。不建立預設 ApplicationService 中介層 | DBA1004／1005／1006／1014 為相關診斷。新版知識包的角色說明與讀取條件見下節 |
 | [UseCase 標準][fw-usecase]及[角色契約][fw-relationship] | `I…UseCase`／具體 `…UseCase`、`ExecuteAsync`、非 optional CancellationToken；transport-neutral Input／Output，無輸出可回 `Task` | DBA1015 為現行部分機制；共用角色辨識支援契約／mapping／選定慣例，不等於整份規範機械化 |
 | [Handler 責任][fw-relationship] | 真正有 dispatcher／message delivery 才設 Handler；薄轉接至一個 UseCase，不在 Controller／Handler 編排多個 UseCase | DBA1011／1017；DomainEventHandler／Reactor 不直接等同派送 Handler |
 | [UseCase 相依][fw-usecase] | 以建構式注入 outbound ports；禁止 Service Locator、屬性注入、直接建立 Repository、transport framework 或另一個 UseCase 相依 | DBA1002／1010／1012／1016；0.0.3 已修正合法 `IDomainEventDispatcher` 誤報；混入 bus／transport 等禁止角色仍會回報 DBA1016 |
@@ -106,19 +107,17 @@ Framework v0.21.0 已於 2026-10-24 00:34:42 台灣時間正式發布。本文�
 
 ## Framework 版本與知識讀取
 
-正式 v0.21.0 對應 common 0.4.0、dotnet-backend 0.1.6、domain-model-designer／software-architect 各 0.1.1。精確 16 skills 與 16 個 reference bindings 見 [專案 selection](../../.ai/project/installation.json)，版本與受管成員另由 `.ai/framework.lock` 保存；未選 Claude、sub-agents、模型政策或 workflow store。選入治理及編排能力不等於已授權每次執行。
+本專案選用 Framework v0.23.1，release commit 為 `5616b9236ab15cf41d16e16eca79f9171e039f3d`。選配包含 16 個工程／context skills、Codex adapter、原始 skill 名稱，以及 `engineering-common@0.4.3` 和 `dotnet@0.3.5` 兩個參考知識包。16 個 bindings 中有 6 個指向 `dotnet`。精確的操作、資源及條件見[專案 selection](../../.ai/project/installation.json)，受管檔案與來源身分以 [framework.lock](../../.ai/framework.lock) 和 inspect 讀回為準。
 
 所有 bindings 使用 `knowledge`、`required_for_coverage: false`、空 normative authority／Rule ID 清單。此決定允許參考所選知識，**不放寬本產品既有規則**，也不把 Framework 全包變成 ArchPrecept 的規範。需要機械判定時仍依產品 Rule Catalog、設定、測試與 Diagnostic 文件；若未來要宣稱 Framework normative coverage，另選真實 rule IDs、已生效 authority bytes 與 selector。
 
 Selector 只允許 direct 操作，capability／operation 精確對應正式 metadata。路徑限 `.dev/planning`、`.dev/standards`、`docs`、`rules`、`samples`、`src`、`tests`，副檔名限 cs／csproj／json／md／props／targets／txt／xml／yaml。dotnet binding 另要求明選 `dotnet-backend` technology profile，不得由 C# 檔名推定；common 不指定技術。路徑外、其他檔案型態或 delegate execution 目前沒有匹配 binding。
 
-正式包仍有以下缺口，選配不能自行修補上游 allowlist：
+新版將 Controller／UseCase／Handler 的角色關係寫入 `architecture/ddd-cqrs/usecase-standards.md`。其中說明同步 API 的 Controller 直接注入 UseCase interface，存在 dispatch 或訊息入口時才使用 Handler。此檔列在 `software-architect` design／review 的 metadata 與專案 architecture binding 中。新版 skill 另外允許 Web API Controller、Repository 與政策理由三份文件，本專案的 architecture binding 維持原選配範圍，未選這三份。UseCase 文件連向的 `architecture/ddd-cqrs/overview.md` 也未列在 skill 的直接讀取清單。Controller 指引保留未配置正式 Rule ID 的狀態。[v0.23.1 的 skill metadata](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/5616b9236ab15cf41d16e16eca79f9171e039f3d/src/skills/software-architect/skill-package.yaml)
 
-- `software-architect` 的 design／review 未直接允許 `USECASE-COMMAND-HANDLER-RELATIONSHIP.MD`、`design/architecture-playbook.md` 或 Controller 完整標準。Markdown 連結不提供轉授權。
-- 關係／Controller／Repository 文件仍有未登錄的規範段落；identity-allocation-required／unpacketized-fail-closed 不能改造成虛構 Rule ID。
-- 正式包 aggregate 文件的 DBA1009 說明仍以 type name 描述 target analyzer，與本產品 0.0.3 的契約／mapping／慣例分類不完全相同。產品實際規則以 [analyzer-policy](../../docs/product/analyzer-policy.md)、[DBA1009](../../docs/diagnostics/DBA1009.md) 為準；不把參考文字當成新 API 契約。
+`dotnet` 的 Aggregate 標準將 DBA1009 列為選配產品映射，政策理由以 ArchPrecept 提交 `60330242f7f690a01cfa2332b578aac35584f067` 對照 ES 角色與 transition override。現行產品只在內建或精確映射的 ES 根認可 canonical `void When(TEvent)` virtual／abstract 宣告及其真正 override 鏈，同名方法仍會受檢查。重播、append 與 commit 的語意見產品契約。[v0.23.1 Aggregate 標準](https://github.com/YuChia-Wei/ai-collaboration-framework/blob/5616b9236ab15cf41d16e16eca79f9171e039f3d/src/knowledge/dotnet/architecture/ddd-cqrs/aggregate-standards.md) · [DBA1009](../../docs/diagnostics/DBA1009.md) · [CT-005](../../docs/product/event-sourcing-contract.md)
 
-本次以參考知識用途接受上述有限讀取範圍進行首次安裝，相關判斷引用本產品既有決策與明示的目標輸入。無 verified lock／reader、未在 skill allowlist、或未匹配 binding 的資源均不可宣稱 installed specialist coverage；不得回讀來源 checkout 假裝補齊。derive 的 unavailable=[] 只表示已宣告相依齊備，不證明未宣告的語意資源完整。
+保留 .NET 知識包的用途是判讀下游應用的角色、規則理由及契約。開發 ArchPrecept 本身仍依產品規範。受管檔案一致性、installed reader 對特定 selector 的結果、Codex client 的 skill discovery 各有獨立證據，專案 selection 與上游套件內容僅能說明設定及供應範圍。
 
 ## 正式版新增能力與本產品差異
 
@@ -132,7 +131,7 @@ Selector 只允許 direct 操作，capability／operation 精確對應正式 met
 | Given | When | Then |
 |---|---|---|
 | 開發 Analyzer 或 Contracts 庫 | 遇到 MQ-first、四層目錄、NSubstitute／BDDfy 建議 | 先確認適用範圍，不新增 backend runtime 或改寫 harness |
-| 下游規則工作 | 使用 architecture design／review | 讀取允許的資源與既有產品決策，明列完整角色關係／playbook 不在 allowlist |
+| 下游規則工作 | 使用 architecture design／review | 依明選的 backend profile 與 matching binding 讀取適用的 UseCase 等知識，並以 ArchPrecept 已採納的政策判讀 |
 | 合法領域事件 dispatcher | 分析 DBA1016 | 核對 0.0.3 契約／mapping 及混合禁止角色，不沿用舊版 workaround |
 | VO 有 init、巢狀 Entity 或唯讀集合 | 判讀 DBA1018／1019 | 分開違規、適用性與未評估；不宣稱零診斷證明深層不可變 |
 | ES pending events | 一般 dispatcher 要 ClearDomainEvents | 保留 CT-005 的 append／commit 責任與一般 mutator 限制 |
