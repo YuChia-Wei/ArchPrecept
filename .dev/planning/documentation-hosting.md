@@ -1,6 +1,6 @@
 # 套件說明網站的託管選擇
 
-建議用 **DocFX 產生靜態網站，部署到 GitHub Pages**。ArchPrecept 的程式、Markdown、發布 tag 和 CI 都在 GitHub，公開 repository 已符合免費 Pages 資格。2026-11-21 查詢時，預設分支為 `main`，GitHub 回報 `has_pages=false`。若採預設網域，預期入口為 `https://yuchia-wei.github.io/ArchPrecept/`。網站版本與內容範圍見[正式版路線](../../docs/releases/stable-release-roadmap.md)與 [Issue #21](https://github.com/YuChia-Wei/ArchPrecept/issues/21)。
+已採用 **DocFX 與 GitHub Pages**。ArchPrecept 的程式、Markdown、發布 tag 和 CI 都在 GitHub，公開 repository 符合免費 Pages 資格。Pages 使用 GitHub Actions 部署，專案設定的網址為 `https://yuchia-wei.github.io/ArchPrecept/`。下表保存選型依據。文件 tag 與部署步驟見[發布流程](../../docs/releases/cicd-plan.md#文件發布)，網站版本與內容範圍見[正式版路線](../../docs/releases/stable-release-roadmap.md)與 [Issue #21](https://github.com/YuChia-Wei/ArchPrecept/issues/21)。
 
 ## 免費方案比較
 
@@ -16,4 +16,4 @@
 1. 先用既有開發 SDK 和固定版本的 DocFX 產生可本機瀏覽的 HTML。從 `docs/` 選入安裝、範本、套件、診斷與版本頁，以對應版本的 Contracts DLL 和原生 XML 註解產生 API 參考。機器規則沿用 `rules/catalog.xml`。[DocFX 支援的輸入](https://dotnet.github.io/docfx/)
 2. 首頁標示目前公開預覽版。歷史版先連到對應的發布 tag；未發布的內容標示為開發中。首次正式版再提供 `versions/0.1.0/` 與 `stable/` 入口。版本路徑以站點為基準，保留 GitHub 專案前綴。
 3. 抽查「安裝 → 產生 Price → DBA1018 → 修正」和一個 Contracts API 頁。現有手冊另有指向站點來源以外的連結，例如安裝頁的 `../samples/Products/README.md`，以及診斷目錄的 `../../rules/catalog.xml` 和 severity 範本。產生版應將這些目標指向對應發布 commit 的 GitHub 檔案，並在 `/ArchPrecept/` 下檢查導覽與樣式。
-4. 候選網站可瀏覽後再啟用 Pages，以專用文件 workflow 發布該 HTML。從公開網址重走上述路徑並記錄實際 URL 與來源提交。公開 URL 確認後再評估後續套件的 `PackageProjectUrl`。
+4. 將文件變更整合至 `main` 後，從候選提交推送新的 `docs-YYYY.MM.DD.N` tag，由[文件工作流程](../../.github/workflows/documentation.yml)部署產生的 HTML。從公開網址重走上述路徑並記錄實際 URL 與來源提交。公開 URL 確認後再評估後續套件的 `PackageProjectUrl`。

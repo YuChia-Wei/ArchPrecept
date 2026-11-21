@@ -56,7 +56,7 @@ normative_binding_status: "not-adopted"
 | DEC-015／DEC-016 | 已確認 | ArchPrecept 品牌、Solution／Project／Assembly／Namespace；保留本機 dotnet-architecture-kit 目錄。遠端現況以 README／來源讀回為準 |
 | DEC-017、[CT-005](../../docs/product/event-sourcing-contract.md) | 負責人同意且已有公開成品證據 | EventSourcing 為同 repo 的獨立選配套件；一般 Domain 不反向依賴它；ES Analyzer 仍留 Core |
 | DEC-018、[CT-004](../../docs/product/messaging-contract.md) | 負責人同意且已有公開成品證據 | 訊息契約與 Application 發布 port 分離；組態、broker SDK、DI、重試及交付保證由 host／adapter 擁有 |
-| DEC-019、[CI/CD 規則](../../docs/releases/cicd-plan.md) | 負責人同意，2026-10-21 生效 | 初期使用 ff-only 整合與 main push CI／發布；不因選 pr-author 或 Framework source 政策新增 mandatory PR／reviewer 門檻。每次操作仍受當次授權限制 |
+| DEC-019、[CI/CD 規則](../../docs/releases/cicd-plan.md) | 已採納，2026-11-21 更新觸發方式 | PR 執行品質檢查，ff-only 整合至 main，套件與文件各以 tag 發布。各項操作依當次授權執行。 |
 | DEC-020、[0.0.3-preview](../../docs/releases/0.0.3-preview.md) | 負責人同意且已交付 | 核心 #1／#6／#7／#8／#9／#11 已交付；本輪不得退回舊版缺陷敘述或重開已完成規則決策 |
 | [License 與來源評估](../../docs/releases/licensing-assessment.md)、產品規劃書第 14 節 | 已有明確決定 | 自有內容採 Apache-2.0，第三方條款分開；不因 Framework 導入重開已完成選型 |
 
@@ -124,7 +124,7 @@ Selector 只允許 direct 操作，capability／operation 精確對應正式 met
 - `.ai/project/installation.json` 為本次選配保存位置；沒有舊 `.ai/custom` 資料需遷移。選配 JSON 不建立 custom skill registry、sub-agent registry 或模型政策。
 - 初始化與 refresh 處理缺失入口／事實導覽；既有政策維護由 governance，唯讀差異判讀由 auditor。現有三份完整文件依本次確認的 bytes 寫入後，不再跑無界 initialize 覆寫。
 - 公開 Issue／PR 保存產品需求、設計、驗收及技術證據。授權／操作交接不轉存 Issue；未選 workflow-records 時不假稱正式 workflow 記錄已建立，也不因此阻擋已有授權的單項工作。
-- 不從 Framework 來源庫移植 mandatory PR／reviewer、模型選擇或自動委派。保留 DEC-019／020 的 ff-only 與 main-push 流程，當次授權仍決定是否提交／發布。
+- PR 品質檢查、ff-only 整合與 tag 發布流程由 ArchPrecept 的 DEC-019 定義。提交及發布依當次授權，reviewer、模型選擇與委派維持本專案現行設定。
 
 ## 少量代表情境
 

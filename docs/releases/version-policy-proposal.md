@@ -8,7 +8,7 @@
 
 每個版本內的 Rule／Diagnostic ID 仍須唯一，文件、設定、實作與測試必須一致。變更說明應清楚列出新版本的使用方式與受影響範圍，讓採用者能理解當前契約；不必為舊 preview 提供相容路徑。歷史語意由 Git 與既有發布紀錄保存，不在現行規則本文堆疊版本沿革。
 
-已發布的 Package ID／version 與 bytes 不得覆寫。不同 bytes 必須使用尚未發布的新版本。核心試用期採 `0.0.n-preview`：`0.0.5-preview` 加入 A1，後續依試用結果以新的 n 遞增。main push 不自動升版。核心功能確認並完成簡易官網後，依 [#20](https://github.com/YuChia-Wei/ArchPrecept/issues/20) 重新確認相容政策，再進入 `0.1.0` 與 nuget.org 發布階段。七個現行套件暫採共同 release train，且各自可獨立安裝。實際發布流程見[CI/CD 規則](cicd-plan.md)。
+已發布的 Package ID／version 與 bytes 不得覆寫。不同 bytes 必須使用尚未發布的新版本。核心試用期採 `0.0.n-preview`，`0.0.5-preview` 加入 A1，後續依試用結果以新的 n 遞增。核心功能確認並完成簡易官網後，依 [#20](https://github.com/YuChia-Wei/ArchPrecept/issues/20) 重新確認相容政策，再進入 `0.1.0` 與 nuget.org 發布階段。七個現行套件暫採共同 release train，且各自可獨立安裝。實際發布流程見[CI/CD 規則](cicd-plan.md)。
 
 ## 合併與升版判準
 
@@ -19,6 +19,7 @@
 | 交付情境 | 升版要求 |
 |---|---|
 | 只將產品文件、規則理由、開發治理或 Framework 採納整合到 main，沒有要交付新的 NuGet 成品 | 不必升版；完成受影響文件與整合檢查即可 |
+| 在公開網站修正安裝說明、診斷範例或導覽 | 沿用文件描述的套件版本，為網站來源建立新的 `docs-YYYY.MM.DD.N` tag |
 | 更新會隨包交付的 README、API XML、其他內容或套件 metadata，並要讓下游取得更新 | 必須使用尚未發布的新 preview 版本，即使執行行為沒有改變 |
 | 發布 Analyzer predicate、Diagnostic、Catalog／schema、公開契約、套件相依或其他產品行為的變更 | 必須使用尚未發布的新 preview 版本，完成受影響行為及套件驗證，清楚描述當版能力與限制 |
 | 只重新建置或驗證既有版本，沒有發布新成品 | 不因重建自動升版；重建產物不得覆寫既有版本，也不得冒稱為原發布 bytes |
@@ -26,7 +27,7 @@
 
 根目錄 `README.md` 目前由 `Directory.Build.props` 納入套件，因此文件變更也可能改變封裝內容。判斷時須檢查實際 pack 設定；不能一律將「只改 Markdown」視為套件 bytes 不變。只更新 repository 文件時，既有套件仍保留原內附內容；若要把更新交付至 feed，才依上表選定新版本。
 
-維持版號推送 main 仍會觸發現行 pipeline。`PREVIEW_PUBLISH_ENABLED` 停用或未設定時只建置、測試與封裝來源候選，跳過 registry 讀取、上傳及 feed 驗收。開關為 `true` 時，Gate 才讀回七個套件的版本狀態：全部已存在時執行驗證並跳過上傳；全部不存在時會進入新發布路徑；部分存在或權限／metadata 檢查失敗時停止。不得只憑未修改版號推定一定不會發布，執行界線依[CI/CD 規則](cicd-plan.md)及當次授權確認。
+PR 在合併前進行品質檢查。套件交付由已整合至 main 的 `v<PackageVersion>` tag 觸發，執行版號、成品與 registry 驗證。若同時更新公開手冊，完成 feed 驗收後另以文件 tag 發布 DocFX。普通 main push 只整合來源。詳見 [CI/CD 規則](cicd-plan.md)。
 
 尚未完成的產品 Issue 或來源缺口，若已如實標示且不影響本次內容正確性，不自動阻擋文件合併；仍須依其適用範圍保留後續實作或正式版驗收要求。具體新版本由發布決策選定，不由本表自動遞增，七套件沿用共同 release train。
 

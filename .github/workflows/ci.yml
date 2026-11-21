@@ -1,8 +1,7 @@
 name: Package CI
 on:
-  push:
-    branches: ['codex/**']
   pull_request:
+    branches: [main]
   workflow_call:
 
 permissions:
@@ -10,6 +9,7 @@ permissions:
 
 jobs:
   package:
+    name: ${{ github.ref_type == 'tag' && 'Build release packages' || 'Build and test' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,12 +19,13 @@ jobs:
           dotnet-version: |
             8.0.x
             10.0.x
-      - name: Build, test and inspect packages
+      - name: Build and test the solution
         shell: pwsh
         run: |
           ./tests/Release/PreviewReleaseState.Tests.ps1
-          ./eng/Build-Packages.ps1
+          ./eng/Build-Packages.ps1 -SkipPack:($env:GITHUB_REF_TYPE -ne 'tag')
       - uses: actions/upload-artifact@v4
+        if: github.ref_type == 'tag'
         with:
           name: preview-packages
           path: artifacts/packages/
@@ -36,6 +37,7 @@ jobs:
           path: artifacts/test-results/
   consumer:
     needs: package
+    if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -52,4 +54,4 @@ jobs:
           path: artifacts/packages
       - name: Install and run package consumers with the selected SDK
         shell: pwsh
-        run: ./eng/Test-PackageConsumer.ps1 -SdkMajor ${{ matrix.sdk }}
+        run: ./eng/Test-PackageConsumer.ps1 -SdkMajor ${{ matrix.sdk }} -ExpectedSourceCommit (git rev-parse HEAD)

@@ -3,7 +3,8 @@ param(
     [string]$PackageDirectory = 'artifacts/packages',
     [string]$RegistrySource,
     [string]$ExpectedPackageDirectory,
-    [string]$ScratchRoot
+    [string]$ScratchRoot,
+    [ValidatePattern('^[0-9a-f]{40}$')][string]$ExpectedSourceCommit
 )
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
@@ -345,15 +346,27 @@ namespace Fake
     $global:LASTEXITCODE = 0
     Remove-Item -LiteralPath (Join-Path $work 'Products/Api/Violation.cs')
     dotnet build 'Products/Api/Products.Api.csproj' -c Release --no-restore "-p:ArchPreceptVersion=$version" "-p:SampleTargetFramework=net$SdkMajor.0"
-    if ($expectedFeed) {
-        foreach ($id in $packageIds) {
-            $cacheFolder = Join-Path $env:NUGET_PACKAGES "$($id.ToLowerInvariant())/$version"
-            $cached = Join-Path $cacheFolder "$($id.ToLowerInvariant()).$version.nupkg"
+    foreach ($id in $packageIds) {
+        $lowerId = $id.ToLowerInvariant()
+        $cacheFolder = Join-Path $env:NUGET_PACKAGES "$lowerId/$version"
+        if ($ExpectedSourceCommit) {
+            $spec = [xml](Get-Content (Join-Path $cacheFolder "$lowerId.nuspec") -Raw)
+            if ($spec.package.metadata.repository.commit -cne $ExpectedSourceCommit) {
+                throw "Restored $id/$version does not identify the tagged source $ExpectedSourceCommit."
+            }
+        }
+        if ($expectedFeed) {
+            $cached = Join-Path $cacheFolder "$lowerId.$version.nupkg"
             $expected = Join-Path $expectedFeed "$id.$version.nupkg"
             if ((Get-FileHash $cached -Algorithm SHA256).Hash -ne (Get-FileHash $expected -Algorithm SHA256).Hash) { throw "Restored bytes differ from tested artifact: $id" }
             $metadata = Get-Content (Join-Path $cacheFolder '.nupkg.metadata') -Raw | ConvertFrom-Json
             if ($metadata.source.TrimEnd('/') -ne $feed.TrimEnd('/')) { throw "Unexpected restore source: $id" }
         }
+    }
+    if ($ExpectedSourceCommit) {
+        Write-Host "All $($packageIds.Count) restored packages identify source commit $ExpectedSourceCommit."
+    }
+    if ($expectedFeed) {
         Write-Host "All $($packageIds.Count) restored nupkg hashes and cache sources match the tested artifact and selected feed."
     }
     Write-Host "Package consumers passed on SDK $selected (net$SdkMajor.0): A1 templates (reference and custom), seven adoption modes, all 19 rules/severities, explicit mapping, profiles, coverage, generated exclusions, invalid settings, Products HTTP/use-case tests and repair; no AI dependency."

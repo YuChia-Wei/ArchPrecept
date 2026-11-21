@@ -179,7 +179,7 @@ ArchPrecept 將明確的產品政策轉成可執行檢查，同時保留人工�
 | DEC-016 | 本機目錄保留 `dotnet-architecture-kit` | 已確認 | 本機路徑無須與遠端名稱一致 |
 | DEC-017 | ES 核心採獨立 `Contracts.Domain.EventSourcing` 套件；ES Analyzer 留在 Core | 已確認 | ES 能力選配；完整 storage／projection runtime 另案評估 |
 | DEC-018 | Messaging 分為訊息契約與 Application publisher port | 已確認 | 依責任解耦；host／adapter 擁有組態與具體傳輸機制 |
-| DEC-019 | 現行發布套件 public；review 與驗證後 ff-only 回 main，再由 main push 發布 preview | 已確認 | 現行流程見[CI/CD](../releases/cicd-plan.md)，不新增 PR／reviewer 必經門檻 |
+| DEC-019 | PR 執行品質檢查。整合至 main 後，以套件版本 tag 發布 public Preview，以文件 tag 部署說明網站 | 已確認（2026-11-21 更新觸發方式） | 沿用 ff-only 整合流程。套件及文件的來源、驗證與交付方式見 [CI/CD 規則](../releases/cicd-plan.md) |
 | DEC-020 | 核心 Analyzer 採共用分類與明確設定／範圍證據 | 已確認 | 現行交付見[設定與角色政策](analyzer-policy.md)；目標語意與已交付範圍分開 |
 | DEC-021 | 保留嚴格 Repository、static Mapper 及 UseCase／薄 Handler 政策，優先修正判定精確度 | 已確認 | 理由、方法論支持界線與代價見[規則設計依據](rule-design-rationale.md)；來源未完整處仍明列待補 |
 | DEC-022 | 首個不帶 `-preview` 公開版本之前不考慮向後相容 | 已確認 | 可直接整理 ID、schema、defaults、API，不強制 legacy／replacement／migration scaffolding；已發布 bytes 不可覆寫 |
@@ -819,7 +819,7 @@ samples/
 - 0.0.3-preview 候選包含 19 個產品 Diagnostic 與 2 個設定／範圍 Diagnostic；驗收數量與成品證據見[版本交付](../releases/0.0.3-preview.md)；
 - 所有既有 Analyzer 共用 Role Classifier：明確 mapping、內建／繼承契約與可選低信心命名慣例；
 - 六個可封裝專案已建立 nupkg 版面、相依方向與真實 consumer 驗證；
-- Project、Assembly、Namespace 與公開 Package ID 已核准採 `ArchPrecept.<Capability>`；Apache-2.0、public GitHub Packages 與 main-push 發布已由既有決策核准。
+- Project、Assembly、Namespace 與公開 Package ID 採 `ArchPrecept.<Capability>`。Preview 使用 Apache-2.0 授權，依 DEC-019 從套件版本 tag 發布至 public GitHub Packages。
 
 目前尚未建立 `src/ArchitectureTesting/` 與 `src/Conformance/` 專案；兩者是已規劃但尚未實作的能力邊界，不以空目錄或空專案預先佔位。
 

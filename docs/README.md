@@ -8,8 +8,9 @@ ArchPrecept 在 C# 編譯期間檢查 Repository、Use Case、Controller 與 Val
 
 | 我想做的事 | 從這裡開始 |
 |---|---|
-| 第一次安裝，選擇專案需要的套件 | [設定套件來源、選擇套件與建置專案](getting-started.md) |
-| 從空目錄建立可執行的 starter，再新增 `Price` | [使用 ap-starter 與 ap-vo，觸發並修正 DBA1018](templates.md) |
+| 第一次安裝，選擇專案需要的套件 | [安裝指南](getting-started.md) |
+| 從空目錄建立可執行的 starter，再新增 `Price` | [Price 範例與範本命令](templates.md) |
+| 修正 Value Object 的可變狀態 | [DBA1018 修正說明](diagnostics/DBA1018.md#修正指引) |
 | 保留自己的領域介面，只加入 Analyzer | [安裝 Analyzer 與設定 AdditionalFiles](getting-started.md)，再[映射契約型別並選擇 Profile](product/analyzer-policy.md) |
 | 在 Domain 或 Application 採用參考契約 | [各套件的最小使用範例、相依與 API 說明](package-usage.md) |
 | 重播 Aggregate 事件，或向外部發布訊息 | [Event Sourcing 的重播與提交責任](product/event-sourcing-contract.md) · [Messaging 的訊息契約與 publisher port](product/messaging-contract.md) |

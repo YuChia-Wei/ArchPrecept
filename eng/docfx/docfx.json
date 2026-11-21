@@ -1,0 +1,25 @@
+{
+  "metadata": [
+    {
+      "src": [{ "files": ["assemblies/*.dll"] }],
+      "dest": "api"
+    }
+  ],
+  "build": {
+    "content": [
+      { "files": ["**/*.md", "toc.yml", "api/**/*.yml"] }
+    ],
+    "resource": [{ "files": ["releases/*.json"] }],
+    "template": ["default", "modern", "theme"],
+    "globalMetadata": {
+      "_appName": "ArchPrecept",
+      "_appTitle": "ArchPrecept",
+      "_lang": "zh-Hant",
+      "_disableContribution": true,
+      "_enableSearch": true
+    },
+    "sitemap": {
+      "baseUrl": "https://yuchia-wei.github.io/ArchPrecept"
+    }
+  }
+}

@@ -1,0 +1,36 @@
+:root {
+  --bs-body-font-family: "Source Sans 3", "Segoe UI", "Microsoft JhengHei", sans-serif;
+}
+
+[data-bs-theme="light"] {
+  --bs-link-color-rgb: 12, 102, 99;
+  --bs-link-hover-color-rgb: 7, 66, 67;
+}
+
+[data-bs-theme="dark"] {
+  --bs-link-color-rgb: 116, 210, 197;
+  --bs-link-hover-color-rgb: 178, 234, 226;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: -.025em;
+}
+
+.navbar-brand img {
+  display: none;
+}
+
+article {
+  line-height: 1.8;
+}
+
+article h1,
+article h2 {
+  line-height: 1.35;
+  letter-spacing: -.025em;
+}
+
+article th {
+  text-align: start;
+}

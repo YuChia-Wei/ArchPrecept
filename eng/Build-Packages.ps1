@@ -1,4 +1,4 @@
-param([string]$OutputDirectory = 'artifacts/packages', [string]$ScratchRoot)
+param([string]$OutputDirectory = 'artifacts/packages', [string]$ScratchRoot, [switch]$SkipPack)
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
 Push-Location (Split-Path $PSScriptRoot)
@@ -12,6 +12,7 @@ try {
     dotnet restore ArchPrecept.slnx @buildArguments
     dotnet build ArchPrecept.slnx -c Release --no-restore @buildArguments
     dotnet test ArchPrecept.slnx -c Release --no-build --logger trx --results-directory $resultsDirectory @buildArguments
+    if ($SkipPack) { return }
     dotnet pack ArchPrecept.slnx -c Release --no-build -o $OutputDirectory @buildArguments
     $version = ([xml](Get-Content Directory.Build.props -Raw)).Project.PropertyGroup.Version
     $expectedDependencies = @{

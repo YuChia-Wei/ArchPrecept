@@ -50,14 +50,14 @@
 | Web API identity 生命週期採用 | [#18](https://github.com/YuChia-Wei/ArchPrecept/issues/18)；與 MQ 判讀可分別處理 |
 | MQ Repository 公開能力／多 port adapter 判讀 | [#19](https://github.com/YuChia-Wei/ArchPrecept/issues/19)；不預設誤報或強制改架構 |
 | 首個穩定版範圍、版本及相容承諾 | [#20](https://github.com/YuChia-Wei/ArchPrecept/issues/20)；引用採用結果決定 RC／穩定版資格 |
-| 版本可辨識的官方文件網站 | [#21](https://github.com/YuChia-Wei/ArchPrecept/issues/21)；可先規劃候選網站，DocFX／Pages 仍為方案 |
+| 版本可辨識的官方文件網站 | [#21](https://github.com/YuChia-Wei/ArchPrecept/issues/21)。採 DocFX 與 GitHub Pages，依文件 tag 部署，歷史套件文件保留版本連結。 |
 | nuget.org 發布及匿名 restore | [#22](https://github.com/YuChia-Wei/ArchPrecept/issues/22)；目標為 0.1.0 起的發布，依賴核心採用驗收及簡易官網 |
 
 既有 [#10](https://github.com/YuChia-Wei/ArchPrecept/issues/10)跨專案依賴邊界、[#16](https://github.com/YuChia-Wei/ArchPrecept/issues/16) Domain／EventSourcing 能力拆分保持獨立選配工作，不因本路線自動成為首個穩定版的阻擋。全面禁止 Aggregate static factory、跨 BC 限 MQ 的政策理由仍沿既有規則設計來源處理，不能據未決討論新增禁令。
 
 ## 線上官方文件最小範圍
 
-建議採 [DocFX](https://dotnet.github.io/docfx/) 搭配 [GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)。DocFX 可將既有 Markdown 與原生 XML 文件註解呈現為網站；它是文件產生工具，不是新的 API 完整性驗證框架。使用現成版型及本機 tool manifest 固定工具版本即可，初期不建立自訂前端、後端、會員或搜尋服務。
+網站採用 [DocFX](https://dotnet.github.io/docfx/) 與 [GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)。從現有 Markdown 與 Contracts API 資料產生靜態頁面，以獨立文件 tag 部署。套件和網站均須發布時，先完成套件的 registry 驗收，再發布對應版本的文件。操作順序見[文件與套件發布流程](cicd-plan.md)。
 
 `docs/` 與來源 XML 保持唯一 authored source；網站只產生展示內容，不複製另一份 Rule Catalog 或維護兩套規則文字。最低導覽包括：
 
@@ -69,4 +69,4 @@
 
 每個公開版本保留固定文件路徑，例如 `/versions/0.1.0/`；`/preview/` 顯示清楚的預覽版提示，首個穩定版之後才設 `/stable/` 導向。未發布的 main 文件不得冒充穩定版本文件。初期可將歷史版本連回 immutable Git tag，不要求一次重建所有歷史網站。
 
-進入 #20 前完成簡易官網，提供安裝／規則入口、首版 API 參考與版本導覽。只驗證產生、關鍵連結與實際閱讀路徑，不因 Markdown 或生成工具版本改變重跑全套產品測試。網站部署、正式網域及 NuGet PackageProjectUrl 更新在實作時另行確認，不在本次規劃中預填完成。
+進入 #20 前完成簡易官網，提供安裝／規則入口、首版 API 參考與版本導覽。每次文件部署從公開首頁核對安裝指南、Price 範例及 DBA1018 的修正路徑。後續再依穩定網址評估更新 NuGet PackageProjectUrl。
