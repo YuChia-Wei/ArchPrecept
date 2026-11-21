@@ -17,7 +17,7 @@ See the [0.0.5 release record](docs/releases/0.0.5-preview.md) for publication a
 validation status; the version in source alone does not establish feed availability.
 The [rule-contract changes](docs/releases/rule-contract-candidate.md) describe the
 changes from [0.0.3-preview](docs/releases/0.0.3-preview.md).
-For older packages use their [immutable documentation](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.3-preview/docs).
+Use the [documentation index](docs/README.md) to find setup instructions, diagnostic explanations and documentation for the package version you installed.
 CT-005 adds the optional `ArchPrecept.Contracts.Domain.EventSourcing` package.
 CT-004 separates `ArchPrecept.Contracts.Messaging` message contracts from the
 `ArchPrecept.Contracts.Application.Messaging` publisher port. Transport configuration

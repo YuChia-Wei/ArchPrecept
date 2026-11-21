@@ -4,3 +4,4 @@
 
 - [Framework 採納與等待決定（2026-10-22）](framework-adoption-2026-10-22/README.md)
 - [0.0.3-preview 核心工作範圍](0.0.3-preview.md)
+- [套件說明網站的託管選擇](documentation-hosting.md)
