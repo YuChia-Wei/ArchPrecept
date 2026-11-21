@@ -37,7 +37,7 @@
 | PackageVersion | 由具體發布決策選定的 `-preview` 版本 | 識別不可變套件成品；歷史發布結果見各版本紀錄 |
 | Contracts TFM | `net8.0` | .NET 8 消費端可參考；不代表所有較新平台的執行行為皆已驗證 |
 | Analyzer | `netstandard2.0`、Roslyn API 4.8 | 在編譯器內執行，相容性取決於 SDK／IDE 所帶的 Roslyn |
-| 承諾支援的 .NET | .NET 8／10 | .NET 9 不列為承諾支援；.NET 11 待發布後另行評估 |
+| Consumer 支援版本 | .NET 8／10 | .NET 9 不在承諾支援範圍。SDK 11.0.100 用於建置與封裝產品，.NET 11 consumer 支援仍待評估。 |
 
 SDK 8／10 consumer 的 restore、build 與預期 Diagnostic 是套件安裝及載入證據。它不等於全部 API 的跨框架行為驗證，也不等於所有 Visual Studio／Rider 版本已驗證。可編譯或一次 smoke test 通過，不自行形成新的持續支援承諾。
 
