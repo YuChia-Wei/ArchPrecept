@@ -125,7 +125,7 @@ Framework 導入時，不以「把既有文件搬到新目錄」作為完成條�
 | Traceability Mapping | Requirement、Rule、理由、實作與測試映射 | 依現行 Catalog／文件保存；未實作的映射資產標為規劃 | 與規則／實作同步 |
 | 產品原始碼 | Contracts、Analyzer、Architecture Testing 與 Conformance 實作 | `src/<Capability>/` | 與需求／規則實作同步 |
 | 自動驗證專案 | 各產品能力與 Consumer 的測試證據 | `tests/<Capability>/` | 與對應實作同步 |
-| 平台／成品矩陣 | 支援 SDK／IDE、成品及實際測試範圍 | 產品使用與發布文件；正式版相容承諾另行選定 | 每次 Candidate／Release |
+| 平台／成品矩陣 | 支援 SDK／IDE、成品及實際測試範圍 | 產品使用與發布文件；正式版相容承諾依已確認的版本政策 | 每次 Candidate／Release |
 | 開發 Requirement | 從 PRD 拆出的可排程需求 | `.dev/requirements/` | 高 |
 | 技術 Spec | 單一能力的設計、介面與驗收 | `.dev/specs/` | 高 |
 | Workflow Evidence | 單次變更計畫、結果、Review 與證據 | `.dev/workflows/` | 高 |
@@ -243,7 +243,7 @@ Markdown 正本
 - MVP／Release Gate 改變；
 - Requirement 與 Rule／Diagnostic 的追溯關係改變。
 
-Requirement ID 不因章節重排而更改；現行需求直接更新語意、理由與驗收，歷史由 Git 保留。首個不帶 `-preview` 公開版本之前不考慮向後相容，Rule／Diagnostic ID、schema、defaults、API 可直接調整，不強制 replacement、legacy 並存或 migration scaffolding。版本內唯一與已發布成品不可覆寫仍須遵守，詳見[版本政策](../releases/version-policy-proposal.md)。
+Requirement ID 不因章節重排而更改；現行需求直接更新語意、理由與驗收，歷史由 Git 保留。首個無後綴公開版本之前不考慮向後相容，Rule／Diagnostic ID、schema、defaults、API 可直接調整，不強制 replacement、legacy 並存或 migration scaffolding。版本內唯一與已發布成品不可覆寫仍須遵守，詳見[版本政策](../releases/version-policy-proposal.md)。
 
 ### 7.3 與 `.dev` 的關係
 
@@ -432,7 +432,7 @@ Contract → Role → Applicable Rules
 - Word／PDF 輸出的來源 Commit／文件版本一致性；
 - Release Candidate 前的整體 Gap Report。
 
-首個不帶 `-preview` 的公開版本必須另外驗收逐規則理由、完整套件使用說明與對人／AI 可讀的公開 API XML。XML 要說明責任、不變條件、所有權／可變性、生命週期、適用參數／回傳／例外與限制；原始註解語意、生成檔、nupkg 隨包內容與 feed consumer 可讀分別留證。詳見 PRD AD-009～AD-011／RL-011 及[版本政策](../releases/version-policy-proposal.md)。
+首個不帶任何 prerelease 後綴的公開版本必須另外驗收逐規則理由、完整套件使用說明與對人／AI 可讀的公開 API XML。XML 要說明責任、不變條件、所有權／可變性、生命週期、適用參數／回傳／例外與限制；原始註解語意、生成檔、nupkg 隨包內容與 feed consumer 可讀分別留證。詳見 PRD AD-009～AD-011／RL-011 及[版本政策](../releases/version-policy-proposal.md)。
 
 這些是產品要求；現有 preview pipeline 是否實際檢查、每條規則是否補全、XML 是否交付，均須以實際證據回答，不因本文件新增文字而視為通過。
 
@@ -485,7 +485,7 @@ Product Plan、PRD 與本文件維持各自穩定路徑，Markdown 只有一份�
 9. Release Candidate 前會執行文件與追溯一致性檢查。
 10. 文件 Owner 與審查節奏已被指定。
 11. 真正衝突按第 11.6 節窄範圍處理，較嚴政策不自動視為矛盾。
-12. 首個不帶 `-preview` 公開版本前，逐規則依據、完整使用說明、API XML 隨包及 consumer 可讀均有實際驗收證據；未完成前保持明確缺口。
+12. 首個無後綴公開版本前，逐規則依據、完整使用說明、API XML 隨包及 consumer 可讀均有實際驗收證據；未完成前保持明確缺口。
 
 # 附錄 A：建議 Repository 結構
 

@@ -182,8 +182,8 @@ ArchPrecept 將明確的產品政策轉成可執行檢查，同時保留人工�
 | DEC-019 | PR 執行品質檢查。整合至 main 後，以套件版本 tag 發布 public Preview，以文件 tag 部署說明網站 | 已確認（2026-11-21 更新觸發方式） | 沿用 ff-only 整合流程。套件及文件的來源、驗證與交付方式見 [CI/CD 規則](../releases/cicd-plan.md) |
 | DEC-020 | 核心 Analyzer 採共用分類與明確設定／範圍證據 | 已確認 | 現行交付見[設定與角色政策](analyzer-policy.md)；目標語意與已交付範圍分開 |
 | DEC-021 | 保留嚴格 Repository、static Mapper 及 UseCase／薄 Handler 政策，優先修正判定精確度 | 已確認 | 理由、方法論支持界線與代價見[規則設計依據](rule-design-rationale.md)；來源未完整處仍明列待補 |
-| DEC-022 | 首個不帶 `-preview` 公開版本之前不考慮向後相容 | 已確認 | 可直接整理 ID、schema、defaults、API，不強制 legacy／replacement／migration scaffolding；已發布 bytes 不可覆寫 |
-| DEC-023 | 首個不帶 `-preview` 公開版本須具備逐規則依據、完整使用說明與隨包可讀 API XML | 已確認 | 人與 AI 均須能理解產品契約；交付要求不等於檢查已通過 |
+| DEC-022 | 首個無後綴公開版本之前不考慮向後相容 | 已確認 | 可直接整理 ID、schema、defaults、API，不強制 legacy／replacement／migration scaffolding；已發布 bytes 不可覆寫 |
+| DEC-023 | 首個無後綴公開版本須具備逐規則依據、完整使用說明與隨包可讀 API XML | 已確認 | 人與 AI 均須能理解產品契約；交付要求不等於檢查已通過 |
 
 ## 4. 產品設計原則
 
@@ -239,7 +239,7 @@ Domain、Application 與核心 Analyzer 不得預設 ASP.NET Core、Wolverine、
 
 ### 4.8 版本政策明示
 
-公開介面、Diagnostic ID、規則語意、預設 Severity、設定 Schema 與報告格式均須有明確當前契約。首個不帶 `-preview` 公開版本之前不考慮向後相容；正式版相容承諾另行選定，見[版本政策](../releases/version-policy-proposal.md)。
+公開介面、Diagnostic ID、規則語意、預設 Severity、設定 Schema 與報告格式均須有明確當前契約。首個無後綴公開版本之前不考慮向後相容；正式版相容承諾依已確認的版本政策，見[版本政策](../releases/version-policy-proposal.md)。
 
 ### 4.9 發布採明確允許清單
 
@@ -585,7 +585,7 @@ ArchPrecept/
 
 首個不帶任何 prerelease 後綴的公開版本之前不考慮向後相容。可直接調整 ID、schema、defaults 與 API，不為舊 preview 強制保留 legacy 模式、replacement rule、雙軌 API 或 migration scaffolding。版本內識別仍須唯一、文件與實作一致；已發布 Package ID／version 的 bytes 不可覆寫。
 
-現行套件暫採共同 release train，各自仍可獨立安裝。正式版的版號模型、維護線與相容承諾待選定；本文件不自動選定下一版本或授權發布。詳見[版本政策與首個正式版條件](../releases/version-policy-proposal.md)。
+七個套件共用產品版號，各自可獨立安裝。首個穩定版為 0.1.0；只維護最新穩定線，0.1.x 保持相容，破壞性變更進入下一條 0.y.0。詳見[版本政策與首個正式版條件](../releases/version-policy-proposal.md)。
 
 ### 13.3 發布閘門
 
@@ -602,7 +602,7 @@ ArchPrecept/
 9. Provenance 與 License Gate；
 10. 由不可變 Commit 產出且不重新建置的發布 Artifact。
 
-首個不帶 `-preview` 的公開版本另須完成每條規則的外部依據、選擇與對齊／加強說明、各套件完整使用文件，以及公開 API 的有意義 XML（summary、適用參數／回傳／例外、生命週期與限制），並證明 XML 隨 nupkg 交付且 feed consumer 可讀。這是待交付 gate，不宣稱現有 pipeline 或本次文字修改已驗收通過。
+首個不帶任何 prerelease 後綴的公開版本另須完成每條規則的外部依據、選擇與對齊／加強說明、各套件完整使用文件，以及公開 API 的有意義 XML（summary、適用參數／回傳／例外、生命週期與限制），並證明 XML 隨 nupkg 交付且 feed consumer 可讀。這是待交付 gate，不宣稱現有 pipeline 或本次文字修改已驗收通過。
 
 ### 13.4 文件與規則基線治理
 
@@ -780,11 +780,10 @@ ArchPrecept/
 
 | 議題 | 狀態／決策時點 |
 |---|---|
-| 正式版版號模型、維護線與相容承諾 | 首個不帶 `-preview` 公開版本前選定；不影響目前 Preview 直接整理契約 |
 | 全面禁止 Aggregate static factory 及 MQ-only 的完整設計理由與適用條件 | 保留為獨立待決議題；不因缺證據自行撤銷政策或新增行為 |
 | 真實 consumer 需要的 batch／purge 等額外 port | 有具體場景、責任與失敗語意後個別評估，不擴張 shared 最小 Repository |
 | 完整 Event Sourcing runtime 是否另立產品／repository | 實際 storage／projection 需求確立後；選配核心契約邊界已確定 |
-| Architecture Testing／跨專案依賴與 Conformance CLI | 各自保持獨立規劃，不作文件正規化的隱含前置 |
+| 獨立 Architecture Testing 類別庫與 Conformance CLI | 直接組件相依測試已納入 Templates；其他粒度與報告工具依實際需求另行規劃 |
 | Code Fix、SBOM、簽章／attestation 與 Contracts 拆 repo | 依產品成熟度及實際需求評估 |
 
 # 附錄 A：目前程式碼基線

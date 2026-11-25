@@ -72,7 +72,7 @@ supersedes: "0.6"
 | 需求治理 | Requirement ID 不因重排而變更；需求變更同步驗收與證據。Preview 不考慮向後相容，見版本政策 |
 | 本版排除 | 具體版本發布授權、商標權利確認、最終定價與商業化策略 |
 
-產品名稱與程式碼前綴採 ArchPrecept，本機目錄 `dotnet-architecture-kit` 保留。現行套件與交付入口見 [README](../../README.md)，Messaging 與 ES 契約見[訊息責任邊界](messaging-contract.md)及[Event Sourcing 核心契約](event-sourcing-contract.md)。首個不帶 `-preview` 公開版本之前不考慮向後相容；可直接調整 ID、schema、defaults 與 API，不強制維持 legacy／replacement／migration scaffolding。已發布 bytes 不可覆寫，正式版維護承諾仍待選定。
+產品名稱與程式碼前綴採 ArchPrecept，本機目錄 `dotnet-architecture-kit` 保留。現行套件與交付入口見 [README](../../README.md)，Messaging 與 ES 契約見[訊息責任邊界](messaging-contract.md)及[Event Sourcing 核心契約](event-sourcing-contract.md)。首個無後綴公開版本之前不考慮向後相容；可直接調整 ID、schema、defaults 與 API，不強制維持 legacy／replacement／migration scaffolding。已發布 bytes 不可覆寫。0.1.0 起只維護最新穩定線，詳見[版本政策](../releases/version-policy-proposal.md)。
 
 # 執行摘要
 

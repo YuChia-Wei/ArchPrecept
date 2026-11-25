@@ -19,9 +19,9 @@ ArchPrecept 把明確選定的架構責任轉成可重複檢查的限制。規�
 
 ## 版本邊界
 
-在首個公開且不含 `-preview` 的版本之前，ArchPrecept 不承諾向後相容。修正規則、API、設定或預設時，不必為保留 preview 行為另建 legacy 模式、遷移層、替代 ID 或並存機制。變更仍須說清楚新政策、受影響行為及驗證結果；現版的事實不能因新政策而被改寫。
+在首個無後綴公開版本之前，ArchPrecept 不承諾向後相容。修正規則、API、設定或預設時，不必為保留 preview 行為另建 legacy 模式、遷移層、替代 ID 或並存機制。變更仍須說清楚新政策、受影響行為及驗證結果；現版的事實不能因新政策而被改寫。
 
-現行設定值 `legacy` 與現行 `compatibility-repository` 角色如仍存在，僅表示該來源修訂中的功能，不構成必須保留的相容性義務。首個不含 `-preview` 的公開版本之後採何種相容政策，須另行確定。具體判定改進的版本差異由當版文件與來源證據說明，不改寫舊版發布事實。
+現行設定值 `legacy` 與現行 `compatibility-repository` 角色如仍存在，僅表示該來源修訂中的功能，不構成必須保留的相容性義務。首個無後綴版本起，採用[正式版相容政策](../releases/version-policy-proposal.md#首版範圍與相容承諾)。具體判定改進的版本差異由當版文件與來源證據說明，不改寫舊版發布事實。
 
 每條產品規則的 Rule／Diagnostic ID、角色、Profile、預設 severity 與啟用範圍以 Catalog 為準，詳細正反例、不適用及未評估情況沿其 `document` 連到 Diagnostic 手冊。設定優先序、明確 mapping／慣例證據、無效或衝突選擇依[設定契約](analyzer-policy.md)與 [schema](../../rules/configuration.xsd)判讀。本文維護理由及取捨，不複製這些機器欄位；DBA0001／0002 則在本文件的[證據責任](#evidence)說明自身契約，不加入 19 條產品規則的清單。
 

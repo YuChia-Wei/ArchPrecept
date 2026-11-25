@@ -50,4 +50,4 @@ canonical_path: docs/diagnostics/README.md
 | [DBA1018](DBA1018.md) | VO 不得包含一般 setter、mutable field 或已知可變集合。 | `warning`，ddd opt-in |
 | [DBA1019](DBA1019.md) | VO 不得直接或經已知容器參考 Entity。 | `warning`，ddd opt-in |
 
-目前未提供設定時採 `legacy`，啟用 DBA1001–DBA1017；VO 規則不自動啟用。這是現版預設，不構成保留 preview 行為的義務；首個公開且不含 `-preview` 的版本之前不要求向後相容，詳見[版本邊界](../product/rule-design-rationale.md#版本邊界)。一般規則診斷提供 Rule ID、角色、證據、信心與 HelpLink；可透過 `dotnet build -p:ErrorLog=diagnostics.sarif` 取回。Info 狀態與零診斷都不是完整架構合格證明。
+目前未提供設定時採 `legacy`，啟用 DBA1001–DBA1017；VO 規則不自動啟用。這是現版預設，不構成保留 preview 行為的義務；首個無後綴公開版本之前不要求向後相容，詳見[版本邊界](../product/rule-design-rationale.md#版本邊界)。一般規則診斷提供 Rule ID、角色、證據、信心與 HelpLink；可透過 `dotnet build -p:ErrorLog=diagnostics.sarif` 取回。Info 狀態與零診斷都不是完整架構合格證明。
