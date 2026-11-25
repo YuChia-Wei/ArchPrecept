@@ -7,9 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="ArchPrecept.Analyzers.Core" Version="[0.0.5-preview]" PrivateAssets="all" />
+    <PackageReference Include="ArchPrecept.Analyzers.Core" Version="[0.0.6-preview]" PrivateAssets="all" />
     <!--#if (!CustomContracts) -->
-    <PackageReference Include="ArchPrecept.Contracts.Domain" Version="[0.0.5-preview]" />
+    <PackageReference Include="ArchPrecept.Contracts.Domain" Version="[0.0.6-preview]" />
     <!--#endif -->
     <AdditionalFiles Include="archprecept.project.xml" />
   </ItemGroup>

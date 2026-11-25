@@ -1,6 +1,6 @@
 # CT-005：Event Sourcing 核心契約與套件邊界
 
-本文件定義 [PRD CT-005](prd.md) 的記憶體內事件生命週期及採用方式。套件可獨立選用；已發布版本與驗證範圍見[發布紀錄](../releases/0.0.3-preview.md)。事件重播與副作用隔離的設計依據見[規則設計理由](rule-design-rationale.md)。
+本文件定義 [PRD CT-005](prd.md) 的記憶體內事件生命週期及 0.0.6-preview 開發版 API。已發布 0.0.5-preview 的契約見[該版來源](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.5-preview/docs/product/event-sourcing-contract.md)。事件重播與副作用隔離的設計依據見[規則設計理由](rule-design-rationale.md)。
 
 ## 責任與相依
 
@@ -9,8 +9,8 @@ Domain、Application、Messaging、Analyzer 不反向參考 EventSourcing。
 Analyzer 可獨立安裝，ES 套件也可不搭配 Analyzer 使用。
 
 - Domain 保留一般 Entity、Aggregate、Domain Event、Value Object。
-- EventSourcing 提供 `EsAggregateRoot<TId>` 的記憶體內生命週期。
-- ES 基底繼承 `AggregateRoot<TId>`，可滿足既有 `IAggregateRepository<TAggregate, TId>` 約束。
+- EventSourcing 定義 Domain 聚合的擴充介面 `IESAggregateRoot<TId>`，並提供記憶體內參考實作 `EsAggregateRoot<TId>`。
+- 一般及 ES 聚合均實作 `IAggregateRoot<TId>`，可作為 `IAggregateRepository<TAggregate, TId>` 的型別引數。
 - DBA1009 由 `ArchPrecept.Analyzers.Core` 提供；實際判定與限制見[規則說明](../diagnostics/DBA1009.md)。
 - Event Store、snapshot、upcasting、projection runner、checkpoint、外部事件發布均不在此契約範圍。
   完整 runtime 的獨立產品／repository 決策留待實際需求確立。
@@ -46,14 +46,25 @@ snapshot schema version 或 integration contract version。本版不實作這些
 
 ## 一般 Domain 事件能力與 ES pending 的界線
 
-為避免經由 `DomainEntity`／`IAggregateRoot`／`IDomainEntity` 呼叫繞過 ES 生命週期，
-Domain 的三個事件 mutator 為 virtual，ES 以 sealed override 拒絕
-`AddDomainEvent`、`RemoveDomainEvent`、`ClearDomainEvents`，擲回 `NotSupportedException`。
-一般 Domain Entity／Aggregate 允許這些事件集合操作。
+| 呼叫端 | 接受的型別 | 可用操作與條件 |
+|---|---|---|
+| 只需識別 Entity | `IDomainEntity<out TId>` | 讀已指派的 `Id`。參考實作在尚未指派時拒絕讀取。 |
+| Aggregate repository | `IAggregateRoot<out TId>` | 讀 `Id` 與 `Version`。具體 adapter 依聚合模型選擇儲存策略。 |
+| 批次事件讀者 | `IDomainEventSource` | 讀 `DomainEvents`；儲存前可複製當批快照。事件物件仍由領域擁有。 |
+| 一般事件緩衝的擁有者 | `IDomainEventBuffer` | 依序 Add、按相等性 Remove 第一個相符項目、處理成功後 Clear。操作只修改本機集合。 |
+| ES 儲存 adapter | `IESAggregateRoot<out TId>` | 讀 identity、已提交版本及有序 pending。以該版本原子 append，成功後才呼叫 `MarkChangesAsCommitted`。版本不符時保留 pending。 |
+| 實作 ES 領域命令及重建 | `EsAggregateRoot<TId>` | 子類別依 CT-005 呼叫 protected Apply、LoadFromHistory 並實作 When；失敗時依上節丟棄已失效實例。 |
 
-符合泛型約束不等於所有操作可互換。「對所有 Aggregate 清除事件」的通用 dispatcher／repository
-流程不適用於 ES；它必須走 ES append／commit 協定。這是有意的行為限制，並非可無修改替換的承諾。
-衍生型別仍須遵守領域不變條件，不能任意寫入受保護的 Version 或直接變更狀態。
+這套能力分配是 ArchPrecept 對 consumer 使用方式的選擇。一般事件緩衝提供可編輯集合；ES pending 必須與已套用的狀態一致。只有一般緩衝的擁有者取得清除操作。
+
+### 從 0.0.5-preview 升級
+
+- `IDomainEntity<TId>` 只公開 Id。`DomainEntity<TId>` 保留兩種建構及 protected Id setter。先前靠它緩衝事件的非聚合實體，改繼承 `BufferedDomainEntity<TId>`；一般 `AggregateRoot<TId>` 已繼承這個基底。新基底的 Add／Remove／Clear 為非 virtual；原先 override 這些方法而有不同緩衝策略的模型，可直接實作 `IDomainEventBuffer`。
+- 依賴 `IDomainEntity<TId>` 或 `IAggregateRoot<TId>` 的泛型 helper 原先若要讀事件，改要求 `IDomainEventSource`；需要編輯一般事件才要求 `IDomainEventBuffer`。`TId : notnull`、identity 介面協變，以及 Application repository 的 `TAggregate : IAggregateRoot<TId>`、`in TId` 維持原有語意。
+- `EsAggregateRoot<TId>` 的直接基底改為 `DomainEntity<TId>`，透過 ES 介面延伸 Domain 聚合契約。ES 沒有 Add／Remove／Clear 方法；Version 由 ES 基底自行推進，衍生類別只能讀取。原先把兩種聚合轉型為 `AggregateRoot<TId>` 的程式，改依所需能力接收介面。
+- 使用 reflection 或 XML member ID 的工具應重新取得 declaring type。例如原 ``P:ArchPrecept.Contracts.Domain.IDomainEntity`1.DomainEvents`` 移至 `P:ArchPrecept.Contracts.Domain.IDomainEventSource.DomainEvents`，`ClearDomainEvents()` 的介面文件位於 `M:ArchPrecept.Contracts.Domain.IDomainEventBuffer.ClearDomainEvents`。ES 的 Version 與 DomainEvents 由 `EsAggregateRoot<TId>` 自行宣告。依舊 API 編譯的 consumer 應重新建置。
+
+DBA1009 辨識提供 When 的 ES 參考基底或精確映射的自有根。單獨實作讀取或儲存端介面並未宣告 canonical When。Analyzer-only 的自有模型仍可直接設定角色。詳見 [DBA1009](../diagnostics/DBA1009.md)。
 
 ## 可驗證行為
 
@@ -69,7 +80,7 @@ Domain 的三個事件 mutator 為 virtual，ES 以 sealed override 拒絕
 | Version 1、一個 pending event | 確認不符的版本 | 拒絕，版本與 pending 不變 |
 | 兩個物件讀取相同 revision | 第二次 append 被儲存端拒絕 | 第二個物件不確認 commit，pending 保留 |
 | 已重播或已套用新事件 | 再次載入歷史 | 拒絕，避免重複計算；空歷史也只能載入一次 |
-| ES 有 pending events | 由基底類別或介面加入、移除、清除 | 全部拒絕，不能繞過 Apply／commit |
+| ES 有 pending events | 讀者取得唯讀事件檢視，儲存端確認成功 append | 讀者只能觀察；儲存端用符合的版本確認後 pending 才會清空 |
 | 一般 Aggregate | 使用原有事件 mutator | 行為維持不變 |
 | 未知事件、讀取歷史失敗或 When 重入 | 重播或 Apply 失敗 | 不記錄失敗事件，實例不能繼續使用 |
 

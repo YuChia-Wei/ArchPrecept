@@ -122,36 +122,33 @@ public sealed class EsAggregateRootTests
     }
 
     [Fact]
-    public void Given_pending_events_when_generic_mutators_are_called_then_all_dispatch_paths_reject_changes()
+    public void Given_an_es_aggregate_when_observed_then_only_its_commit_protocol_can_clear_pending()
     {
         var aggregate = new Basket();
         aggregate.Change(2);
-        var pending = aggregate.DomainEvents.Single();
-
-        foreach (var entity in new IDomainEntity<string>[] { aggregate, (AggregateRoot<string>)aggregate })
-        {
-            Assert.Throws<NotSupportedException>(() => entity.AddDomainEvent(new Changed(9)));
-            Assert.Throws<NotSupportedException>(() => entity.RemoveDomainEvent(pending));
-            Assert.Throws<NotSupportedException>(() => entity.ClearDomainEvents());
-        }
-        Assert.Throws<NotSupportedException>(() => aggregate.ClearDomainEvents());
-        Assert.Throws<NotSupportedException>(() => ((DomainEntity<string>)aggregate).AddDomainEvent(new Changed(9)));
-        Assert.Throws<NotSupportedException>(() => ((ICollection<IDomainEvent>)aggregate.DomainEvents).Clear());
-        Assert.Same(pending, aggregate.DomainEvents.Single());
+        IESAggregateRoot<string> stream = aggregate;
+        IDomainEventSource observer = stream;
+        var pending = Assert.Single(observer.DomainEvents);
+        Assert.False(observer is IDomainEventBuffer);
+        if (observer.DomainEvents is ICollection<IDomainEvent> collection)
+            Assert.Throws<NotSupportedException>(() => collection.Clear());
+        Assert.Same(pending, Assert.Single(observer.DomainEvents));
         Assert.Equal(2, aggregate.Total);
+        stream.MarkChangesAsCommitted(1);
+        Assert.Empty(observer.DomainEvents);
     }
 
     [Fact]
     public void Given_a_normal_aggregate_when_generic_mutators_are_called_then_existing_behavior_is_preserved()
     {
-        var aggregate = new NormalAggregate();
+        IDomainEventBuffer aggregate = new NormalAggregate();
         var first = new Changed(1);
         var second = new Changed(2);
         aggregate.AddDomainEvent(first);
         aggregate.AddDomainEvent(second);
         aggregate.RemoveDomainEvent(first);
         Assert.Same(second, aggregate.DomainEvents.Single());
-        ((IDomainEntity<string>)aggregate).ClearDomainEvents();
+        aggregate.ClearDomainEvents();
         Assert.Empty(aggregate.DomainEvents);
     }
 

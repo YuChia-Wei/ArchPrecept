@@ -8,20 +8,14 @@ if (basket.Quantity != 2 || basket.Version != 1 || basket.DomainEvents.Count != 
     throw new Exception("Replay contract failed.");
 
 basket.ChangeQuantity(3);
-var pending = basket.DomainEvents.ToArray();
+IESAggregateRoot<string> stream = basket;
+var pending = stream.DomainEvents.ToArray();
 if (basket.Quantity != 5 || basket.Version != 1 || pending.Length != 1)
     throw new Exception("Pending-event contract failed.");
 
 try
 {
-    ((IDomainEntity<string>)basket).ClearDomainEvents();
-    throw new Exception("Uncommitted events were cleared.");
-}
-catch (NotSupportedException) { }
-
-try
-{
-    basket.MarkChangesAsCommitted(99);
+    stream.MarkChangesAsCommitted(99);
     throw new Exception("Mismatched commit version was accepted.");
 }
 catch (InvalidOperationException) { }
@@ -30,7 +24,7 @@ if (basket.Version != 1 || basket.DomainEvents.Count != 1)
 
 // Simulate successful append. A real adapter must atomically enforce expected revision = 1.
 var stored = history.Concat(pending).ToArray();
-basket.MarkChangesAsCommitted(stored.Length);
+stream.MarkChangesAsCommitted(stored.Length);
 var replayed = Basket.Rehydrate("basket-1", stored);
 if (basket.Version != 2 || basket.DomainEvents.Count != 0 || replayed.Quantity != basket.Quantity)
     throw new Exception("Commit/replay equivalence failed.");

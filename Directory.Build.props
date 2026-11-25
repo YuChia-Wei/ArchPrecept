@@ -3,7 +3,7 @@
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
 
-    <Version>0.0.5-preview</Version>
+    <Version>0.0.6-preview</Version>
     <!-- Only explicitly opted-in product projects ship. -->
     <IsPackable>false</IsPackable>
     <Authors>YuChia-Wei</Authors>
@@ -11,7 +11,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/YuChia-Wei/ArchPrecept</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Description>ArchPrecept reusable architecture contracts and Roslyn analyzers. Experimental preview.</Description>
+    <Description>ArchPrecept architecture contracts and Roslyn analyzers for .NET.</Description>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>

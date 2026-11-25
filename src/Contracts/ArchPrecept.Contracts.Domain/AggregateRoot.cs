@@ -6,7 +6,7 @@ namespace ArchPrecept.Contracts.Domain;
 /// <typeparam name="TId">聚合根識別碼的型別。</typeparam>
 /// <remarks>衍生模型負責 Aggregate 不變條件；版本數值本身不執行 optimistic concurrency 或儲存交易。</remarks>
 public abstract class AggregateRoot<TId>
-    : DomainEntity<TId>, IAggregateRoot<TId> where TId : notnull
+    : BufferedDomainEntity<TId>, IAggregateRoot<TId> where TId : notnull
 {
     /// <summary>
     /// 以指定識別碼初始化聚合根。

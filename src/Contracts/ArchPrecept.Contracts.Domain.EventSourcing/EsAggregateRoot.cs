@@ -12,11 +12,18 @@ namespace ArchPrecept.Contracts.Domain.EventSourcing;
 /// 不得執行外部副作用或再次套用事件。轉換或重播失敗後必須丟棄實例並重新載入。
 /// </remarks>
 /// <typeparam name="TId">聚合根識別碼的型別。</typeparam>
-public abstract class EsAggregateRoot<TId> : AggregateRoot<TId> where TId : notnull
+public abstract class EsAggregateRoot<TId> : DomainEntity<TId>, IESAggregateRoot<TId> where TId : notnull
 {
+    private readonly List<IDomainEvent> _pending = new();
     private bool _hasStarted;
     private bool _isTransitioning;
     private bool _isFaulted;
+
+    /// <summary>取得已重播或確認提交的事件總數；套用新事件時維持原值。</summary>
+    public int Version { get; private set; }
+
+    /// <summary>依套用順序觀察尚待 append 的事件。儲存前應取得本批快照。</summary>
+    public IReadOnlyCollection<IDomainEvent> DomainEvents => _pending.AsReadOnly();
 
     /// <summary>
     /// 初始化指定識別碼的新聚合根；不在基底建構子呼叫事件轉換。
@@ -89,13 +96,13 @@ public abstract class EsAggregateRoot<TId> : AggregateRoot<TId> where TId : notn
     {
         ArgumentNullException.ThrowIfNull(@event);
         EnsureCanTransition();
-        _ = checked(Version + DomainEvents.Count + 1);
+        _ = checked(Version + _pending.Count + 1);
         _hasStarted = true;
         _isTransitioning = true;
         try
         {
             When(@event);
-            base.AddDomainEvent(@event);
+            _pending.Add(@event);
         }
         catch
         {
@@ -119,7 +126,7 @@ public abstract class EsAggregateRoot<TId> : AggregateRoot<TId> where TId : notn
     public void MarkChangesAsCommitted(int committedVersion)
     {
         EnsureCanTransition();
-        var expectedVersion = checked(Version + DomainEvents.Count);
+        var expectedVersion = checked(Version + _pending.Count);
         if (committedVersion != expectedVersion)
         {
             throw new InvalidOperationException(
@@ -127,37 +134,14 @@ public abstract class EsAggregateRoot<TId> : AggregateRoot<TId> where TId : notn
         }
 
         Version = committedVersion;
-        base.ClearDomainEvents();
+        _pending.Clear();
     }
 
     /// <summary>
     /// 取得最後一個待提交事件；事件不存在時傳回 null。
     /// </summary>
     /// <returns>pending 中最後一個事件的原參考，或空集合時的 null。</returns>
-    protected IDomainEvent? GetLastDomainEvent() => DomainEvents.LastOrDefault();
-
-    /// <summary>
-    /// 拒絕繞過 Apply 直接加入待提交事件，即使經由一般領域實體介面呼叫亦同。
-    /// </summary>
-    /// <param name="domainEvent">不會加入的事件。</param>
-    /// <exception cref="NotSupportedException">所有呼叫均被拒絕；請使用 Apply。</exception>
-    public sealed override void AddDomainEvent(IDomainEvent domainEvent) =>
-        throw new NotSupportedException("Use Apply to change state and record an event together.");
-
-    /// <summary>
-    /// 拒絕移除已套用的事件，以維持狀態與待提交事件一致。
-    /// </summary>
-    /// <param name="domainEvent">不會移除的事件。</param>
-    /// <exception cref="NotSupportedException">所有呼叫均被拒絕，包含事件不存在的情況。</exception>
-    public sealed override void RemoveDomainEvent(IDomainEvent domainEvent) =>
-        throw new NotSupportedException("Applied events cannot be removed.");
-
-    /// <summary>
-    /// 拒絕直接清除待提交事件；只有成功提交確認可以清除。
-    /// </summary>
-    /// <exception cref="NotSupportedException">所有呼叫均被拒絕；請在 append 成功後使用 MarkChangesAsCommitted。</exception>
-    public sealed override void ClearDomainEvents() =>
-        throw new NotSupportedException("Use MarkChangesAsCommitted after a successful append.");
+    protected IDomainEvent? GetLastDomainEvent() => _pending.LastOrDefault();
 
     /// <summary>
     /// 檢查實例是否可開始下一次轉換，拒絕重入或在失敗實例上繼續處理。
