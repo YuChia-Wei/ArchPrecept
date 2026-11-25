@@ -5,9 +5,8 @@ namespace SampleShop.Application;
 public sealed record CreateProductInput(string Name);
 public sealed record CreateProductOutput(Guid Id, string Name);
 
-public interface ICreateProductUseCase
+public interface ICreateProductUseCase : IUseCase<CreateProductInput, CreateProductOutput>
 {
-    Task<CreateProductOutput> ExecuteAsync(CreateProductInput input, CancellationToken cancellationToken);
 }
 
 public sealed class CreateProductUseCase : ICreateProductUseCase

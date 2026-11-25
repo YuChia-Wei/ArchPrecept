@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "YuChia-Wei",
+  "classifications": ["ArchPrecept", "Test"],
+  "identity": "ArchPrecept.Templates.AssemblyBoundary",
+  "name": "ArchPrecept direct assembly dependency test (xUnit)",
+  "shortName": "ap-boundary-test",
+  "tags": { "language": "C#", "type": "item" },
+  "sourceName": "AssemblyBoundaryTests",
+  "preferNameDirectory": false,
+  "symbols": {
+    "sourceType": {
+      "type": "parameter", "datatype": "text", "isRequired": true,
+      "description": "Fully qualified public type defined in the assembly to inspect.",
+      "replaces": "BoundarySource.Type"
+    },
+    "forbiddenType": {
+      "type": "parameter", "datatype": "text", "isRequired": true,
+      "description": "Fully qualified public type defined in the forbidden target assembly.",
+      "replaces": "BoundaryTarget.Type"
+    }
+  }
+}

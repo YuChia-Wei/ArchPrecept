@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "YuChia-Wei",
+  "classifications": [
+    "ArchPrecept",
+    "Architecture"
+  ],
+  "identity": "ArchPrecept.Templates.Mapper",
+  "name": "ArchPrecept static mapper",
+  "shortName": "ap-mapper",
+  "description": "Static mapper.",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "MapperName",
+  "preferNameDirectory": false,
+  "symbols": {
+    "namespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "description": "Existing C# namespace.",
+      "replaces": "ItemNamespace"
+    },
+    "source-type": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "description": "Existing C# source type.",
+      "replaces": "SourceModel"
+    },
+    "target-type": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "description": "Existing C# destination type.",
+      "replaces": "TargetModel"
+    }
+  }
+}

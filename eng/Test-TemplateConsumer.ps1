@@ -3,7 +3,8 @@ param(
     [Parameter(Mandatory)][ValidateSet(8, 10)][int]$SdkMajor,
     [Parameter(Mandatory)][string]$ScratchRoot,
     # Omit when the caller has already created an isolated consumer NuGet.Config and cache.
-    [string]$PackageDirectory
+    [string]$PackageDirectory,
+    [string]$BoundaryTestDirectory
 )
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
@@ -13,6 +14,61 @@ $version = ([xml](Get-Content (Join-Path (Split-Path $PSScriptRoot) 'Directory.B
 $work = New-Item -ItemType Directory -Path (Join-Path $ScratchRoot "template-$SdkMajor-$([guid]::NewGuid().ToString('N'))")
 $hive = @('--debug:custom-hive', (Join-Path $work.FullName 'template-hive'))
 $previousPackages = $env:NUGET_PACKAGES
+
+# Compile the installed items in the generated consumer. Keep custom contracts
+# local to that consumer so an accidental dependency on a reference package fails.
+function Test-ItemTemplates([string]$mode, [string]$project) {
+    $domain = @('--namespace', 'Shop.Domain', '-o', "$mode/Domain")
+    $app = @('--namespace', 'Shop.Application', '-o', "$mode/Application")
+    $aggregateBase = $eventContract = $writeBase = $queryBase = @()
+    $customRoles = ''
+    if ($mode -eq 'custom') {
+        @'
+namespace Shop.Domain;
+public abstract class IdentityRoot<T>(T id) where T : notnull { public T Id { get; } = id; }
+public interface IFact { Guid EventId { get; } DateTime OccurredOn { get; } }
+public interface IWrite<T, in TId> where T : IdentityRoot<TId> where TId : notnull
+{
+    Task<T?> FindByIdAsync(TId id, CancellationToken cancellationToken);
+    Task SaveAsync(T aggregate, CancellationToken cancellationToken);
+}
+public interface IRead { }
+'@ | Set-Content "$mode/Domain/ExistingContracts.cs"
+        $aggregateBase = @('--base', 'Shop.Domain.IdentityRoot')
+        $eventContract = @('--contract', 'Shop.Domain.IFact')
+        $writeBase = @('--base', 'Shop.Domain.IWrite')
+        $queryBase = @('--base', 'Shop.Domain.IRead')
+        $customRoles = @'
+  <Role name="aggregate" metadataName="Shop.Domain.IdentityRoot`1" assembly="Shop" />
+  <Role name="aggregate-repository" metadataName="Shop.Domain.IWrite`2" assembly="Shop" />
+  <Role name="query-repository" metadataName="Shop.Domain.IRead" assembly="Shop" />
+'@
+    } else {
+        dotnet add $project package ArchPrecept.Contracts.Application --version $version
+    }
+    $configPath = "$mode/archprecept.project.xml"
+    $roles = @"
+$customRoles
+  <Role name="mapper" metadataName="Shop.Application.OrderMapper" assembly="Shop" />
+  <Role name="dispatch-handler" metadataName="Shop.Dispatch.PlaceOrderHandler" assembly="Shop" />
+  <Expected type="Shop.Application.PlaceOrderUseCase" role="use-case" />
+  <Expected type="Shop.Application.IOrders" role="aggregate-repository" />
+  <Expected type="Shop.Application.IFindOrders" role="query-repository" />
+</ArchPrecept>
+"@
+    (Get-Content $configPath -Raw).Replace('</ArchPrecept>', $roles) | Set-Content $configPath
+    dotnet new ap-aggregate -n Order @domain @aggregateBase @hive
+    dotnet new ap-domain-event -n OrderPlaced @domain @eventContract @hive
+    dotnet new ap-repository -n IOrders @app --aggregate Shop.Domain.Order @writeBase @hive
+    dotnet new ap-query-port -n IFindOrders @app --model Shop.Application.CreateProductOutput @queryBase @hive
+    dotnet new ap-usecase -n PlaceOrder @app --base IUseCase --port IOrders @hive
+    dotnet new ap-mapper -n OrderMapper @app --source-type PlaceOrderInput --target-type PlaceOrderOutput @hive
+    dotnet new ap-handler -n PlaceOrder --namespace Shop.Dispatch --application Shop.Application -o "$mode/Dispatch" @hive
+    dotnet new ap-execute --input-type Shop.Application.PlaceOrderInput --output-type Shop.Application.PlaceOrderOutput -o "$mode/snippets" @hive
+    $declaration = Get-Content "$mode/snippets/ExecuteAsync.txt" -Raw
+    "namespace Shop.Application; public interface IReviewOrder { $declaration }" | Set-Content "$mode/Application/IReviewOrder.cs"
+    dotnet build $project -c Release -warnaserror
+}
 
 Push-Location $work.FullName
 try {
@@ -83,6 +139,12 @@ try {
         [IO.File]::WriteAllText($price, $original)
         dotnet build $project -c Release --no-restore -warnaserror
         Write-Host "A1 passed on $sdk ($mode): sample accepted/rejected input; generated Price built, failed DBA1018 with setter, then built after repair."
+        Test-ItemTemplates $mode $project
+    }
+    if ($BoundaryTestDirectory) {
+        dotnet new ap-boundary-test -n DomainCannotReferenceProductsApi --sourceType ArchPrecept.Contracts.Domain.IDomainEvent --forbiddenType Products.Sample.Product -o $BoundaryTestDirectory @hive
+        $violations = Join-Path (Split-Path $BoundaryTestDirectory) 'violations'
+        dotnet new ap-boundary-test -n ProductsCannotReferenceDomain --sourceType Products.Sample.Product --forbiddenType ArchPrecept.Contracts.Domain.IDomainEvent -o $violations @hive
     }
     dotnet new uninstall ArchPrecept.Templates @hive
 } finally {

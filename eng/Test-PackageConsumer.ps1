@@ -24,9 +24,16 @@ $escapedFeed = [Security.SecurityElement]::Escape($feed)
 # Exercise consumers whose feeds allow individual package IDs, including transitive dependencies.
 $packageIds = @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging', 'ArchPrecept.Contracts.Application.Messaging', 'ArchPrecept.Contracts.Domain.EventSourcing', 'ArchPrecept.Templates')
 $sourceMappings = ($packageIds | ForEach-Object { "<package pattern=`"$_`" />" }) -join ''
+$nugetOrg = 'https://api.nuget.org/v3/index.json'
+$publicFeed = $feed.TrimEnd('/') -eq $nugetOrg
+if ($publicFeed) {
+    "<configuration><packageSources><clear/><add key='nuget.org' value='$nugetOrg'/></packageSources><packageSourceMapping><clear/><packageSource key='nuget.org'><package pattern='*'/></packageSource></packageSourceMapping></configuration>" |
+        Set-Content (Join-Path $work 'NuGet.Config')
+} else {
 @"
 <configuration><packageSources><clear /><add key="local" value="$escapedFeed" /><add key="nuget.org" value="https://api.nuget.org/v3/index.json" /></packageSources><packageSourceMapping><packageSource key="local">$sourceMappings</packageSource><packageSource key="nuget.org"><package pattern="*" /></packageSource></packageSourceMapping></configuration>
 "@ | Set-Content (Join-Path $work 'NuGet.Config')
+}
 $previousPackages = $env:NUGET_PACKAGES
 $env:NUGET_PACKAGES = Join-Path $work 'cache'
 Push-Location $work
@@ -42,7 +49,6 @@ try {
 "@ | Set-Content 'TemplateDownload.csproj'
     dotnet restore 'TemplateDownload.csproj'
     $templatePackage = Join-Path $env:NUGET_PACKAGES "archprecept.templates/$version/archprecept.templates.$version.nupkg"
-    & (Join-Path $PSScriptRoot 'Test-TemplateConsumer.ps1') -PackageFile $templatePackage -SdkMajor $SdkMajor -ScratchRoot $work
     foreach ($mode in @('analyzer-only', 'contracts', 'contracts-only', 'event-sourcing', 'messages', 'publisher', 'host-configuration')) {
         New-Item -ItemType Directory $mode | Out-Null
         $usesAnalyzer = $mode -in @('analyzer-only', 'contracts', 'event-sourcing')
@@ -336,7 +342,20 @@ namespace Fake
     $global:LASTEXITCODE = 0
 
     Copy-Item -LiteralPath (Join-Path $root 'samples/Products') -Destination 'Products' -Recurse
+    & (Join-Path $PSScriptRoot 'Test-TemplateConsumer.ps1') -PackageFile $templatePackage -SdkMajor $SdkMajor -ScratchRoot $work -BoundaryTestDirectory (Join-Path $work 'Products/Tests')
     dotnet test 'Products/Tests/Products.Tests.csproj' -c Release "-p:ArchPreceptVersion=$version" "-p:SampleTargetFramework=net$SdkMajor.0" --logger trx --results-directory 'Products/results'
+    # The API derives Product from Domain's AggregateRoot. Forbid that real edge in the disposable copy.
+    $reverseTest = 'Products/Tests/ProductsCannotReferenceDomain.cs'
+    Copy-Item -LiteralPath 'Products/violations/ProductsCannotReferenceDomain.cs' -Destination $reverseTest
+    $PSNativeCommandUseErrorActionPreference = $false
+    $failure = dotnet test 'Products/Tests/Products.Tests.csproj' -c Release --no-restore "-p:ArchPreceptVersion=$version" "-p:SampleTargetFramework=net$SdkMajor.0" --filter FullyQualifiedName~ProductsCannotReferenceDomain 2>&1 | Out-String
+    $code = $LASTEXITCODE
+    $PSNativeCommandUseErrorActionPreference = $true
+    if ($code -eq 0 -or $failure -notmatch 'ProductsCannotReferenceDomain: Products\.Api,.* -> ArchPrecept\.Contracts\.Domain,') {
+        throw "Expected the selected direct assembly reference to fail its architecture test: $failure"
+    }
+    $global:LASTEXITCODE = 0
+    Remove-Item -LiteralPath $reverseTest
     Copy-Item -LiteralPath 'Products/violations/BadPrice.cs.txt' -Destination 'Products/Api/Violation.cs'
     $PSNativeCommandUseErrorActionPreference = $false
     $diagnostics = dotnet build 'Products/Api/Products.Api.csproj' -c Release --no-restore "-p:ArchPreceptVersion=$version" "-p:SampleTargetFramework=net$SdkMajor.0" 2>&1 | Out-String
@@ -358,9 +377,18 @@ namespace Fake
         if ($expectedFeed) {
             $cached = Join-Path $cacheFolder "$lowerId.$version.nupkg"
             $expected = Join-Path $expectedFeed "$id.$version.nupkg"
-            if ((Get-FileHash $cached -Algorithm SHA256).Hash -ne (Get-FileHash $expected -Algorithm SHA256).Hash) { throw "Restored bytes differ from tested artifact: $id" }
             $metadata = Get-Content (Join-Path $cacheFolder '.nupkg.metadata') -Raw | ConvertFrom-Json
             if ($metadata.source.TrimEnd('/') -ne $feed.TrimEnd('/')) { throw "Unexpected restore source: $id" }
+            if ($publicFeed) {
+                # nuget.org adds a repository signature to our unsigned build artifact.
+                dotnet nuget verify $cached --all
+                $unsignedHash = (Get-FileHash $expected -Algorithm SHA512).Hash
+                if ($metadata.contentHash -cne [Convert]::ToBase64String([Convert]::FromHexString($unsignedHash))) {
+                    throw "Restored package content differs from the unsigned release artifact: $id"
+                }
+            } elseif ((Get-FileHash $cached -Algorithm SHA256).Hash -ne (Get-FileHash $expected -Algorithm SHA256).Hash) {
+                throw "Restored bytes differ from tested artifact: $id"
+            }
         }
     }
     if ($ExpectedSourceCommit) {

@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "YuChia-Wei",
+  "classifications": [
+    "ArchPrecept",
+    "Architecture"
+  ],
+  "identity": "ArchPrecept.Templates.QueryPort",
+  "name": "ArchPrecept read-model query port",
+  "shortName": "ap-query-port",
+  "description": "Read-model query port.",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "QueryPortName",
+  "preferNameDirectory": false,
+  "symbols": {
+    "namespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "description": "Existing C# namespace.",
+      "replaces": "ItemNamespace"
+    },
+    "model": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "description": "Existing read-model class or record (a reference type).",
+      "replaces": "ReadModelType"
+    },
+    "id-type": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "global::System.Guid",
+      "description": "C# identity type used by the aggregate.",
+      "replaces": "IdentityType"
+    },
+    "base": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "global::ArchPrecept.Contracts.Application.IQueryRepository",
+      "description": "Query repository marker interface.",
+      "replaces": "QueryPortBase"
+    }
+  }
+}

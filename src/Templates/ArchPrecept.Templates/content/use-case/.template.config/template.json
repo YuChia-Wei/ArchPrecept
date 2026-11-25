@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "YuChia-Wei",
+  "classifications": [
+    "ArchPrecept",
+    "Architecture"
+  ],
+  "identity": "ArchPrecept.Templates.UseCase",
+  "name": "ArchPrecept use case with input and output",
+  "shortName": "ap-usecase",
+  "description": "Use case with input and output.",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "ActionName",
+  "preferNameDirectory": false,
+  "symbols": {
+    "namespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "description": "Existing C# namespace.",
+      "replaces": "ItemNamespace"
+    },
+    "input-type": {
+      "type": "parameter",
+      "datatype": "text",
+      "description": "Existing fully qualified Input type. Omitting this generates an input record.",
+      "replaces": "ExistingInput",
+      "defaultValue": "generate"
+    },
+    "output-type": {
+      "type": "parameter",
+      "datatype": "text",
+      "description": "Existing fully qualified output type. Omitting this generates an output record.",
+      "replaces": "ExistingOutput",
+      "defaultValue": "generate"
+    },
+    "port": {
+      "type": "parameter",
+      "datatype": "text",
+      "description": "Existing narrow port to inject via the constructor.",
+      "replaces": "ExistingPort",
+      "defaultValue": "none"
+    },
+    "base": {
+      "type": "parameter",
+      "datatype": "text",
+      "description": "Existing generic use-case contract with ExecuteAsync(TInput, CancellationToken) returning Task<TOutput>.",
+      "replaces": "UseCaseBase",
+      "defaultValue": "none"
+    },
+    "HasBase": {
+      "type": "computed",
+      "value": "(base != \"none\")"
+    },
+    "HasInput": {
+      "type": "computed",
+      "value": "(input-type != \"generate\")"
+    },
+    "HasOutput": {
+      "type": "computed",
+      "value": "(output-type != \"generate\")"
+    },
+    "HasPort": {
+      "type": "computed",
+      "value": "(port != \"none\")"
+    }
+  }
+}

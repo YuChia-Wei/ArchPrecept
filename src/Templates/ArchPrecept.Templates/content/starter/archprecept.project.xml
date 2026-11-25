@@ -2,7 +2,7 @@
   <!--#if (CustomContracts) -->
   <Role name="value-object" metadataName="SampleShop.Domain.IDomainValue" assembly="SampleShop" />
   <!--#endif -->
-  <Role name="use-case" metadataName="SampleShop.Application.ICreateProductUseCase" assembly="SampleShop" />
+  <Role name="use-case" metadataName="SampleShop.Application.IUseCase`2" assembly="SampleShop" />
   <Expected type="SampleShop.Domain.ProductName" role="value-object" />
   <Expected type="SampleShop.Application.CreateProductUseCase" role="use-case" />
   <Rule id="DBA1018" severity="error" />

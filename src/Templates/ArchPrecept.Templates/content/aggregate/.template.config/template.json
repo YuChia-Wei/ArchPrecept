@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "YuChia-Wei",
+  "classifications": [
+    "ArchPrecept",
+    "Architecture"
+  ],
+  "identity": "ArchPrecept.Templates.Aggregate",
+  "name": "ArchPrecept aggregate with an assigned identity",
+  "shortName": "ap-aggregate",
+  "description": "Aggregate with an assigned identity.",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "ModelName",
+  "preferNameDirectory": false,
+  "symbols": {
+    "namespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "description": "Existing C# namespace.",
+      "replaces": "ItemNamespace"
+    },
+    "id-type": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "global::System.Guid",
+      "description": "C# identity type used by the aggregate.",
+      "replaces": "IdentityType"
+    },
+    "base": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "global::ArchPrecept.Contracts.Domain.AggregateRoot",
+      "description": "Open generic aggregate base with a protected constructor taking the ID.",
+      "replaces": "AggregateBase"
+    }
+  }
+}

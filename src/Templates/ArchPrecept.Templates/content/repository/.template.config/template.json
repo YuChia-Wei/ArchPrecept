@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "YuChia-Wei",
+  "classifications": [
+    "ArchPrecept",
+    "Architecture"
+  ],
+  "identity": "ArchPrecept.Templates.Repository",
+  "name": "ArchPrecept aggregate repository port",
+  "shortName": "ap-repository",
+  "description": "Aggregate repository port.",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "RepositoryName",
+  "preferNameDirectory": false,
+  "symbols": {
+    "namespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "description": "Existing C# namespace.",
+      "replaces": "ItemNamespace"
+    },
+    "aggregate": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "description": "Existing aggregate type. Use its qualified name if needed.",
+      "replaces": "AggregateType"
+    },
+    "id-type": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "global::System.Guid",
+      "description": "C# identity type used by the aggregate.",
+      "replaces": "IdentityType"
+    },
+    "base": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "global::ArchPrecept.Contracts.Application.IAggregateRepository",
+      "description": "Open generic write port exposing FindByIdAsync and SaveAsync.",
+      "replaces": "RepositoryBase"
+    }
+  }
+}

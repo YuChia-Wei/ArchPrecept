@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "YuChia-Wei",
+  "classifications": [
+    "ArchPrecept",
+    "Architecture"
+  ],
+  "identity": "ArchPrecept.Templates.Controller",
+  "name": "ArchPrecept ASP.NET Core controller",
+  "shortName": "ap-controller",
+  "description": "ASP.NET Core controller.",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "ActionName",
+  "preferNameDirectory": false,
+  "symbols": {
+    "namespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "description": "Existing C# namespace.",
+      "replaces": "ItemNamespace"
+    },
+    "application": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "description": "Namespace containing I<Name>UseCase, <Name>Input(string Value) and <Name>Output with a string Value.",
+      "replaces": "ApplicationNamespace"
+    }
+  }
+}

@@ -4,7 +4,7 @@
     <IsPackable>true</IsPackable>
     <PackageType>Template</PackageType>
     <PackageTags>dotnet-new;templates;csharp;architecture</PackageTags>
-    <Description>Project and value object templates for consumers of ArchPrecept.</Description>
+    <Description>ArchPrecept starter, domain and application items, delivery adapters, architecture tests, and use-case method snippets for the .NET SDK.</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <EnableDefaultItems>false</EnableDefaultItems>

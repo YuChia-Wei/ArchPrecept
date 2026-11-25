@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "YuChia-Wei",
+  "classifications": [
+    "ArchPrecept",
+    "Architecture"
+  ],
+  "identity": "ArchPrecept.Templates.ExecuteMethod",
+  "name": "ArchPrecept use-case method snippet",
+  "shortName": "ap-execute",
+  "description": "Use-case method snippet.",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "preferNameDirectory": false,
+  "symbols": {
+    "input-type": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "description": "Existing fully qualified application Input type.",
+      "replaces": "MethodInput"
+    },
+    "output-type": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "description": "Existing fully qualified application output type.",
+      "replaces": "MethodOutput"
+    }
+  }
+}

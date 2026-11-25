@@ -22,4 +22,12 @@ dotnet new ap-vo -n Price --namespace SampleShop.Domain --contracts STARTER_CONT
 
 Review the generated member and supply your own business rules for its allowed values.
 
+To scaffold another use case, run:
+
+```sh
+dotnet new ap-usecase -n PlaceOrder --namespace SampleShop.Application --base IUseCase -o Application
+```
+
+The new interface inherits the mapped `Application/IUseCase.cs` contract. Implement its behavior before calling it. When replacing the console sample, you can remove ProductName and CreateProductUseCase together with their caller in Program and their Expected entries in the analyzer configuration. Keep the shared contract while other use cases depend on it.
+
 The project includes `archprecept.project.xml` as an AdditionalFile. Naming conventions are disabled. The reference mode uses the package marker. The custom mode maps the consumer-owned Domain.IDomainValue marker by metadata and assembly name. DBA1018 has error severity: adding a setter to the generated Price.Value and rebuilding reports the violation; restoring the getter-only property restores this check. These diagnostics assess the configured roles and predicates.
