@@ -28,7 +28,7 @@ ArchPrecept 在 C# 編譯期間檢查 Repository、Use Case、Controller 與 Val
 
 | 套件版本 | 當版文件 | 發布紀錄 |
 |---|---|---|
-| 0.0.6-preview | [當版使用指南](getting-started.md) | [Domain／ES 升級與套件試裝](releases/0.0.6-preview.md) |
+| 0.0.6-preview | [固定版本文件](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.6-preview/docs) | [Domain／ES 升級、套件試裝及 registry 驗收](releases/0.0.6-preview.md) |
 | 0.0.5-preview | [文件](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.5-preview/docs) | [首次提供 starter 與 Value Object 範本](releases/0.0.5-preview.md) |
 | 0.0.4-preview | [文件](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.4-preview/docs) | [Repository、角色辨識與 Id 初始化行為](releases/0.0.4-preview.md) |
 | 0.0.3-preview | [文件](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.3-preview/docs) | [0.0.3-preview 發布紀錄](releases/0.0.3-preview.md) |

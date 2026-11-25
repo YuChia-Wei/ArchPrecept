@@ -1,6 +1,6 @@
 # 正式版與線上文件路線
 
-首個無後綴版本為 `0.1.0`。七包共同版號、SDK 支援及維護線以[版本政策](version-policy-proposal.md#首版範圍與相容承諾)為準。GitHub Packages 已發布 [0.0.5-preview](0.0.5-preview.md)；新契約與範本先在本機候選試用，待功能、文件與成品驗收完成後才進入 nuget.org 發布。
+首個無後綴版本為 `0.1.0`。七包共同版號、SDK 支援及維護線以[版本政策](version-policy-proposal.md#首版範圍與相容承諾)為準。GitHub Packages 上的 [0.0.6-preview](0.0.6-preview.md) 提供新契約與範本，用於下游專案安裝試用。正式候選與 nuget.org 匿名安裝另行驗收。
 
 ## 社群慣例與本產品選擇
 
