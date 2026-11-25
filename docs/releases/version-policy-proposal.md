@@ -1,6 +1,6 @@
 # 版本政策與首個正式版條件
 
-狀態：首個不帶任何 prerelease 後綴的公開版本之前，採本文件的 Preview 演進政策；正式版的版號模型、維護線與相容承諾仍待決定。本文件定義要求，不代表已通過正式版驗收或已核准發布。
+首個無後綴版本定為 `0.1.0`。七包共用產品版號，支援 SDK 8／10；維護及相容承諾自首個穩定版發布起生效。當前開發版本仍適用 Preview 演進政策。
 
 ## Preview 演進政策
 
@@ -8,7 +8,7 @@
 
 每個版本內的 Rule／Diagnostic ID 仍須唯一，文件、設定、實作與測試必須一致。變更說明應清楚列出新版本的使用方式與受影響範圍，讓採用者能理解當前契約；不必為舊 preview 提供相容路徑。歷史語意由 Git 與既有發布紀錄保存，不在現行規則本文堆疊版本沿革。
 
-已發布的 Package ID／version 與 bytes 不得覆寫。不同 bytes 必須使用尚未發布的新版本。核心試用期採 `0.0.n-preview`，`0.0.5-preview` 加入 A1，後續依試用結果以新的 n 遞增。核心功能確認並完成簡易官網後，依 [#20](https://github.com/YuChia-Wei/ArchPrecept/issues/20) 重新確認相容政策，再進入 `0.1.0` 與 nuget.org 發布階段。七個現行套件暫採共同 release train，且各自可獨立安裝。實際發布流程見[CI/CD 規則](cicd-plan.md)。
+已發布的 Package ID／version 與 bytes 不得覆寫。核心試用期使用 `0.0.n-preview`，不同成品遞增 n。`0.0.5-preview` 是已發布的 starter／VO 基線；`0.0.6-preview` 是下一組變更的本機候選。實際發布流程見[CI/CD 規則](cicd-plan.md)。
 
 ## 合併與升版判準
 
@@ -54,12 +54,16 @@ SDK 8／10 consumer 的 restore、build 與預期 Diagnostic 是套件安裝及�
 
 本政策只建立上述交付條件；缺少的規則依據、完整使用說明與 API XML 是待完成工作，不宣稱本次已全部補齊。
 
-## 正式版政策待決事項
+## 首版範圍與相容承諾
 
-轉正式版前須明確選定產品 SemVer 或平台 major、共同版號範圍、維護線、支援期限及公開 API／Diagnostic／設定／報告的相容承諾。若採產品 SemVer，可評估以 major 表示不相容變更，minor 表示相容擴充，patch 表示相容修復；此處是待決方案，尚未生效。
+首版共同交付 Analyzer、Domain、Application、Domain.EventSourcing、Messaging、Application.Messaging 與 Templates。各包可獨立選用；SDK、最低 TFM 與 Roslyn 基線沿用上表。首版功能包含已文件化的 Analyzer 規則、自有角色映射、Domain／ES 分離的能力契約、starter、Domain／Application items、薄入口及[採用者自訂的組件邊界測試](../architecture-testing.md)。片段與編輯器的具體入口依[範本指南](../templates.md)。獨立 Architecture Testing 類別庫、傳遞依賴圖、Conformance CLI 與 IDE 外掛留在首版範圍外。
 
-平台版本與產品版本分別治理，不因產品 major 數字而自行提高 Contracts 最低 TFM。平台 EOL 與產品是否延長支援亦需分別決策。正式版政策尚未選定，不妨礙依 Preview 政策整理當前產品契約。
+只維護最新穩定線。下一條穩定線公開時，上一條結束一般修補；無固定支援年限。平台 major 與套件版號分別決定。進入 `0.1.x` 後，patch 保持相容，破壞性變更進下一條 `0.y.0`；從 `1.0.0` 起，major 表示不相容變更、minor 表示相容擴充、patch 表示相容修正。
+
+相容審查涵蓋公開 API、套件相依與最低平台、Diagnostic ID／判定語意、預設 Profile／severity、設定 schema、公開報告欄位，以及已文件化的範本命令與參數。新增預設診斷、提高 severity 或修正漏判若會使既有受支援建置失敗，依實際影響選用新的不相容版本線，再提供更新說明。新增 opt-in 規則、修正誤報及其他變更也須評估既有設定與 warnings-as-errors 的結果。
+
+第一個公開 RC 為選配的 `0.1.0-rc.1`。需要外部驗證已凍結的候選時才發布 RC，必要修正以 `rc.2` 等新成品重驗；若契約或範圍再開放，退回 Preview。也可從已驗收的預覽來源直接準備 `0.1.0`。兩條路徑都須以**實際要發布的版號與成品**完成文件、規則、套件及對應 consumer 閘門。RC 一律視為 prerelease。實際採用依據與尚待 owner 完成的發布條件見[首版路線](stable-release-roadmap.md)。
 
 ## 後續發布與官方文件安排
 
-版號與尾綴慣例、相容承諾提案及線上官方文件排程見[正式版與線上文件路線](stable-release-roadmap.md)。`-rc.N` 仍是 prerelease；此處正式版門檻指無任何 prerelease 後綴的版本。現行 pipeline 仍僅接受 preview，擴充 RC／穩定版／nuget.org 發布另依規劃實作。
+現行自動上傳流程只接受符合規格的 Preview tag，目標為 GitHub Packages。nuget.org 的 owner 操作、成品追溯與匿名驗收見[發布設計](cicd-plan.md#nugetorg-正式版交付)。

@@ -563,7 +563,7 @@ ArchPrecept/
 | Application Messaging Ports | `ArchPrecept.Contracts.Application.Messaging` | 發布 port 與傳遞 metadata，只依賴 Messaging；見[責任邊界](messaging-contract.md) |
 | 核心 Analyzer | `ArchPrecept.Analyzers.Core` | 已有對應專案 |
 | Event Sourcing Contracts | `ArchPrecept.Contracts.Domain.EventSourcing` | CT-005 已有對應專案；見[行為契約](event-sourcing-contract.md) |
-| Architecture Testing | `ArchPrecept.ArchitectureTesting` | 尚未建立專案 |
+| Architecture Testing | `ArchPrecept.Templates` 的 `ap-boundary-test` | [直接組件依賴的 xUnit 測試](../architecture-testing.md)。獨立類別庫與完整相依圖留待後續評估 |
 | Conformance CLI／.NET Tool | `ArchPrecept.Conformance` | 尚未建立專案，CLI 命令名稱另行決策 |
 
 測試專案不發布套件；未來能力不以空專案預先佔位。目前不新增 `ArchPrecept` 或 `ArchPrecept.Analyzers` 聚合套件，待實際安裝組合需求確立後再評估。Analyzer 與 Contracts 繼續獨立採用。
@@ -583,7 +583,7 @@ ArchPrecept/
 
 ### 13.2 Preview 與正式版政策
 
-首個不帶 `-preview` 後綴的公開版本之前不考慮向後相容。可直接調整 ID、schema、defaults 與 API，不為舊 preview 強制保留 legacy 模式、replacement rule、雙軌 API 或 migration scaffolding。版本內識別仍須唯一、文件與實作一致；已發布 Package ID／version 的 bytes 不可覆寫。
+首個不帶任何 prerelease 後綴的公開版本之前不考慮向後相容。可直接調整 ID、schema、defaults 與 API，不為舊 preview 強制保留 legacy 模式、replacement rule、雙軌 API 或 migration scaffolding。版本內識別仍須唯一、文件與實作一致；已發布 Package ID／version 的 bytes 不可覆寫。
 
 現行套件暫採共同 release train，各自仍可獨立安裝。正式版的版號模型、維護線與相容承諾待選定；本文件不自動選定下一版本或授權發布。詳見[版本政策與首個正式版條件](../releases/version-policy-proposal.md)。
 

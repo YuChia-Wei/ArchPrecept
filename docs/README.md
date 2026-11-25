@@ -2,7 +2,7 @@
 
 ArchPrecept 在 C# 編譯期間檢查 Repository、Use Case、Controller 與 Value Object 等角色的架構規則。你可以在既有模型上安裝 Analyzer 並映射自有契約，也可以按需採用參考契約或用 `dotnet new` 建立範例專案。
 
-**目前公開試用版為 `0.0.5-preview`**，七個套件發布於 GitHub Packages，已驗證的 consumer SDK 為 .NET 8 與 10。這個入口隨 repository 演進。要重現已安裝版本的行為，請從下方版本表選擇當版文件。[本版發布與驗收紀錄](releases/0.0.5-preview.md)
+**此手冊對應本機候選 `0.0.6-preview`。** 目前公開試用版為 `0.0.5-preview`，七個套件位於 GitHub Packages，已驗證的 consumer SDK 為 .NET 8 與 10。使用已發布套件時，請選[固定版本手冊](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.5-preview/docs)與[發布紀錄](releases/0.0.5-preview.md)。
 
 ## 開始使用
 
@@ -10,6 +10,7 @@ ArchPrecept 在 C# 編譯期間檢查 Repository、Use Case、Controller 與 Val
 |---|---|
 | 第一次安裝，選擇專案需要的套件 | [安裝指南](getting-started.md) |
 | 從空目錄建立可執行的 starter，再新增 `Price` | [Price 範例與範本命令](templates.md) |
+| 用本機候選測試 Domain 是否直接參考指定的 Infrastructure 組件 | [加入可自訂的 xUnit 邊界測試](architecture-testing.md) |
 | 修正 Value Object 的可變狀態 | [DBA1018 修正說明](diagnostics/DBA1018.md#修正指引) |
 | 保留自己的領域介面，只加入 Analyzer | [安裝 Analyzer 與設定 AdditionalFiles](getting-started.md)，再[映射契約型別並選擇 Profile](product/analyzer-policy.md) |
 | 在 Domain 或 Application 採用參考契約 | [各套件的最小使用範例、相依與 API 說明](package-usage.md) |

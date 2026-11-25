@@ -8,7 +8,7 @@ PR 負責合併前的品質檢查。套件與網站採各自的發布 tag，從�
 |---|---|---|
 | 開啟或更新以 `main` 為目標的 PR | 還原、建置並測試 solution，執行發布狀態測試，建置 DocFX 文件供檢查 | PR 顯示品質結果。 |
 | 一般分支 push，包括合併到 `main` 後的 push | 更新分支 ref | 套件與網站維持各自最近一次已發布版本。 |
-| 推送套件 tag `v<PackageVersion>` | 核對 tag、版本、來源及 registry 狀態，建置七個套件並驗證 consumer | 通過後將尚未發布的該版成品送至 GitHub Packages 並驗證。 |
+| 推送 Preview 套件 tag（如 `v0.0.6-preview`） | 核對 tag、版本、來源及 registry 狀態，建置七個套件並驗證 consumer | 通過後將尚未發布的該版成品送至 GitHub Packages 並驗證。 |
 | 推送文件 tag `docs-YYYY.MM.DD.N` | 從該提交產生 DocFX 靜態網站，再部署至 GitHub Pages | 網站可以單獨修正；套件維持原版號與 bytes。 |
 
 在工作分支完成 review 與必要驗證，沿用 `git merge --ff-only` 整合至 `main` 並推送。依當次交付目的建立新的 annotated tag，將 tag 綁定到已核對的提交，再單獨推送該 ref。文件 tag 使用年月日及當日序號，序號從 1 開始。保留所有已發布 tag 的原始指向，包括由 [0.0.5-preview 發布 run](0.0.5-preview.md) 的實際來源補建的套件 tag。
@@ -47,6 +47,21 @@ PR 負責合併前的品質檢查。套件與網站採各自的發布 tag，從�
 1. 將對應已發布版本的安裝、範例、診斷及 API 說明整合至 `main`。只有文件變更時使用此流程，套件版號沿用當前已發布版本。若功能與文件一併交付，先確認本版套件已可從 feed 還原，並讓網站標示該版號。
 2. 從已核對的文件提交推送新的 `docs-YYYY.MM.DD.N` annotated tag。[文件工作流程](../../.github/workflows/documentation.yml) 使用該提交的來源產生 DocFX 靜態成品，部署到 GitHub Pages 的 `/ArchPrecept/` 專案路徑。可在後續提交修正文案，再推送另一個文件 tag。
 3. 從公開首頁實際開啟安裝指南、Price 範例與 DBA1018 修正說明。確認頁面標示的套件版本、站內連結與靜態資源，記錄文件 tag、部署來源、run 與實際網址。若需要回復文件，在 `main` 還原到已知正確內容並以新文件 tag 部署，保留可追溯的歷史版本。
+
+## nuget.org 正式版交付
+
+首版採維護者手動上傳。Preview tag workflow 的目標仍是 GitHub Packages；`v0.1.0` 或選配的 `v0.1.0-rc.N` 作為精確來源標記，自身不會上傳至 nuget.org。RC 與無後綴版本使用各自的七包及驗收紀錄。
+
+1. 維護者確認 nuget.org 帳號對七個 Package ID 的建立／更新權限，以及套件中的 author、license、README、repository commit 與共同版號。個人／組織 ownership 以 registry 的實際設定為準。前綴保留屬選配；既有 GitHub Packages ownership 無法證明 nuget.org 權限。[NuGet 發布說明](https://learn.microsoft.com/en-us/nuget/nuget-org/publish-a-package)
+2. 在已整合的精確提交確認 tag、產品版本及 starter 中的相依版本一致，從乾淨輸出執行 `eng/Build-Packages.ps1`，對該目錄執行兩個支援 SDK 的 `eng/Test-PackageConsumer.ps1`。完成本頁的發布前語意檢查和[正式版文件閘門](version-policy-proposal.md)。保存原始七包、SHA256SUMS、來源 SHA 及驗收結果，供部分失敗時使用。
+3. 確認七個 ID 的目標版本皆未發布，依賴包先上傳。維護者可在 nuget.org 的 Upload 頁逐包檢視 metadata 並提交原始成品。若中斷，先核對已索引的套件與原成品，僅補送已確認缺少的項目；不可使用重建成品或覆寫同一版號。
+4. 七包都可匿名下載後，在乾淨環境以 SDK 8、10 各執行一次下列命令（替換 SDK、路徑及提交）。驗證入口使用新的套件快取和 nuget.org 單一來源；以沒有 GitHub feed 憑證的環境驗收。nuget.org 會替上傳包加 repository signature，應分別核對簽章、原未簽署包的 SHA-512 內容雜湊、來源及 nuspec commit。[NuGet 套件簽章](https://learn.microsoft.com/en-us/nuget/reference/signed-packages-reference)
+
+   ```powershell
+   ./eng/Test-PackageConsumer.ps1 -SdkMajor 8 -RegistrySource https://api.nuget.org/v3/index.json -ExpectedPackageDirectory $originalPackages -ExpectedSourceCommit $releaseCommit -ScratchRoot $scratch
+   ```
+
+5. 分別記錄上傳、registry 可用性及實際 consumer 結果。依已發布版本更新安裝文件，再由對應文件 tag 部署官網。首次正式版的帳號、成品及匿名驗收由 [#22](https://github.com/YuChia-Wei/ArchPrecept/issues/22) 追蹤。
 
 ## 相同版本與部分失敗
 
@@ -89,6 +104,6 @@ GitHub NuGet 的 public 套件安裝仍需要驗證；Actions 使用具存取權
 ## 證據邊界與後期評估
 
 PR 品質檢查、套件 tag 的上傳、public metadata、registry consumer 及文件 tag 的公開網站驗收各有對應 run 與來源。實際發行成品見 [0.0.5-preview 發布紀錄](0.0.5-preview.md) 與各版本發布紀錄。
-nuget.org 以 0.1.0 起的 0.y.z 發布為目標（y ≥ 1），進度見[正式版路線](stable-release-roadmap.md)。GitHub Release、branch protection、required reviewers 及正式版維護線留待後期評估。
+nuget.org 以 0.1.0 為首個無後綴版本，進度見[正式版路線](stable-release-roadmap.md)。GitHub Release、branch protection 與 required reviewers 留待後期評估。
 
-首個不帶任何 prerelease 後綴的公開版本另需逐規則設計理由、完整套件使用說明，以及有語意且隨 `.nupkg` 交付、由 consumer 可讀的 API XML 證據。這是待落實的產品 gate，並非現有 preview workflow 已自動檢查或本次已通過；正式版發布機制需另行實作與驗證。
+首個無後綴版本另需逐規則設計理由、完整套件使用說明，以及隨 `.nupkg` 交付、由 consumer 可讀的 API XML。正式版須對精確候選逐項驗收，再依本頁的 nuget.org 流程手動交付。

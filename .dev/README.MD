@@ -18,7 +18,7 @@
 
 下表保留來源索引，並非待辦清單。0.0.3-preview 已交付 #1／#6／#7／#8／#9／#11；#5 第二採用驗收亦已完成，#10 P2 不在本次交付。實際狀態以 GitHub 讀回為準。
 
-0.0.4-preview 已交付 #12～#15／#17 的規則契約與文件改善，以及 DomainEntity.Id 初始化防護；實際發布來源與測試證據見當版發布紀錄。新一輪兩個 lab 的採用尚未通過，與 #5 的舊版成果分開；後續 #18～#22 入口集中在[正式版路線](../docs/releases/stable-release-roadmap.md#後續工作來源)，不以發布 CI 替代採用驗收。#10／#16 仍是獨立後續工作。
+0.0.4-preview 交付 #12～#15／#17，並記錄兩個 lab 的[初次升級失敗](../docs/releases/0.0.4-consumer-validation.md)。0.0.6-preview 的隔離試用分別記錄 [Web API／Domain／ES](../docs/releases/0.0.6-consumer-validation.md) 與 [MQ 的多 port adapter](../docs/releases/mq-repository-adoption.md)。首版選定的組件測試、範本、維護政策與 nuget.org 進度見[正式版路線](../docs/releases/stable-release-roadmap.md)。
 
 | 工作 | Owner 與界線 |
 |---|---|

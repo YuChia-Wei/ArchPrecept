@@ -9,7 +9,7 @@ The analyzer works with your own contracts through explicit role mapping. Instal
 the reference contracts, an AI tool, or a collaboration framework is optional.
 Current supported consumers use .NET 8 or 10.
 
-This source targets **0.0.5-preview**. Install `ArchPrecept.Templates` with `dotnet new install` to create a starter or add a scalar Value Object to an existing project. The starter configures the analyzer for either ArchPrecept reference contracts or a consumer-owned contract. Follow the [starter and Price walkthrough](docs/templates.md).
+This source targets **0.0.6-preview** for local evaluation. The latest published packages are **0.0.5-preview**. Use the [published manual](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.5-preview/docs) with that release. For a local build, follow the [starter and item template guide](docs/templates.md). The optional [assembly dependency test](docs/architecture-testing.md) checks one consumer-defined boundary with xUnit.
 Start with the [installation guide](docs/getting-started.md),
 [package usage](docs/package-usage.md), [rule rationale](docs/product/rule-design-rationale.md),
 and [configuration](docs/product/analyzer-policy.md).
@@ -47,7 +47,7 @@ predicate; a clean build is not proof of complete methodology conformance.
 - `src/Templates/` — SDK project and item templates for consumers.
 - `src/Contracts/` — optional runtime contract and base-type projects.
 - `src/Analyzers/` — Roslyn analyzer projects and configuration examples.
-- `src/ArchitectureTesting/` — planned reusable architecture-testing capability.
+- Direct assembly dependency tests are available as source items in `ArchPrecept.Templates`. A standalone architecture testing library remains outside the first stable scope.
 - `src/Conformance/` — planned repository conformance and reporting capability.
 - `tests/<Capability>/` — non-shipping automated verification projects grouped to mirror `src/`.
 - `samples/` — package-consumer examples and smoke-test projects.

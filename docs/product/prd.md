@@ -303,7 +303,7 @@ Architecture Testing 與完整 Conformance CLI 可在 MVP 後續里程碑完成�
 | RL-008 | Provenance 與授權檢查未通過不得公開發布 | P0 | 發布 gate 有明確來源／權利阻擋條件；不以規則理由文字取代逐檔授權檢查 |
 | RL-009 | 所有可建置、可發布的產品原始碼必須集中於 `src/`，並依 `Contracts`、`Analyzers`、`ArchitectureTesting`、`Conformance` 等能力分組 | P0 | Repository 結構檢查拒絕位於 `src/` 外的產品 Project；測試 Project 位於對應的 `tests/<Capability>/` 且不進入發布 Inventory |
 | RL-010 | 產品 Project、預設 Assembly Name 與根 Namespace 必須使用 `ArchPrecept.<Capability>` 階層；測試 Project 加 `.Tests` | P0 | Repository 不含產品身分中的 `Lab`、`BuildingBlocks` 或 `Backend`；命名檢查不建立或推定 NuGet Package ID |
-| RL-011 | 首個不帶 `-preview` 後綴的公開版本必須通過規則理由、完整使用與 API XML 交付 gate | P0 | AD-009～AD-011 逐項有實際證據；XML 內容、生成、nupkg 隨包、feed consumer 可讀與語意審查分別驗收，不以現有 preview pipeline 已通過推定完成 |
+| RL-011 | 首個不帶任何 prerelease 後綴的公開版本必須通過規則理由、完整使用與 API XML 交付 gate | P0 | AD-009～AD-011 逐項有實際證據；XML 內容、生成、nupkg 隨包、feed consumer 可讀與語意審查分別驗收，不以現有 preview pipeline 已通過推定完成 |
 
 ## 12. 非功能需求
 

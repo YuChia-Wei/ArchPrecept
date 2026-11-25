@@ -1,10 +1,10 @@
 # 各套件的最小使用與責任
 
-本頁說明 **0.0.5-preview**；發布狀態見[本版紀錄](releases/0.0.5-preview.md)。安裝版本、GitHub Packages 認證、SDK 8／10 與 AdditionalFiles 接線見[安裝指南](getting-started.md)；既有 feed 版本的文件見[版本定位](releases/rule-contract-candidate.md)。下列 C# 範例使用一般 SDK implicit usings；套件各自可安裝，不需要 AI 工具或 Framework。
+本頁說明本機候選 **0.0.6-preview**。使用 GitHub Packages 上的 **0.0.5-preview** 時，請讀[該版手冊](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.5-preview/docs/package-usage.md)。安裝來源、SDK 8／10 與 AdditionalFiles 接線見[安裝指南](getting-started.md)。下列 C# 範例使用一般 SDK implicit usings。
 
 ## ArchPrecept.Templates
 
-以 `dotnet new install` 安裝至 SDK。`ap-starter` 建立含角色設定的專案，`ap-vo` 在既有專案新增純量 Value Object。安裝來源、必要參數、覆寫衝突、兩種契約與 DBA1018 修正見 [範本使用指南](templates.md)。
+以 `dotnet new install` 安裝至 SDK。建立專案、逐項新增 Domain／Application 型別與入口的命令、參數及適用契約見[範本使用指南](templates.md)。測試專案可另外產生[直接組件依賴測試](architecture-testing.md)。
 
 ## Analyzer-only 與自有契約
 
@@ -30,7 +30,25 @@ public sealed class Order : AggregateRoot<Guid>
 
 `DomainEntity<TId>` 的一般建構路徑要求非 null identity。保留 protected 無參數建構子供 ORM／序列化／ES 重建：指派前讀 `Id` 擲 `InvalidOperationException`，指派 null 擲 `ArgumentNullException`。零、`Guid.Empty` 或空字串是否合法由你的 Domain invariant 決定；不拿 `default(TId)` 代替初始化狀態，也不新增「Id 永不再指派」政策。ORM 若繞過 setter 直接寫私人欄位，必須由 adapter 驗證其 materialization 接線；本候選沒有宣稱任何特定 ORM 整合已驗收。
 
-`DomainEvents` 是原集合的唯讀檢視，不是 payload 深層複製；Add／Remove／Clear 只改本機集合。dispatcher、交易、持久化與何時清除由 consumer 擁有。`IValueObject` 是選定政策 marker，`ValueObject` 只提供依相等性元件比較的基底；它們不自行阻止可變欄位。元件序列須穩定且符合 XML 所列非空／非 null 條件。
+若儲存端產生正整數 Id，而且模型用零表示尚未持久化，建立物件時請明確傳入 `base(0)`。首次儲存由 repository 取得產生的正數並交給物件。重建時先經相同建構路徑，再指派儲存所得的 Id。已取得正數 Id 的物件只能再次確認相同識別碼。以下是此種領域模型的選擇，採用 UUID 或合法零值的模型可以定義自己的生命週期。
+
+```csharp
+public sealed class Document : AggregateRoot<int>
+{
+    public Document() : base(0) { }
+
+    public void AssignIdentity(int id)
+    {
+        if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id));
+        if (Id != 0 && Id != id) throw new InvalidOperationException("Document identity cannot change.");
+        Id = id;
+    }
+}
+```
+
+0.0.6-preview 開發版中，僅讀取 identity 的程式使用 `IDomainEntity<TId>`。需要觀察事件時，接受 `IDomainEventSource` 並讀取 `DomainEvents`。採用可編輯事件集合的普通 Entity 可繼承 `BufferedDomainEntity<TId>`，一般 `AggregateRoot<TId>` 已提供這項能力。`IDomainEventBuffer` 的 Add／Remove／Clear 只修改本機集合；dispatcher、交易與何時清除由 consumer 擁有。唯讀檢視保留事件物件的原參考。
+
+`IValueObject` 是選定政策 marker，`ValueObject` 提供依相等性元件比較的基底。領域模型負責維持不可變狀態，元件序列須穩定且符合 XML 所列非空／非 null 條件。
 
 ## Application
 
@@ -58,7 +76,7 @@ Aggregate port 保留 `FindByIdAsync`／`SaveAsync`。不存在的 identity 以 
 
 加入 `ArchPrecept.Contracts.Domain.EventSourcing`，NuGet 會帶入 Domain。從 `EsAggregateRoot<TId>` 衍生，在初始化完成後用 `Apply` 處理新事件，或以 `LoadFromHistory` 重播完整有序歷史；覆寫 `When(IDomainEvent)` 處理狀態。完整可用範例及失敗情境見 [CT-005](product/event-sourcing-contract.md)。
 
-Replay 不新增 pending events；append 成功後才用 `MarkChangesAsCommitted` 確認版本並清除 pending。這只是本機確認，不能證明儲存成功或原子性。轉換失敗的實例須丟棄；一般 Add／Remove／Clear mutator 在 ES 會擲 `NotSupportedException`。Event Store、snapshot、upcasting、跨程序並行與 retry 由 adapter 定義。DBA1009 只檢查宣告的局部 state mutation，不驗證 replay 完整性。
+0.0.6-preview 開發版的儲存端接受 `IESAggregateRoot<TId>`，可讀取 Id、已提交版本及依套用順序排列的 pending events。重播只重建狀態。成功 append 本批全部事件後，才以 `MarkChangesAsCommitted` 確認版本並清除 pending。append 的原子性及結果由儲存 adapter 驗證；轉換失敗的實例須丟棄。Event Store、snapshot、upcasting、跨程序並行與 retry 亦由 adapter 定義。DBA1009 檢查宣告的局部 state mutation。
 
 ## Messaging
 
