@@ -1,6 +1,6 @@
 # 安裝與使用 ArchPrecept
 
-ArchPrecept 的七個套件可按需選用。GitHub Packages 上的 **0.0.5-preview** 支援 SDK 8／10，安裝與驗收見[已發布版本手冊](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.5-preview/docs/getting-started.md)與[發布紀錄](releases/0.0.5-preview.md)。本頁說明本機候選 **0.0.6-preview**。
+本頁適用於 **0.0.6-preview**，七個套件可按需選用，支援 SDK 8／10。試裝前可核對[本版發布與採用紀錄](releases/0.0.6-preview.md)。前一版使用 [0.0.5-preview 固定手冊](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.5-preview/docs/getting-started.md)。
 
 | 套件 | 用途與必要相依 |
 |---|---|
@@ -16,7 +16,7 @@ ArchPrecept 的七個套件可按需選用。GitHub Packages 上的 **0.0.5-prev
 
 發布來源是 GitHub Packages：`https://nuget.pkg.github.com/YuChia-Wei/index.json`。沿用已設定的 NuGet source／credential provider；本機需要有權限的 GitHub NuGet 憑證，Actions 可使用具存取權的 GITHUB_TOKEN。不要把 token 放進 repository。nuget.org 不承載這些 preview 套件。
 
-測試本機候選時，以 `eng/Build-Packages.ps1` 的 nupkg 輸出目錄作為 NuGet source，並在既有專案加入所需 PackageReference。例如僅使用 Analyzer：
+從 GitHub Packages 還原時，確認 consumer 的 NuGet source mapping 允許 `ArchPrecept.*` 使用該來源。本機試用也可以選用 `eng/Build-Packages.ps1` 的 nupkg 輸出目錄。在既有專案加入所需 PackageReference。例如僅使用 Analyzer：
 
 ```xml
 <ItemGroup>

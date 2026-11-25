@@ -8,7 +8,7 @@
 
 每個版本內的 Rule／Diagnostic ID 仍須唯一，文件、設定、實作與測試必須一致。變更說明應清楚列出新版本的使用方式與受影響範圍，讓採用者能理解當前契約；不必為舊 preview 提供相容路徑。歷史語意由 Git 與既有發布紀錄保存，不在現行規則本文堆疊版本沿革。
 
-已發布的 Package ID／version 與 bytes 不得覆寫。核心試用期使用 `0.0.n-preview`，不同成品遞增 n。`0.0.5-preview` 是已發布的 starter／VO 基線；`0.0.6-preview` 是下一組變更的本機候選。實際發布流程見[CI/CD 規則](cicd-plan.md)。
+已發布的 Package ID／version 與 bytes 不得覆寫。核心試用期使用 `0.0.n-preview`，不同成品遞增 n。`0.0.5-preview` 是已發布的 starter／VO 基線；`0.0.6-preview` 的新契約與範本見[本版紀錄](0.0.6-preview.md)。實際發布流程見[CI/CD 規則](cicd-plan.md)。
 
 ## 合併與升版判準
 

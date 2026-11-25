@@ -1,6 +1,6 @@
 # Analyzer 設定、角色與評估契約
 
-0.0.6-preview 本機候選沿用 0.0.5-preview 的 Analyzer 設定、角色及評估契約。發布基線見[0.0.5-preview 紀錄](../releases/0.0.5-preview.md)。0.0.3-preview 的行為請讀[固定版本文件](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.3-preview/docs/product/analyzer-policy.md)。規則的設計理由、方法論支持範圍及取捨見[規則設計依據](rule-design-rationale.md)與[方法論來源](methodology-references.md)。
+0.0.6-preview 沿用 0.0.5-preview 的 Analyzer 設定、角色及評估契約。發布基線見[0.0.5-preview 紀錄](../releases/0.0.5-preview.md)。0.0.3-preview 的行為請讀[固定版本文件](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.3-preview/docs/product/analyzer-policy.md)。規則的設計理由、方法論支持範圍及取捨見[規則設計依據](rule-design-rationale.md)與[方法論來源](methodology-references.md)。
 
 ## 目前預設與選用
 

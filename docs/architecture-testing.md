@@ -1,6 +1,6 @@
 # 用一般測試限制組件的直接依賴
 
-本機候選 `0.0.6-preview` 的 `ArchPrecept.Templates` 提供 `ap-boundary-test`。在已有 xUnit 的測試專案加入受檢與禁止依賴的兩個專案參考，各選一個**定義在該組件內**的公開型別。產品專案無需加入 ArchPrecept 套件。
+`0.0.6-preview` 的 `ArchPrecept.Templates` 提供 `ap-boundary-test`。在已有 xUnit 的測試專案加入受檢與禁止依賴的兩個專案參考，各選一個**定義在該組件內**的公開型別。產品專案無需加入 ArchPrecept 套件。
 
 ```shell
 dotnet new ap-boundary-test -n DomainCannotReferenceSql --sourceType Shop.Domain.Order --forbiddenType Shop.Sql.OrderStore -o tests/Shop.Tests

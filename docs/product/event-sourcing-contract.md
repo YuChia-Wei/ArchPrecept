@@ -1,6 +1,6 @@
 # CT-005：Event Sourcing 核心契約與套件邊界
 
-本文件定義 [PRD CT-005](prd.md) 的記憶體內事件生命週期及 0.0.6-preview 開發版 API。已發布 0.0.5-preview 的契約見[該版來源](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.5-preview/docs/product/event-sourcing-contract.md)。事件重播與副作用隔離的設計依據見[規則設計理由](rule-design-rationale.md)。
+本文件定義 [PRD CT-005](prd.md) 的記憶體內事件生命週期及 0.0.6-preview API。已發布 0.0.5-preview 的契約見[該版來源](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.5-preview/docs/product/event-sourcing-contract.md)。事件重播與副作用隔離的設計依據見[規則設計理由](rule-design-rationale.md)。
 
 ## 責任與相依
 

@@ -1,6 +1,6 @@
 # 各套件的最小使用與責任
 
-本頁說明本機候選 **0.0.6-preview**。使用 GitHub Packages 上的 **0.0.5-preview** 時，請讀[該版手冊](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.5-preview/docs/package-usage.md)。安裝來源、SDK 8／10 與 AdditionalFiles 接線見[安裝指南](getting-started.md)。下列 C# 範例使用一般 SDK implicit usings。
+本頁說明 **0.0.6-preview**，套件取得方式見[當版紀錄](releases/0.0.6-preview.md)。使用 GitHub Packages 上的 **0.0.5-preview** 時，請讀[該版手冊](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.5-preview/docs/package-usage.md)。安裝來源、SDK 8／10 與 AdditionalFiles 接線見[安裝指南](getting-started.md)。下列 C# 範例使用一般 SDK implicit usings。
 
 ## ArchPrecept.Templates
 
@@ -76,7 +76,7 @@ Aggregate port 保留 `FindByIdAsync`／`SaveAsync`。不存在的 identity 以 
 
 加入 `ArchPrecept.Contracts.Domain.EventSourcing`，NuGet 會帶入 Domain。從 `EsAggregateRoot<TId>` 衍生，在初始化完成後用 `Apply` 處理新事件，或以 `LoadFromHistory` 重播完整有序歷史；覆寫 `When(IDomainEvent)` 處理狀態。完整可用範例及失敗情境見 [CT-005](product/event-sourcing-contract.md)。
 
-0.0.6-preview 開發版的儲存端接受 `IESAggregateRoot<TId>`，可讀取 Id、已提交版本及依套用順序排列的 pending events。重播只重建狀態。成功 append 本批全部事件後，才以 `MarkChangesAsCommitted` 確認版本並清除 pending。append 的原子性及結果由儲存 adapter 驗證；轉換失敗的實例須丟棄。Event Store、snapshot、upcasting、跨程序並行與 retry 亦由 adapter 定義。DBA1009 檢查宣告的局部 state mutation。
+0.0.6-preview 的儲存端接受 `IESAggregateRoot<TId>`，可讀取 Id、已提交版本及依套用順序排列的 pending events。重播只重建狀態。成功 append 本批全部事件後，才以 `MarkChangesAsCommitted` 確認版本並清除 pending。append 的原子性及結果由儲存 adapter 驗證；轉換失敗的實例須丟棄。Event Store、snapshot、upcasting、跨程序並行與 retry 亦由 adapter 定義。DBA1009 檢查宣告的局部 state mutation。
 
 ## Messaging
 

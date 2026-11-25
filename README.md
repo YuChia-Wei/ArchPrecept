@@ -9,11 +9,11 @@ The analyzer works with your own contracts through explicit role mapping. Instal
 the reference contracts, an AI tool, or a collaboration framework is optional.
 Current supported consumers use .NET 8 or 10.
 
-This source targets **0.0.6-preview** for local evaluation. The latest published packages are **0.0.5-preview**. Use the [published manual](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.5-preview/docs) with that release. For a local build, follow the [starter and item template guide](docs/templates.md). The optional [assembly dependency test](docs/architecture-testing.md) checks one consumer-defined boundary with xUnit.
+This source targets **0.0.6-preview**. See its [release status and upgrade guide](docs/releases/0.0.6-preview.md) for package availability and installation. For the previous release, use the [0.0.5-preview manual](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.5-preview/docs). The [starter and item template guide](docs/templates.md) covers generating project code, and the [assembly dependency test](docs/architecture-testing.md) checks one consumer-defined boundary with xUnit.
 Start with the [installation guide](docs/getting-started.md),
 [package usage](docs/package-usage.md), [rule rationale](docs/product/rule-design-rationale.md),
 and [configuration](docs/product/analyzer-policy.md).
-See the [0.0.5 release record](docs/releases/0.0.5-preview.md) for publication and
+See the [release record](docs/releases/0.0.6-preview.md) for publication and
 validation status; the version in source alone does not establish feed availability.
 The [rule-contract changes](docs/releases/rule-contract-candidate.md) describe the
 changes from [0.0.3-preview](docs/releases/0.0.3-preview.md).
@@ -66,7 +66,7 @@ The preview targets GitHub Packages. A package release tag must match the
 version in `Directory.Build.props` and point to a commit on `main`.
 The release builds and tests the packages, then verifies public registry metadata
 and consumption on .NET 8 and 10. Documentation tags publish the DocFX site to GitHub Pages.
-See the [current release record](docs/releases/0.0.5-preview.md),
+See the [current release record](docs/releases/0.0.6-preview.md),
 [0.0.2 record](docs/releases/0.0.2-preview.md), and [first preview record](docs/releases/preview.md) for evidence.
 
 Analyzer Diagnostic 的觸發條件、範例、修正與 suppression 指引，請見
