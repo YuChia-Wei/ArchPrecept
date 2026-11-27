@@ -5,7 +5,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
-$repo = Split-Path $PSScriptRoot
+$repo = [IO.Path]::GetFullPath('../../..', $PSScriptRoot)
 $docs = Join-Path $repo 'docs'
 $work = Join-Path ([IO.Path]::GetFullPath($ScratchRoot)) ([guid]::NewGuid().ToString('N'))
 $output = [IO.Path]::GetFullPath($OutputDirectory)
@@ -18,7 +18,7 @@ try {
     $commit = git rev-parse --verify HEAD
     dotnet tool restore --tool-manifest .config/dotnet-tools.json
     New-Item -ItemType Directory -Path $assemblies -Force | Out-Null
-    Copy-Item -Path "$PSScriptRoot/docfx/*" -Destination $docset -Recurse
+    Copy-Item -Path "$PSScriptRoot/../docfx/*" -Destination $docset -Recurse
 
     # The nupkg and GitHub views keep their own relative links. On Pages,
     # targets outside docs/ point back to the exact source used for this build.

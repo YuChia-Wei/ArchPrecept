@@ -1,0 +1,72 @@
+param([string]$OutputDirectory = 'artifacts/packages', [string]$ScratchRoot, [switch]$SkipPack)
+$ErrorActionPreference = 'Stop'
+$PSNativeCommandUseErrorActionPreference = $true
+Push-Location ([IO.Path]::GetFullPath('../../..', $PSScriptRoot))
+try {
+    $version = & (Join-Path $PSScriptRoot 'Get-PackageVersion.ps1')
+    $buildArguments = @("-p:Version=$version")
+    $resultsDirectory = 'artifacts/test-results'
+    if ($ScratchRoot) {
+        $buildArguments += @('--artifacts-path', (Join-Path $ScratchRoot 'build'))
+        $resultsDirectory = Join-Path $ScratchRoot 'test-results'
+    }
+    dotnet restore ArchPrecept.slnx @buildArguments
+    dotnet build ArchPrecept.slnx -c Release --no-restore @buildArguments
+    dotnet test ArchPrecept.slnx -c Release --no-build --logger trx --results-directory $resultsDirectory @buildArguments
+    if ($SkipPack) { return }
+    dotnet pack ArchPrecept.slnx -c Release --no-build -o $OutputDirectory @buildArguments
+    $expectedDependencies = @{
+        'ArchPrecept.Analyzers.Core' = @()
+        'ArchPrecept.Contracts.Domain' = @()
+        'ArchPrecept.Contracts.Application' = @('ArchPrecept.Contracts.Domain')
+        'ArchPrecept.Contracts.Messaging' = @()
+        'ArchPrecept.Contracts.Application.Messaging' = @('ArchPrecept.Contracts.Messaging')
+        'ArchPrecept.Contracts.Domain.EventSourcing' = @('ArchPrecept.Contracts.Domain')
+        'ArchPrecept.Templates' = @()
+    }
+    $ids = $expectedDependencies.Keys
+    $packages = @(Get-ChildItem $OutputDirectory -Filter *.nupkg)
+    if ($packages.Count -ne $ids.Count) { throw "Expected exactly $($ids.Count) packages; use a fresh output directory." }
+    foreach ($id in $ids) {
+        $file = Join-Path $OutputDirectory "$id.$version.nupkg"
+        $zip = [IO.Compression.ZipFile]::OpenRead((Resolve-Path $file))
+        try {
+            $entries = @($zip.Entries.FullName)
+            $documents = @('README.md', 'rules/catalog.xml', 'rules/catalog.xsd', 'rules/configuration.xsd', 'docs/getting-started.md', 'docs/package-usage.md')
+            if ($id -eq 'ArchPrecept.Templates') {
+                if (!($entries -match '^content/.*/\.template\.config/template\.json$') -or ($entries -match '^(lib|analyzers)/')) {
+                    throw "Invalid template package layout: $id"
+                }
+            } else {
+                $expectedDll = if ($id -eq 'ArchPrecept.Analyzers.Core') { "analyzers/dotnet/cs/$id.dll" } else { "lib/net8.0/$id.dll" }
+                if ($expectedDll -notin $entries) { throw "Invalid package layout: $id" }
+                $documents += [IO.Path]::ChangeExtension($expectedDll, '.xml')
+            }
+            foreach ($document in $documents) {
+                if ($zip.GetEntry($document).Length -le 0) { throw "Missing or empty package document: $id / $document" }
+            }
+            $catalogReader = [IO.StreamReader]::new($zip.GetEntry('rules/catalog.xml').Open())
+            try { [xml]$catalog = $catalogReader.ReadToEnd() } finally { $catalogReader.Dispose() }
+            foreach ($rule in $catalog.RuleCatalog.Rule) {
+                if ($zip.GetEntry($rule.document).Length -le 0) { throw "Missing rule document: $id / $($rule.document)" }
+            }
+            if ($id -eq 'ArchPrecept.Analyzers.Core' -and ($entries -match '^lib/|Microsoft.CodeAnalysis.*\.dll$')) { throw 'Analyzer must not ship runtime or Roslyn assemblies.' }
+            $reader = [IO.StreamReader]::new($zip.GetEntry("$id.nuspec").Open())
+            try { [xml]$spec = $reader.ReadToEnd() } finally { $reader.Dispose() }
+            if ($spec.package.metadata.version -ne $version -or $spec.package.metadata.id -ne $id) { throw 'Package identity mismatch.' }
+            if ($id -eq 'ArchPrecept.Templates' -and $spec.package.metadata.packageTypes.packageType.name -notcontains 'Template') { throw 'Expected NuGet Template package type.' }
+            $dependencies = @($spec.package.metadata.dependencies.group.dependency | Where-Object { $_ })
+            $expected = $expectedDependencies[$id]
+            if ($dependencies.Count -ne $expected.Count) { throw "Unexpected runtime dependency count: $id" }
+            foreach ($dependency in $dependencies) {
+                if ($dependency.id -notin $expected -or $dependency.version -ne $version) { throw "Unexpected runtime dependency for $id : $($dependency.id) $($dependency.version)" }
+            }
+            if ($spec.package.metadata.repository.url -ne 'https://github.com/YuChia-Wei/ArchPrecept') { throw 'Repository metadata mismatch.' }
+            if ($spec.package.metadata.license.type -ne 'expression' -or $spec.package.metadata.license.InnerText -ne 'Apache-2.0') { throw 'Expected Apache-2.0 SPDX license.' }
+            foreach ($notice in @('LICENSE', 'NOTICE', 'THIRD-PARTY-NOTICES.md')) {
+                if ($notice -notin $entries) { throw "Missing legal file: $notice" }
+            }
+        } finally { $zip.Dispose() }
+    }
+    $packages | Sort-Object Name | ForEach-Object { "$( (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() )  $($_.Name)" } | Set-Content (Join-Path $OutputDirectory 'SHA256SUMS')
+} finally { Pop-Location }
