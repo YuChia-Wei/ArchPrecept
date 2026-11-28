@@ -1,6 +1,6 @@
 # 各套件的最小使用與責任
 
-本頁說明 **0.0.6-preview**，套件取得方式見[當版紀錄](releases/0.0.6-preview.md)。使用 GitHub Packages 上的 **0.0.5-preview** 時，請讀[該版手冊](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.5-preview/docs/package-usage.md)。安裝來源、SDK 8／10 與 AdditionalFiles 接線見[安裝指南](getting-started.md)。下列 C# 範例使用一般 SDK implicit usings。
+本頁說明 **0.1.0-preview.1**，套件取得方式見[當版紀錄](releases/0.1.0-preview.1.md)。上一版使用 [0.0.6-preview 固定手冊](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.6-preview/docs/package-usage.md)。安裝來源、SDK 8／10 與 AdditionalFiles 接線見[安裝指南](getting-started.md)。下列 C# 範例使用一般 SDK implicit usings。
 
 ## ArchPrecept.Templates
 
@@ -46,7 +46,7 @@ public sealed class Document : AggregateRoot<int>
 }
 ```
 
-0.0.6-preview 開發版中，僅讀取 identity 的程式使用 `IDomainEntity<TId>`。需要觀察事件時，接受 `IDomainEventSource` 並讀取 `DomainEvents`。採用可編輯事件集合的普通 Entity 可繼承 `BufferedDomainEntity<TId>`，一般 `AggregateRoot<TId>` 已提供這項能力。`IDomainEventBuffer` 的 Add／Remove／Clear 只修改本機集合；dispatcher、交易與何時清除由 consumer 擁有。唯讀檢視保留事件物件的原參考。
+僅讀取 identity 的程式使用 `IDomainEntity<TId>`。需要觀察事件時，接受 `IDomainEventSource` 並讀取 `DomainEvents`。採用可編輯事件集合的普通 Entity 可繼承 `BufferedDomainEntity<TId>`，一般 `AggregateRoot<TId>` 已提供這項能力。`IDomainEventBuffer` 的 Add／Remove／Clear 只修改本機集合；dispatcher、交易與何時清除由 consumer 擁有。唯讀檢視保留事件物件的原參考。
 
 `IValueObject` 是選定政策 marker，`ValueObject` 提供依相等性元件比較的基底。領域模型負責維持不可變狀態，元件序列須穩定且符合 XML 所列非空／非 null 條件。
 
@@ -76,7 +76,7 @@ Aggregate port 保留 `FindByIdAsync`／`SaveAsync`。不存在的 identity 以 
 
 加入 `ArchPrecept.Contracts.Domain.EventSourcing`，NuGet 會帶入 Domain。從 `EsAggregateRoot<TId>` 衍生，在初始化完成後用 `Apply` 處理新事件，或以 `LoadFromHistory` 重播完整有序歷史；覆寫 `When(IDomainEvent)` 處理狀態。完整可用範例及失敗情境見 [CT-005](product/event-sourcing-contract.md)。
 
-0.0.6-preview 的儲存端接受 `IESAggregateRoot<TId>`，可讀取 Id、已提交版本及依套用順序排列的 pending events。重播只重建狀態。成功 append 本批全部事件後，才以 `MarkChangesAsCommitted` 確認版本並清除 pending。append 的原子性及結果由儲存 adapter 驗證；轉換失敗的實例須丟棄。Event Store、snapshot、upcasting、跨程序並行與 retry 亦由 adapter 定義。DBA1009 檢查宣告的局部 state mutation。
+儲存端接受 `IESAggregateRoot<TId>`，可讀取 Id、已提交版本及依套用順序排列的 pending events。重播只重建狀態。成功 append 本批全部事件後，才以 `MarkChangesAsCommitted` 確認版本並清除 pending。append 的原子性及結果由儲存 adapter 驗證；轉換失敗的實例須丟棄。Event Store、snapshot、upcasting、跨程序並行與 retry 亦由 adapter 定義。DBA1009 檢查宣告的局部 state mutation。
 
 ## Messaging
 

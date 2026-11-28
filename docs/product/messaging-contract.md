@@ -1,6 +1,6 @@
 # CT-004：Messaging 責任、相依與使用
 
-本文件定義 [PRD CT-004](prd.md) 的訊息契約與 Application 發布 port。將訊息資料、應用需求及傳輸機制分開，可讓接收端只依賴資料契約，並讓 Application 不依賴特定 broker。設計理由見[規則設計依據](rule-design-rationale.md)，已發布版本見[發布紀錄](../releases/0.0.3-preview.md)。
+本文件定義 ArchPrecept 的訊息契約與 Application 發布 port。將訊息資料、應用需求及傳輸機制分開，可讓接收端只依賴資料契約，並讓 Application 不依賴特定 broker。設計理由見[規則設計依據](rule-design-rationale.md)，本版套件取得方式見[候選版說明](../releases/0.1.0-preview.1.md)。
 
 ## 套件與型別歸屬
 
@@ -55,11 +55,9 @@ Host 範例使用以下設定鍵：`Messaging:Profile`、
 
 Central Package Management、NuGet source mapping、lock file 與容器還原設定應涵蓋實際採用的 Package ID 及傳遞相依。Host 範例直接參考 `Microsoft.Extensions.Configuration` 與 `Microsoft.Extensions.Configuration.Abstractions` 8.0.0；使用者應按自己的 host 版本選擇相依。設定詳見 [NuGet Package Source Mapping](https://learn.microsoft.com/en-us/nuget/consume-packages/package-source-mapping)。
 
-具體訊息 schema、serializer 的 assembly-qualified type mapping 及歷史資料由訊息產品維護；ArchPrecept 不提供資料遷移或型別轉接層。首個 non-preview 公開版本前的套件政策見[版本政策](../releases/version-policy-proposal.md)。
+具體訊息 schema、serializer 的 assembly-qualified type mapping 及歷史資料由訊息產品維護；ArchPrecept 不提供資料遷移或型別轉接層。首個 non-preview 公開版本前的套件政策見[版本政策](../releases/version-policy.md)。
 
-## 驗收與證據邊界
-
-`eng/Test-PackageConsumer.ps1` 在 SDK 8／10 用本機 nupkg 與獨立 cache 執行：
+## 可驗證行為
 
 | 情境 | 可觀察結果 |
 |---|---|
@@ -67,7 +65,6 @@ Central Package Management、NuGet source mapping、lock file 與容器還原設
 | 僅安裝 Application.Messaging | 自動引入 Messaging；metadata-aware adapter 收到原事件與 metadata |
 | 僅實作單參數 overload | 預設委派一次；不宣稱 metadata 被使用 |
 | Adapter 回傳失敗 Task | 呼叫端觀察到原始例外 |
-| Host 接管設定來源 | InMemory、Kafka、AMQP／AMQPS 正例及未知／缺漏／錯誤設定反例通過 |
+| Host 擁有傳輸設定 | Host 可依自身規則接受 InMemory、Kafka 或 AMQP／AMQPS 設定，拒絕未知、缺漏或無效設定 |
 
-產品套件的 nuspec 相依也由既有封裝檢查驗證。範例使用本機替身，
-不代表任何真實 broker 的交付、去重或連線驗證。
+Port 的契約涵蓋呼叫、資料傳遞及錯誤。採用端應以實際傳輸機制核對自己宣告的 broker 行為。[傳輸設定的責任](#傳輸設定的責任)

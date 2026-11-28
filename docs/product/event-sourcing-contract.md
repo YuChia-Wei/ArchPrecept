@@ -1,6 +1,6 @@
 # CT-005：Event Sourcing 核心契約與套件邊界
 
-本文件定義 [PRD CT-005](prd.md) 的記憶體內事件生命週期及 0.0.6-preview API。已發布 0.0.5-preview 的契約見[該版來源](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.5-preview/docs/product/event-sourcing-contract.md)。事件重播與副作用隔離的設計依據見[規則設計理由](rule-design-rationale.md)。
+本文件定義 ArchPrecept 的記憶體內事件生命週期及 [0.1.0-preview.1](../releases/0.1.0-preview.1.md) 的公開 API。事件重播與副作用隔離的設計依據見[規則設計理由](rule-design-rationale.md)。
 
 ## 責任與相依
 
@@ -68,9 +68,7 @@ DBA1009 辨識提供 When 的 ES 參考基底或精確映射的自有根。單�
 
 ## 可驗證行為
 
-以下 Given／When／Then 對應
-[`EsAggregateRootTests`](../../tests/Contracts/ArchPrecept.Contracts.Domain.EventSourcing.Tests/EsAggregateRootTests.cs)，
-同一組案例在 .NET 8 與 .NET 10 執行。
+以下情境說明採用端可以觀察的重播、版本與提交行為。
 
 | Given | When | Then |
 |---|---|---|
@@ -84,9 +82,7 @@ DBA1009 辨識提供 When 的 ES 參考基底或精確映射的自有根。單�
 | 一般 Aggregate | 使用原有事件 mutator | 行為維持不變 |
 | 未知事件、讀取歷史失敗或 When 重入 | 重播或 Apply 失敗 | 不記錄失敗事件，實例不能繼續使用 |
 
-並行衝突案例使用明確的記憶體測試替身，只驗證呼叫者與聚合契約，不宣稱真實資料庫的交易保證。
-[`samples/EventSourcing/Program.cs`](../../samples/EventSourcing/Program.cs) 由 package consumer
-腳本以真實本機 nupkg 執行，並驗證 DBA1009 仍能辨識新 assembly 的 ES 基底。
+儲存端決定交易、並行衝突與失敗處理。採用端需用自己的儲存機制驗證這些行為。Analyzer 對 ES 基底及自有角色的判定見 [DBA1009](../diagnostics/DBA1009.md)。
 
 ## 採用方式
 
@@ -98,4 +94,58 @@ DBA1009 辨識提供 When 的 ES 參考基底或精確映射的自有根。單�
 
 使用 Central Package Management 時，在 `Directory.Packages.props` 設定所選版本；精確列舉 Package ID 的 NuGet source mapping 須涵蓋 EventSourcing 與 Domain。套件相依宣告最低版本，未保證任意版本混搭；使用端應明確統一並驗證所選套件組合。
 
-事件 payload、serializer 型別映射、儲存端 schema 與資料演進由 consumer 擁有。此契約不提供資料轉換、type forwarder、snapshot 或 upcasting。首個 non-preview 公開版本前的套件政策見[版本政策](../releases/version-policy-proposal.md)。
+事件 payload、serializer 型別映射、儲存端 schema 與資料演進由 consumer 擁有。此契約不提供資料轉換、type forwarder、snapshot 或 upcasting。首個 non-preview 公開版本前的套件政策見[版本政策](../releases/version-policy.md)。
+
+### 既有訂單如何保留歷史事件與 dispatcher
+
+單獨採用 Analyzer 的專案可以保留自有 ES 基底，依 [DBA1009 說明](../diagnostics/DBA1009.md) 啟用規則及設定角色。以下範例適用於已決定改繼承 `EsAggregateRoot<Guid>`、仍須讀取舊訂單並沿用既有 dispatcher 的專案。
+
+**沿用已儲存的事件型別。** 即使兩個 `IDomainEvent` 都宣告 `EventId` 和 `OccurredOn`，CLR 仍視為兩個介面。讓每一種會進入這條事件流的既有事件也實作套件介面，並保留具體事件原來的 namespace、組件與成員。下例示範如何調整出貨事件。
+
+```csharp
+using LegacyEvent = Shop.Domain.IDomainEvent;
+using PackageEvent = ArchPrecept.Contracts.Domain.IDomainEvent;
+
+namespace Shop.Orders.Events;
+
+public sealed record OrderShippedDomainEvent(Guid OrderId, string Reason, DateTime OccurredOn)
+    : LegacyEvent, PackageEvent
+{
+    public Guid EventId { get; init; } = Guid.NewGuid();
+}
+```
+
+Repository 仍以原本的事件型別識別碼選取具體型別，並沿用既有 JSON 設定，從舊資料還原原本的 `EventId`、時間和內容。若有只能實作舊介面的事件，須在重播入口明確轉接並保留這些值。略過無法轉型的事件會改變重播所得的狀態與版本。
+
+**保留公開的歷史建構子。** 以下是 `Order : EsAggregateRoot<Guid>` 的兩個建構子，沿用上例的型別別名。舊模型允許讀取空訂單的 `Guid.Empty`，因此在此明確傳入 `base(Guid.Empty)`。訂單建立事件在 `When(PackageEvent)` 中指派實際訂單 ID。
+
+```csharp
+public Order() : base(Guid.Empty) { }
+
+public Order(IEnumerable<LegacyEvent> history) : this()
+{
+    LoadFromHistory(history.Cast<PackageEvent>());
+}
+```
+
+**讓儲存端擁有提交確認。** 先盤點 `AddDomainEvent`、`RemoveDomainEvent`、`ClearDomainEvents` 的呼叫端。訂單命令改由 `Apply` 記錄事件，dispatcher 只讀取當批事件。若舊 repository 的泛型約束要求可編輯事件緩衝，訂單寫入 port 可以採用 `ArchPrecept.Contracts.Application.IAggregateRepository<Order, Guid>`，保留 `FindByIdAsync` 與 `SaveAsync`。
+
+以下是 `SaveAsync` 中的順序。`store.AppendAtVersionAsync` 代表採用端的儲存操作，須以預期版本原子寫入整批事件，在交易提交後才傳回已儲存的事件總數。若同次寫入 outbox，該筆寫入也由這項交易完成。
+
+```csharp
+IESAggregateRoot<Guid> stream = order;
+var expectedVersion = stream.Version;
+var batch = stream.DomainEvents.Cast<LegacyEvent>().ToArray();
+if (batch.Length == 0)
+{
+    return;
+}
+
+var committedVersion = await store.AppendAtVersionAsync(order.Id, expectedVersion, batch, cancellationToken);
+stream.MarkChangesAsCommitted(committedVersion);
+await dispatcher.DispatchAsync(batch, cancellationToken);
+```
+
+`ToArray()` 在開啟交易前確認整批事件皆可交給舊 dispatcher，並保留原事件物件。版本衝突時，聚合仍保有 pending events。若交易已成功、後續分派失敗，事件已持久化，應依採用端的分派策略復原。Broker 投遞與重試由採用端負責。
+
+驗證遷移時，可讓舊程式建立訂單並提交第一個事件，再由新版讀取、出貨並提交第二個事件，最後用舊版讀回同一條事件流。核對出貨狀態、版本 `2`、待提交事件數 `0`，以及儲存中的事件識別碼、順序與時間。

@@ -2,7 +2,6 @@
 title: "ArchPrecept 方法論與平台參考來源"
 document_id: DOC-METHODOLOGY-REFERENCES
 document_version: 0.2
-last_reviewed: 2026-10-29
 status: active
 owner: "YuChia Wei"
 lang: zh-TW

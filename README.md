@@ -1,73 +1,27 @@
 # ArchPrecept
 
-ArchPrecept provides independently usable .NET architecture analyzers and optional
-reference contracts. It checks selected boundaries and conventions at compile time:
-Aggregate and query responsibilities, application and delivery separation, explicit
-dependencies, event-sourced state transitions, and Value Object state.
+ArchPrecept provides a standalone .NET architecture analyzer and optional reference contracts. The analyzer checks aggregate and query responsibilities, application and delivery boundaries, explicit dependencies, event-sourced state transitions, and value object state at compile time. Explicit role mappings let you use your own interfaces and base types. Consumer projects can use .NET SDK 8 or 10. [Platform support and version policy](docs/releases/version-policy.md)
 
-The analyzer works with your own contracts through explicit role mapping. Installing
-the reference contracts, an AI tool, or a collaboration framework is optional.
-Current supported consumers use .NET 8 or 10.
+This source targets the **0.1.0-preview.1 release candidate**. Check package availability separately for NuGet.org and GitHub Packages, and use the documentation for the version you install. [Release candidate and installation](docs/releases/0.1.0-preview.1.md) · [Documentation and version index (Traditional Chinese)](docs/README.md)
 
-This source targets **0.0.6-preview**. See its [release status and upgrade guide](docs/releases/0.0.6-preview.md) for package availability and installation. For the previous release, use the [0.0.5-preview manual](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.5-preview/docs). The [starter and item template guide](docs/templates.md) covers generating project code, and the [assembly dependency test](docs/architecture-testing.md) checks one consumer-defined boundary with xUnit.
-Start with the [installation guide](docs/getting-started.md),
-[package usage](docs/package-usage.md), [rule rationale](docs/product/rule-design-rationale.md),
-and [configuration](docs/product/analyzer-policy.md).
-See the [release record](docs/releases/0.0.6-preview.md) for publication and
-validation status; the version in source alone does not establish feed availability.
-The [rule-contract changes](docs/releases/rule-contract-candidate.md) describe the
-changes from [0.0.3-preview](docs/releases/0.0.3-preview.md).
-For setup instructions, examples and diagnostic fixes, visit the [ArchPrecept documentation site](https://yuchia-wei.github.io/ArchPrecept/). To read the Markdown for this revision, open the [documentation index](docs/README.md).
-CT-005 adds the optional `ArchPrecept.Contracts.Domain.EventSourcing` package.
-CT-004 separates `ArchPrecept.Contracts.Messaging` message contracts from the
-`ArchPrecept.Contracts.Application.Messaging` publisher port. Transport configuration
-belongs to the consuming host; a non-shipping configuration example lives under `samples/Messaging/Host`.
-See the [0.0.2 release history](docs/releases/0.0.2-preview.md),
-[ES contract](docs/product/event-sourcing-contract.md), and
-[Messaging boundaries and usage](docs/product/messaging-contract.md).
-Domain and Analyzer users do not need either optional capability.
-Pull requests run quality checks. After a change reaches `main`, maintainers
-publish packages and the documentation site with separate release tags.
-See the [release rules and CI/CD guide](docs/releases/cicd-plan.md).
+## Getting started
 
-Before the first public release without any prerelease suffix, APIs, rule IDs,
-configuration and defaults may change without backward compatibility support.
-Use the documentation for the package version you install. Stable-release readiness
-requires source-backed rule explanations, complete usage guidance and readable
-API XML documentation delivered in the packages; see the
-[version and readiness policy](docs/releases/version-policy-proposal.md) and
-[stable release and documentation roadmap](docs/releases/stable-release-roadmap.md).
+- Install the analyzer, map roles in an existing project, or choose optional reference contracts. [Installation](docs/getting-started.md) · [Package usage](docs/package-usage.md) · [Analyzer configuration](docs/product/analyzer-policy.md)
+- Generate code with starter and item templates, or use xUnit to check a direct assembly dependency. [Templates](docs/templates.md) · [Architecture testing](docs/architecture-testing.md)
+- Look up a `DBA` diagnostic for its trigger conditions, passing and failing examples, fixes, and suppression guidance. [Diagnostic index](docs/diagnostics/README.md)
+- Learn how to replay events and confirm commits, or use message contracts and the application publisher port with your own transport. [Event Sourcing contract](docs/product/event-sourcing-contract.md) · [Messaging contract](docs/product/messaging-contract.md)
 
-ArchPrecept adopts concrete, sometimes stricter policies from DDD, Clean Architecture,
-Hexagonal Architecture and SOLID principles. A diagnostic checks its documented
-predicate; a clean build is not proof of complete methodology conformance.
+The documentation site includes installation guides, usage examples, and diagnostic help. [ArchPrecept documentation](https://yuchia-wei.github.io/ArchPrecept/)
 
-## Planned Repository Areas
+## Product scope and source layout
 
-- `src/Templates/` — SDK project and item templates for consumers.
-- `src/Contracts/` — optional runtime contract and base-type projects.
-- `src/Analyzers/` — Roslyn analyzer projects and configuration examples.
-- Direct assembly dependency tests are available as source items in `ArchPrecept.Templates`. A standalone architecture testing library remains outside the first stable scope.
-- `src/Conformance/` — planned repository conformance and reporting capability.
-- `tests/<Capability>/` — non-shipping automated verification projects grouped to mirror `src/`.
-- `samples/` — package-consumer examples and smoke-test projects.
-- `docs/` — product, analyzer Diagnostic manuals, packaging and release records.
-- `rules/` — the single machine-readable rule catalog and configuration schemas.
-- `.dev/` — development guidance and the selected framework adoption boundary.
+ArchPrecept uses specific rules informed by DDD, Clean Architecture, Hexagonal Architecture, and SOLID. Diagnostic results cover conditions the enabled rules can evaluate in the current compilation. [Product scope and direction](docs/product/README.md) · [Rule design rationale](docs/product/rule-design-rationale.md)
 
-All buildable, publishable product source belongs under a capability directory in
-`src/`. Test and sample projects remain outside `src/` because they are
-verification and adoption assets rather than product artifacts.
+| Path | Purpose |
+|---|---|
+| `src/Analyzers/`, `src/Contracts/`, `src/Templates/` | Analyzer, reference contracts, and SDK templates |
+| `tests/`, `samples/` | Automated tests and consumer examples |
+| `docs/`, `rules/` | Product documentation, release notes, machine-readable rule catalog, and configuration schema |
+| `.dev/` | Product requirements and repository development policies |
 
-Only the seven implemented product projects are packable. Tests and samples do not
-ship. ArchPrecept's own code and documentation are licensed under
-[Apache-2.0](LICENSE); dependencies retain their respective licenses.
-The preview targets GitHub Packages. A package release tag must match the
-version in `Directory.Build.props` and point to a commit on `main`.
-The release builds and tests the packages, then verifies public registry metadata
-and consumption on .NET 8 and 10. Documentation tags publish the DocFX site to GitHub Pages.
-See the [current release record](docs/releases/0.0.6-preview.md),
-[0.0.2 record](docs/releases/0.0.2-preview.md), and [first preview record](docs/releases/preview.md) for evidence.
-
-Analyzer Diagnostic 的觸發條件、範例、修正與 suppression 指引，請見
-[`docs/diagnostics/README.md`](docs/diagnostics/README.md)。
+The seven packages share a version and can be adopted individually. ArchPrecept's code and documentation are licensed under Apache-2.0. Third-party dependencies retain their respective licenses. [LICENSE](LICENSE) · [NOTICE](NOTICE)

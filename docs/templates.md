@@ -1,17 +1,19 @@
 # 建立 starter 與新增 Domain、Application 程式碼
 
-`ArchPrecept.Templates` 是 .NET SDK 範本套件。準備能建置目標 TFM 的 SDK（.NET 8 或 10），並設定可讀取所選版本的 NuGet source。GitHub Packages 的驗證前提見[安裝指南](getting-started.md)，當版成品狀態見[0.0.6-preview 紀錄](releases/0.0.6-preview.md)。
+`ArchPrecept.Templates` 是 .NET SDK 範本套件。準備能建置目標 TFM 的 SDK（.NET 8 或 10），並設定可讀取所選版本的 NuGet source。GitHub Packages 的來源與憑證設定見[Preview 安裝步驟](releases/0.0.6-preview.md#專案試裝)，候選版上架狀態見[0.1.0-preview.1](releases/0.1.0-preview.1.md)。
 
-已發布的 `0.0.5-preview` 提供 `ap-starter` 與 `ap-vo`。`0.0.6-preview` 增加下表的 item。兩版各自的 starter 均使用該版 Analyzer 與所選 Contracts。以下以 SDK 8／10 及對應的 `net8.0`／`net10.0` 為 consumer 基線。產品本身的開發 SDK 另見 repository 根目錄的 global.json。
+`ap-starter` 會產生專案，其他 item 範本可加入既有專案。starter 會精確引用與已安裝範本同版的 Analyzer，以及所選的 Contracts。以下命令適用於 .NET SDK 8／10 與對應的 `net8.0`／`net10.0`。
 
 ```sh
-dotnet new install ArchPrecept.Templates::0.0.6-preview
+dotnet new install ArchPrecept.Templates::0.1.0-preview.1
 dotnet new list ap-
 dotnet new ap-starter --help
 dotnet new ap-vo --help
 ```
 
-使用本機 feed 時，以成品的完整路徑執行 `dotnet new install <path-to-ArchPrecept.Templates.0.0.6-preview.nupkg>`，並將同一次 build 的套件目錄加入 consumer 的 NuGet 來源。使用 `dotnet new list ap-` 查詢 short name，使用 `dotnet new <short-name> --help` 查參數。安裝不同版本只影響之後的生成。
+使用本機 feed 時，以成品的完整路徑執行 `dotnet new install <path-to-ArchPrecept.Templates.0.1.0-preview.1.nupkg>`，並將同一次 build 的套件目錄加入 consumer 的 NuGet 來源。使用 `dotnet new list ap-` 查詢 short name，使用 `dotnet new <short-name> --help` 查參數。安裝不同版本只影響之後的生成。
+
+starter 原始檔中的套件版號是佔位符。CI 封裝時會將發布 tag 的版號寫入套件內的 `SampleShop.csproj`。要驗證該版本，請安裝該次建置的 `.nupkg`。直接安裝原始目錄會略過封裝，產生的專案會保留佔位符。
 
 ## 參考契約
 

@@ -1,5 +1,7 @@
 - name: 使用手冊
   href: index.md
+- name: 產品定位與範圍
+  href: product/README.md
 - name: 安裝指南
   href: getting-started.md
 - name: Price 範例

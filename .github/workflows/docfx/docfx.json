@@ -9,7 +9,6 @@
     "content": [
       { "files": ["**/*.md", "toc.yml", "api/**/*.yml"] }
     ],
-    "resource": [{ "files": ["releases/*.json"] }],
     "template": ["default", "modern", "theme"],
     "globalMetadata": {
       "_appName": "ArchPrecept",
