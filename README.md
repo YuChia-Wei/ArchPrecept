@@ -2,7 +2,7 @@
 
 ArchPrecept provides a standalone .NET architecture analyzer and optional reference contracts. The analyzer checks aggregate and query responsibilities, application and delivery boundaries, explicit dependencies, event-sourced state transitions, and value object state at compile time. Explicit role mappings let you use your own interfaces and base types. Consumer projects can use .NET SDK 8 or 10. [Platform support and version policy](docs/releases/version-policy.md)
 
-This source targets the **0.1.0-preview.1 release candidate**. Check package availability separately for NuGet.org and GitHub Packages, and use the documentation for the version you install. [Release candidate and installation](docs/releases/0.1.0-preview.1.md) · [Documentation and version index (Traditional Chinese)](docs/README.md)
+All seven **0.1.0-preview.1** packages are available on NuGet.org and GitHub Packages. NuGet.org supports anonymous restore. Both feeds passed consumer validation with .NET SDK 8 and 10. The first stable release, `0.1.0`, is still pending. [Release notes and installation](docs/releases/0.1.0-preview.1.md) · [Documentation and version index (Traditional Chinese)](docs/README.md)
 
 ## Getting started
 

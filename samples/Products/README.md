@@ -6,7 +6,7 @@ API 透過 NuGet 引用 Contracts.Application、其傳遞相依 Domain，以及 
 
 ## 還原與執行
 
-準備 .NET SDK 8 或 10。以下命令適用於候選版在 NuGet.org 上架後，從 repository 根目錄執行。本機試裝時，在 restore 命令加上 `--source <本機套件目錄>` 並保留 nuget.org 供外部相依使用。套件上架狀態見[候選版說明](../../docs/releases/0.1.0-preview.1.md)。
+準備 .NET SDK 8 或 10，從 repository 根目錄執行以下命令，即可從 NuGet.org 匿名還原 `0.1.0-preview.1`。要試裝本機套件時，請在 restore 命令加上 `--source <本機套件目錄>` 並保留 nuget.org 供外部相依使用。[0.1.0-preview.1 套件來源](../../docs/releases/0.1.0-preview.1.md#取得套件)
 
 ```powershell
 $version = '0.1.0-preview.1'

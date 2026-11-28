@@ -1,6 +1,6 @@
 # CT-004：Messaging 責任、相依與使用
 
-本文件定義 ArchPrecept 的訊息契約與 Application 發布 port。將訊息資料、應用需求及傳輸機制分開，可讓接收端只依賴資料契約，並讓 Application 不依賴特定 broker。設計理由見[規則設計依據](rule-design-rationale.md)，本版套件取得方式見[候選版說明](../releases/0.1.0-preview.1.md)。
+本文件定義 ArchPrecept 的訊息契約與 Application 發布 port。將訊息資料、應用需求及傳輸機制分開，可讓接收端只依賴資料契約，並讓 Application 不依賴特定 broker。設計理由見[規則設計依據](rule-design-rationale.md)，本版套件取得方式見[發布紀錄](../releases/0.1.0-preview.1.md#取得套件)。
 
 ## 套件與型別歸屬
 

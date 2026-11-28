@@ -1,6 +1,6 @@
 # 建立 starter 與新增 Domain、Application 程式碼
 
-`ArchPrecept.Templates` 是 .NET SDK 範本套件。準備能建置目標 TFM 的 SDK（.NET 8 或 10），並設定可讀取所選版本的 NuGet source。GitHub Packages 的來源與憑證設定見[Preview 安裝步驟](releases/0.0.6-preview.md#專案試裝)，候選版上架狀態見[0.1.0-preview.1](releases/0.1.0-preview.1.md)。
+`ArchPrecept.Templates` 是 .NET SDK 範本套件。準備能建置目標 TFM 的 SDK（.NET 8 或 10），並將 NuGet.org 加入套件來源，即可匿名安裝 `0.1.0-preview.1`。如果使用 GitHub Packages，請設定對應的來源與憑證。[0.1.0-preview.1 套件來源](releases/0.1.0-preview.1.md#取得套件)
 
 `ap-starter` 會產生專案，其他 item 範本可加入既有專案。starter 會精確引用與已安裝範本同版的 Analyzer，以及所選的 Contracts。以下命令適用於 .NET SDK 8／10 與對應的 `net8.0`／`net10.0`。
 

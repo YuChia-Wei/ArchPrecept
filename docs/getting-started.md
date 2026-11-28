@@ -1,6 +1,6 @@
 # 安裝與使用 ArchPrecept
 
-[0.1.0-preview.1](releases/0.1.0-preview.1.md) 上架後可用以下範例驗證安裝。試用已發布的上一版，請參閱 [0.0.6-preview 安裝步驟](releases/0.0.6-preview.md#專案試裝)。
+七個 `0.1.0-preview.1` 套件都可從 NuGet.org 匿名還原。以下範例從 NuGet.org 安裝並驗證 Analyzer。若專案使用 GitHub Packages，請依當版發布紀錄設定來源與憑證。[0.1.0-preview.1 發布紀錄](releases/0.1.0-preview.1.md#取得套件) · [0.0.6-preview 安裝步驟](releases/0.0.6-preview.md#專案試裝)
 
 ## 首次安裝與診斷驗證（0.1.0-preview.1）
 
@@ -120,7 +120,7 @@ dotnet_diagnostic.DBA1018.severity = error
 
 首個不含任何 prerelease 後綴的公開版本發布前不提供向後相容保證。安裝或更新時讀取該版本的使用與規則文件；目前文件中的 `legacy` 是已實作設定名稱，不是保留舊版本的承諾。詳見[版本與發布準備政策](releases/version-policy.md)。
 
-Contracts 套件在 `lib/net8.0/<Assembly>.xml` 提供 API 文件；Analyzer 的對應 DLL/XML 在 `analyzers/dotnet/cs/`，不作為 runtime reference。每包的 `docs/` 直接封裝同一份原創說明，`rules/catalog.xml` 保持唯一機器來源。編譯器／IDE 從 DLL 旁 XML 讀 tooltip，AI 或人工可直接讀 XML 的 member ID、summary／param／returns／value／remarks。候選 HelpLink／SARIF 指向組件 informational version 的來源 SHA；無 Git source revision 的開發 build 不符合文件交付驗收。
+Contracts 套件在 `lib/net8.0/<Assembly>.xml` 提供 API 文件；Analyzer 的對應 DLL/XML 在 `analyzers/dotnet/cs/`，不作為 runtime reference。每包的 `docs/` 直接封裝同一份原創說明，`rules/catalog.xml` 保持唯一機器來源。編譯器／IDE 從 DLL 旁 XML 讀 tooltip，AI 或人工可直接讀 XML 的 member ID、summary／param／returns／value／remarks。此版的 HelpLink／SARIF 指向組件 informational version 的來源 SHA；無 Git source revision 的開發 build 不符合文件交付驗收。
 
 規則文件中的程式碼與測試相對路徑指向 repository 的同一來源修訂，未把產品原始碼當作 runtime 套件內容。離線閱讀先用隨包 rationale、Diagnostic 手冊與使用指南；追查實作時使用 `.nuspec` repository commit 或 Diagnostic 固定 SHA 連結。
 

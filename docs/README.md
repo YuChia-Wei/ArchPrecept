@@ -2,7 +2,7 @@
 
 ArchPrecept 在 C# 編譯期間檢查 Repository、Use Case、Controller 與 Value Object 等角色的架構規則。你可以在既有模型上安裝 Analyzer 並映射自有契約，也可以按需採用參考契約或用 `dotnet new` 建立範例專案。
 
-**本手冊對應 0.1.0-preview.1 候選版本。** [候選版內容與上架狀態](releases/0.1.0-preview.1.md) · [支援平台與相容政策](releases/version-policy.md)
+**本手冊對應已發布的預覽版 0.1.0-preview.1。** 七個套件均可從 NuGet.org 匿名還原，也可從 GitHub Packages 還原。兩個來源均通過 .NET SDK 8 與 10 的套件使用驗收。[發布紀錄](releases/0.1.0-preview.1.md) · [支援平台與相容政策](releases/version-policy.md)
 
 ## 開始使用
 
@@ -32,6 +32,7 @@ ArchPrecept 在 C# 編譯期間檢查 Repository、Use Case、Controller 與 Val
 
 | 套件版本 | 當版文件 | 發布紀錄 |
 |---|---|---|
+| 0.1.0-preview.1 | [本手冊](#開始使用) | [七個套件於 NuGet.org 與 GitHub Packages 發布](releases/0.1.0-preview.1.md) |
 | 0.0.6-preview | [固定版本文件](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.6-preview/docs) | [Domain／Event Sourcing 升級與發布說明](releases/0.0.6-preview.md) |
 | 0.0.5-preview | [文件](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.5-preview/docs) | [首次提供 starter 與 Value Object 範本](releases/0.0.5-preview.md) |
 | 0.0.4-preview | [文件](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.4-preview/docs) | [Repository、角色辨識與 Id 初始化行為](releases/0.0.4-preview.md) |

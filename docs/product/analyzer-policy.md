@@ -1,6 +1,6 @@
 # Analyzer 設定、角色與評估契約
 
-此頁說明 [0.1.0-preview.1 候選版](../releases/0.1.0-preview.1.md)的 Analyzer 設定、角色辨識及診斷範圍。規則的設計理由及方法論支持範圍見[規則設計依據](rule-design-rationale.md)與[方法論來源](methodology-references.md)。
+此頁說明 [0.1.0-preview.1 預覽版](../releases/0.1.0-preview.1.md)的 Analyzer 設定、角色辨識及診斷範圍。規則的設計理由及方法論支持範圍見[規則設計依據](rule-design-rationale.md)與[方法論來源](methodology-references.md)。
 
 ## 目前預設與選用
 
@@ -15,7 +15,7 @@
 - Aggregate Repository 保留 identity-load／save，Query Repository 負責 criteria／搜尋及 read model。批次載入與 physical purge 是有明確需求、失敗及一致性語意的個別 port，不擴充所有 Aggregate Repository。
 - 純物件 Mapper 採 static-only；I/O、資料補齊與流程編排由其各自責任承擔。static 檢查不證明純函式，persistence Data Mapper 也不等同本產品的純 mapper 角色。
 - Controller 預設對接 UseCase；dispatch Handler 轉接一個 UseCase 目標。UseCase 採 ExecuteAsync、專屬 Input 及 required CancellationToken，並保留無輸入與標準 scalar 例外。多步驟目標由自己的 UseCase 組織 Domain 與 ports，不串接其他 UseCase。
-- 本候選使用精確技術符號、繼承後的有效契約及實際 port 視圖。Repository 按每個 Aggregate／ID 契約及 adapter 實作對應分析；UseCase 支援繼承／override／顯式實作。這些局部型別／語法檢查不證明完整依賴、純度或副作用。
+- 此版使用精確技術符號、繼承後的有效契約及實際 port 視圖。Repository 按每個 Aggregate／ID 契約及 adapter 實作對應分析；UseCase 支援繼承／override／顯式實作。這些局部型別／語法檢查不證明完整依賴、純度或副作用。
 
 上述政策的理由與成本在規則設計文件直接說明；不把每個具體 .NET 形狀宣稱為方法論定理。其他架構模式須先有獨立的需求與判定契約，未定義的模式不能視為目前已支援。
 

@@ -22,4 +22,4 @@ DBA1001–DBA1017 採 legacy 預設。啟用 ddd Profile 後，DBA1018／DBA1019
 dotnet test tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ArchPrecept.Analyzers.Core.Tests.csproj
 ```
 
-此專案為可封裝的產品專案之一；Roslyn 與第三方 DLL 不會隨 Analyzer nupkg 內嵌。發布狀態以 [0.1.0-preview.1 候選版說明](../../../docs/releases/0.1.0-preview.1.md) 為準。標準 IDE style preferences 與架構 Diagnostic 的 CI 接線是不同責任，單純安裝套件不會替整個 repository 建立完整 gate。
+此專案為可封裝的產品專案之一；Roslyn 與第三方 DLL 不會隨 Analyzer nupkg 內嵌。安裝來源與驗收結果見 [0.1.0-preview.1 發布紀錄](../../../docs/releases/0.1.0-preview.1.md)。標準 IDE style preferences 與架構 Diagnostic 的 CI 接線是不同責任，單純安裝套件不會替整個 repository 建立完整 gate。

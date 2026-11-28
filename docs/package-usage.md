@@ -28,7 +28,7 @@ public sealed class Order : AggregateRoot<Guid>
 }
 ```
 
-`DomainEntity<TId>` 的一般建構路徑要求非 null identity。保留 protected 無參數建構子供 ORM／序列化／ES 重建：指派前讀 `Id` 擲 `InvalidOperationException`，指派 null 擲 `ArgumentNullException`。零、`Guid.Empty` 或空字串是否合法由你的 Domain invariant 決定；不拿 `default(TId)` 代替初始化狀態，也不新增「Id 永不再指派」政策。ORM 若繞過 setter 直接寫私人欄位，必須由 adapter 驗證其 materialization 接線；本候選沒有宣稱任何特定 ORM 整合已驗收。
+`DomainEntity<TId>` 的一般建構路徑要求非 null identity。保留 protected 無參數建構子供 ORM／序列化／ES 重建：指派前讀 `Id` 擲 `InvalidOperationException`，指派 null 擲 `ArgumentNullException`。零、`Guid.Empty` 或空字串是否合法由你的 Domain invariant 決定；不拿 `default(TId)` 代替初始化狀態，也不新增「Id 永不再指派」政策。ORM 若繞過 setter 直接寫私人欄位，必須由 adapter 驗證其 materialization 接線。此版的驗收範圍未涵蓋特定 ORM 整合。
 
 若儲存端產生正整數 Id，而且模型用零表示尚未持久化，建立物件時請明確傳入 `base(0)`。首次儲存由 repository 取得產生的正數並交給物件。重建時先經相同建構路徑，再指派儲存所得的 Id。已取得正數 Id 的物件只能再次確認相同識別碼。以下是此種領域模型的選擇，採用 UUID 或合法零值的模型可以定義自己的生命週期。
 
@@ -111,4 +111,4 @@ public static class Publication
 
 Contracts 的 DLL/XML 位於 `lib/net8.0/`；Analyzer 位於 `analyzers/dotnet/cs/`。每包攜帶同一來源的 `docs/` 與 `rules/`，Analyzer 另在 `schemas/` 提供設定 schema。API 說明使用原生 C# XML 文件註解，由編譯器生成 DLL 旁的 XML，供 IDE 讀取；Analyzer 以規則 HelpLink 與隨包 Markdown 解說，不要求將 Analyzer 當 runtime reference。
 
-工程入口為 `eng/Build-Packages.ps1` 與 `eng/Test-PackageConsumer.ps1`。封裝檢查確認 XML、Catalog、schema 與規則說明確實隨包提供；文件內容依變更範圍審查。這兩個入口不執行 NuGet 上傳，本機候選的檢查結果也不代表未來 feed 成品已完成驗收。
+工程入口為 `eng/Build-Packages.ps1` 與 `eng/Test-PackageConsumer.ps1`。封裝檢查確認 XML、Catalog、schema 與規則說明確實隨包提供；文件內容依變更範圍審查。各套件來源的驗收結果見[當版發布紀錄](releases/0.1.0-preview.1.md)。
