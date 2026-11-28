@@ -9,6 +9,15 @@
   "sourceName": "AssemblyBoundaryTests",
   "preferNameDirectory": false,
   "symbols": {
+    "namespace": {
+      "type": "parameter", "datatype": "text", "defaultValue": "",
+      "description": "C# namespace for the test class. Omit to use the global namespace.",
+      "replaces": "ItemNamespace"
+    },
+    "HasNamespace": {
+      "type": "computed",
+      "value": "(namespace != \"\")"
+    },
     "sourceType": {
       "type": "parameter", "datatype": "text", "isRequired": true,
       "description": "Fully qualified public type defined in the assembly to inspect.",

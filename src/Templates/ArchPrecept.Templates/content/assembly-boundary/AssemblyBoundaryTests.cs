@@ -3,8 +3,14 @@ using System.Linq;
 using System.Reflection;
 using Xunit;
 
+#if (HasNamespace)
+namespace ItemNamespace;
+
+#endif
+/// <summary>Checks the direct assembly dependency selected by this test.</summary>
 public sealed class AssemblyBoundaryTests
 {
+    /// <summary>Verifies that the source assembly has no direct reference to the forbidden assembly.</summary>
     [Fact]
     public void Source_must_not_reference_the_forbidden_assembly()
     {
