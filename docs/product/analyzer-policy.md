@@ -21,7 +21,7 @@
 
 ### 尚未實現的判定範圍
 
-schema version 1 的本候選新增精確 Controller 層級 `PureQuery` 選擇；不提供 action／endpoint method selector、任意 transition method selector、Repository finder mode 或 Mapper purity engine。DBA1014 的例外同時要求明選與 query-only 宣告能力。DBA1017 計算 UseCase 相依型別，不驗證恰好一次呼叫；DBA1004 即使支援有效 inherited／assembly attribute，仍可能檢查一般 MVC Controller，未縮限 API／MVC 適用性。各規則完整 predicate 與限制見[診斷說明](../diagnostics/README.md)。
+schema version 1 支援精確 Controller 層級 `PureQuery` 選擇；不提供 action／endpoint method selector、任意 transition method selector、Repository finder mode 或 Mapper purity engine。DBA1014 的例外同時要求明選與 query-only 宣告能力。DBA1017 計算 UseCase 相依型別，不驗證恰好一次呼叫；DBA1004 即使支援有效 inherited／assembly attribute，仍可能檢查一般 MVC Controller，未縮限 API／MVC 適用性。各規則完整 predicate 與限制見[診斷說明](../diagnostics/README.md)。
 
 ## 設定合併
 
