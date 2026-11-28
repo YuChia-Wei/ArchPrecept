@@ -15,6 +15,7 @@
 *.yml text eol=lf
 *.yaml text eol=lf
 *.sh text eol=lf
+/.github/workflows/scripts/ReleasePackageIds.txt text eol=lf
 *.snippet text eol=lf
 *.ps1 text eol=crlf
 
@@ -23,9 +24,6 @@
 *.jpeg binary
 *.gif binary
 *.ico binary
-
-# Preserve reviewed snapshot bytes and their recorded hashes across platforms.
-/.dev/planning/framework-adoption-2026-10-22/review-v2/** -text
 
 # Managed Framework bytes are verified against raw SHA-256.
 /.ai/core/** -text

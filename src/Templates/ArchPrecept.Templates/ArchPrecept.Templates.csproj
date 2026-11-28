@@ -9,9 +9,21 @@
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <EnableDefaultItems>false</EnableDefaultItems>
     <NoDefaultExcludes>true</NoDefaultExcludes>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackStarterProject</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="content/**/*" Exclude="**/bin/**;**/obj/**" Pack="true"
+    <None Include="content/**/*" Exclude="**/bin/**;**/obj/**;content/starter/SampleShop.csproj" Pack="true"
           PackagePath="content/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
+  <Target Name="PackStarterProject">
+    <PropertyGroup>
+      <StarterProject>$(IntermediateOutputPath)SampleShop.csproj</StarterProject>
+    </PropertyGroup>
+    <Copy SourceFiles="content/starter/SampleShop.csproj" DestinationFiles="$(StarterProject)" />
+    <XmlPoke XmlInputPath="$(StarterProject)" Query="/Project/ItemGroup/PackageReference[starts-with(@Include, 'ArchPrecept.')]/@Version"
+             Value="[$(PackageVersion)]" />
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(StarterProject)" PackagePath="content/starter/SampleShop.csproj" />
+    </ItemGroup>
+  </Target>
 </Project>

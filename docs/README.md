@@ -2,7 +2,7 @@
 
 ArchPrecept 在 C# 編譯期間檢查 Repository、Use Case、Controller 與 Value Object 等角色的架構規則。你可以在既有模型上安裝 Analyzer 並映射自有契約，也可以按需採用參考契約或用 `dotnet new` 建立範例專案。
 
-**此手冊對應 `0.0.6-preview`。** 七個套件的試用來源為 GitHub Packages，consumer 支援 .NET 8 與 10。安裝前請核對[這一版的發布與驗收紀錄](releases/0.0.6-preview.md)。其他版本請選下方版本表的固定手冊。
+**本手冊對應 0.1.0-preview.1 候選版本。** [候選版內容與上架狀態](releases/0.1.0-preview.1.md) · [支援平台與相容政策](releases/version-policy.md)
 
 ## 開始使用
 
@@ -24,32 +24,17 @@ ArchPrecept 在 C# 編譯期間檢查 Repository、Use Case、Controller 與 Val
 
 要了解規則保護的架構責任及採用成本，可閱讀[規則設計依據](product/rule-design-rationale.md)及[方法論來源](product/methodology-references.md)。回報疑似誤判時，請附上套件與 SDK 版本、Diagnostic ID、相關設定及可重現的最小程式片段。[ArchPrecept Issues](https://github.com/YuChia-Wei/ArchPrecept/issues)
 
+## 產品範圍與方向
+
+現行能力、採用邊界、已確認決策及後續目標見[產品範圍與方向](product/README.md)。產品授權及歸屬見 [LICENSE](../LICENSE) 與 [NOTICE](../NOTICE)。
+
 ## 依版本閱讀
 
 | 套件版本 | 當版文件 | 發布紀錄 |
 |---|---|---|
-| 0.0.6-preview | [固定版本文件](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.6-preview/docs) | [Domain／ES 升級、套件試裝及 registry 驗收](releases/0.0.6-preview.md) |
+| 0.0.6-preview | [固定版本文件](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.6-preview/docs) | [Domain／Event Sourcing 升級與發布說明](releases/0.0.6-preview.md) |
 | 0.0.5-preview | [文件](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.5-preview/docs) | [首次提供 starter 與 Value Object 範本](releases/0.0.5-preview.md) |
 | 0.0.4-preview | [文件](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.4-preview/docs) | [Repository、角色辨識與 Id 初始化行為](releases/0.0.4-preview.md) |
 | 0.0.3-preview | [文件](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.3-preview/docs) | [0.0.3-preview 發布紀錄](releases/0.0.3-preview.md) |
 | 0.0.2-preview | [文件](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.2-preview/docs) | [0.0.2-preview 發布紀錄](releases/0.0.2-preview.md) |
 | 0.0.1-preview | [文件](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.1-preview/docs) | [首次 preview 發布紀錄](releases/preview.md) |
-
-## 產品與交付
-
-| 文件 | 用途 |
-|---|---|
-| [產品規劃書](product/product-plan.md) | 能力邊界與目前產品決策；未決項維持明示 |
-| [PRD](product/prd.md) | Requirement、優先序與可觀察驗收 |
-| [文件治理](governance/document-governance-and-traceability.md) | docs／rules／開發資料分工、來源及內容品質 |
-| [版本與發布準備政策](releases/version-policy-proposal.md) | 首個 non-preview 之前無舊版相容義務、正式版文件與套件準備條件 |
-| [CI/CD 規則](releases/cicd-plan.md) | 現行 preview 建置、驗證與發布流程 |
-| [授權與來源檢查](releases/licensing-assessment.md) | 程式與依賴的授權證據；不作為方法論依據 |
-
-## 來源責任
-
-- Markdown 是產品說明的唯一可編輯正式來源；Word／PDF 是衍生輸出。
-- 套件與 repository 中的 `rules/catalog.xml` 保存機器可讀的規則，`rules/configuration.xsd` 定義設定格式。[0.0.5-preview 規則與 schema](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.5-preview/rules)
-- 正式文案寫出設計理由及權威參考資料；私人討論、跨 repo 研究摘錄與中間草案不併入產品文件。
-- 文件狀態與個別已確認政策分開；完整 PRD 的 draft 狀態不撤銷其中已明確確認的規則，也不代表所有規劃已實作。
-- API XML、Diagnostic HelpLink、套件 README 與 docs 應指向同一版本的實際能力。來源、設定、程式、隨包內容及 consumer 可讀性分別驗證。

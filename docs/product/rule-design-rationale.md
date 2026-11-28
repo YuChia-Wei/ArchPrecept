@@ -2,7 +2,6 @@
 title: "ArchPrecept 規則設計理由"
 document_id: DOC-RULE-DESIGN-RATIONALE
 document_version: 0.2
-last_reviewed: 2026-10-29
 status: active
 owner: "YuChia Wei"
 lang: zh-TW
@@ -15,13 +14,11 @@ ArchPrecept 把明確選定的架構責任轉成可重複檢查的限制。規�
 
 本文件說明跨規則的一致理由，[方法論與平台來源](methodology-references.md)限定原文支持範圍，各 [Diagnostic 手冊](../diagnostics/README.md)保存逐項理由與目前觸發條件。[Catalog](../../rules/catalog.xml)仍是已交付規則、Profile、角色、嚴重性及實作映射的唯一機器來源；本文不另列一份平行 Catalog。
 
-本文的「產品政策」描述應保護的責任；「目前檢查」對應本文件同一來源修訂中的 Analyzer 與 Catalog。尚未發布的來源變更不代表可以從既有 `0.0.3-preview` 套件取得；該版原行為可由[固定發布來源](https://github.com/YuChia-Wei/ArchPrecept/tree/v0.0.3-preview)及[發布紀錄](../releases/0.0.3-preview.md)定位。來源文件、測試、本機候選套件與 feed 成品分別驗證，不以文件更新宣稱執行期保證。Analyzer-only 與自有契約可藉明確角色映射採用同一政策，不要求安裝 Reference Contracts；自訂角色證據也不自動豁免所選契約。
+本文的「產品政策」描述應保護的責任，「目前檢查」對應同一修訂的 Analyzer 與 Catalog。使用舊版時，請從[手冊的版本索引](../README.md)選擇對應版本。Analyzer-only 與自有契約可藉明確角色映射採用同一政策。
 
 ## 版本邊界
 
-在首個無後綴公開版本之前，ArchPrecept 不承諾向後相容。修正規則、API、設定或預設時，不必為保留 preview 行為另建 legacy 模式、遷移層、替代 ID 或並存機制。變更仍須說清楚新政策、受影響行為及驗證結果；現版的事實不能因新政策而被改寫。
-
-現行設定值 `legacy` 與現行 `compatibility-repository` 角色如仍存在，僅表示該來源修訂中的功能，不構成必須保留的相容性義務。首個無後綴版本起，採用[正式版相容政策](../releases/version-policy-proposal.md#首版範圍與相容承諾)。具體判定改進的版本差異由當版文件與來源證據說明，不改寫舊版發布事實。
+規則 ID、實際判定及設定以採用版本為準。預覽版可調整規則與預設，正式版依已發布的相容承諾維護。[穩定版相容與維護](../releases/version-policy.md#穩定版相容與維護)
 
 每條產品規則的 Rule／Diagnostic ID、角色、Profile、預設 severity 與啟用範圍以 Catalog 為準，詳細正反例、不適用及未評估情況沿其 `document` 連到 Diagnostic 手冊。設定優先序、明確 mapping／慣例證據、無效或衝突選擇依[設定契約](analyzer-policy.md)與 [schema](../../rules/configuration.xsd)判讀。本文維護理由及取捨，不複製這些機器欄位；DBA0001／0002 則在本文件的[證據責任](#evidence)說明自身契約，不加入 19 條產品規則的清單。
 

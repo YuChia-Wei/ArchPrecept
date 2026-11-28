@@ -1,61 +1,25 @@
 # ArchPrecept 開發導覽
 
-> 本頁補上開發治理與接手入口；產品正式來源仍在 `docs/`。planning 中的副本尚未生效，安裝狀態另以 lock／inspect 證據判定。
+[根目錄協作入口](../AGENTS.md)定義開發邊界、授權、驗證與暫存資料的共同規則。
 
-## 從工作目的開始
-
-| 要處理的工作 | 先讀來源 | 應得到的結果 |
-|---|---|---|
-| 產品範圍、能力與相依 | [產品決策](../docs/product/product-plan.md#3-已確認的關鍵決策)、[PRD](../docs/product/prd.md) | 明確的既有決策、Requirement 與尚未完成能力 |
-| DDD／CA／Hex Arch 規則或相容性 | [採納文件](standards/framework-adoption.md)、[Diagnostic 目錄](../docs/diagnostics/README.md) | 適用範圍、規範來源、現行行為、例外及缺口 |
-| Event Sourcing | [CT-005](../docs/product/event-sourcing-contract.md) | Replay／pending／version／commit 及基底行為限制 |
-| Messaging | [CT-004](../docs/product/messaging-contract.md) | 訊息契約、Application port、host／adapter 的責任邊界 |
-| 文件與規則追溯 | [治理規範](../docs/governance/document-governance-and-traceability.md) | 保留 `docs/`、`rules/` 與 `.dev/` 的不同 ownership |
-| 套件／發布 | [當版發布紀錄](../docs/releases/0.0.5-preview.md)、[consumer 試用](../docs/releases/0.0.4-consumer-validation.md)、[正式版路線](../docs/releases/stable-release-roadmap.md)、[CI/CD 規則](../docs/releases/cicd-plan.md) | 分清 build、package、registry publication 與 consumer 證據；0.1.0 階段準備 nuget.org |
-| 接手開發 | [GitHub Issues](https://github.com/YuChia-Wei/ArchPrecept/issues) | 以 live Issue 的 scope、驗收與當次授權開始，不將本頁當第二份 backlog |
-
-## 既有交付與後續工作索引
-
-下表保留來源索引，並非待辦清單。0.0.3-preview 已交付 #1／#6／#7／#8／#9／#11；#5 第二採用驗收亦已完成，#10 P2 不在本次交付。實際狀態以 GitHub 讀回為準。
-
-0.0.4-preview 交付 #12～#15／#17，並記錄兩個 lab 的[初次升級失敗](../docs/releases/0.0.4-consumer-validation.md)。0.0.6-preview 的隔離試用分別記錄 [Web API／Domain／ES](../docs/releases/0.0.6-consumer-validation.md) 與 [MQ 的多 port adapter](../docs/releases/mq-repository-adoption.md)。首版選定的組件測試、範本、維護政策與 nuget.org 進度見[正式版路線](../docs/releases/stable-release-roadmap.md)。
-
-| 工作 | Owner 與界線 |
+| 工作 | 來源 |
 |---|---|
-| [#6 規則及 Profile](https://github.com/YuChia-Wei/ArchPrecept/issues/6) | ArchPrecept 的權威、適用性與規則映射 |
-| [#7 角色辨識及 DBA1016](https://github.com/YuChia-Wei/ArchPrecept/issues/7) | 合法領域事件 port 誤判、共用角色辨識及其驗收 |
-| [#8 測試責任](https://github.com/YuChia-Wei/ArchPrecept/issues/8) | 對應上述行為與採用邊界的測試，避免只驗證 helper 實作 |
-| [#11 ValueObject](https://github.com/YuChia-Wei/ArchPrecept/issues/11) | 不可變狀態與 Entity 參考兩項獨立規則，包含內建／自有契約 |
-| [#1 Diagnostic 文件](https://github.com/YuChia-Wei/ArchPrecept/issues/1) | 讓使用者能判斷原因、修正、限制與例外 |
-| [#5 採用回饋](https://github.com/YuChia-Wei/ArchPrecept/issues/5) | 保存真實 consumer 回饋及環境限制 |
-| [Framework #179](https://github.com/YuChia-Wei/ai-collaboration-framework/issues/179) | Framework 與 ArchPrecept Contracts 選配相容映射；不接管本產品 Analyzer 實作 |
+| 產品範圍、能力、相依與驗收 | [產品決策](../docs/product/README.md#已確認的產品決策)、[PRD](product/prd.md) |
+| DDD／CA／Hex Arch 規則或相容性 | [Framework 採用](standards/framework-adoption.md)、[診斷目錄](../docs/diagnostics/README.md) |
+| Event Sourcing 的 replay、pending events、版本與提交 | [Event Sourcing 契約](../docs/product/event-sourcing-contract.md) |
+| Messaging 契約、Application port 與 host／adapter 責任 | [Messaging 契約](../docs/product/messaging-contract.md) |
+| 文件正式來源、Rule 與 Diagnostic 追溯 | [文件治理與規則追溯](governance/document-governance-and-traceability.md) |
+| 版本、相容性、交付 | [版本政策](../docs/releases/version-policy.md)、[CI/CD 規則](releases/cicd-plan.md) |
+| 既有工作、驗收與實作範圍 | [ArchPrecept Issues](https://github.com/YuChia-Wei/ArchPrecept/issues) |
 
-## 工作的最小交接
-
-每次只補所選工作的必要資訊。公開 Issue／PR 保存產品目標、既有決策／Requirement、可觀察的 Given／When／Then、設計、變更、技術驗證及未評估範圍；授權與交接留在對話及既有工作流程。未選 workflow-records，不代表改把操作紀錄存入 Issue。引用既有來源，不建立第二份台帳。
-
-DDD 工作說明共同語言、Bounded Context、Aggregate 不變條件及例子；CA／Hex Arch 工作說明責任、依賴方向、port／adapter 與技術取捨。兩者相互約束，但不能用資料夾層次代替領域模型，也不能用領域物件名稱證明技術邊界已正確實作。
-
-先依目前範圍確認問題或行為，再選最小必要步驟。已接受的設計沒有新衝突時直接重用；只有新的證據、版本或變更要求才需要重開決策。實作前檢查已存在的工作項目，避免建立重複 Issue。
+領域設計以共同語言、Bounded Context、Aggregate 不變條件及行為例子表達。CA／Hex Arch 工作交代責任、相依方向、port／adapter 和技術取捨。任務需要兩者時，核對技術邊界如何維持領域規則。
 
 ## 驗證入口
 
-| 變更類型 | 選擇方式 |
+| 變更類型 | 驗證 |
 |---|---|
-| 文件／採納草案 | 核對狀態、來源、相對連結、版本及差異；不以產品 build 代替內容檢核 |
-| 受影響 .NET 專案 | 使用 [global.json](../global.json) 的 SDK，選定相應 build／tests |
-| 套件結構或相依 | [Build-Packages.ps1](../eng/Build-Packages.ps1)；執行前確認 output 及現有產物 |
-| SDK／安裝／公開 API 相容性 | [Test-PackageConsumer.ps1](../eng/Test-PackageConsumer.ps1) 的相關 consumer 情境 |
-| 合併與發布 | [CI/CD 規則](../docs/releases/cicd-plan.md)；驗證結果與發布授權分開 |
-
-## 開發經驗
-
-開發時的設計與驗證成本依 [AGENTS.md 的變更與驗證規則](../AGENTS.md#變更與驗證)處理。經驗回顧見 [LESSON：避免過度設計與過度測試](lessons/2026-10-29-proportionate-design-and-testing.md)；回顧本身不增加測試或執行步驟。
-
-## Framework 導入狀態
-
-- Framework v0.23.1 的選配為 Codex adapter、原始 skill 命名、16 個 skills、`engineering-common@0.4.3` 及 `dotnet@0.3.5`。16 個 bindings 全部作為參考，其中 6 個 .NET bindings 要求任務明選 `dotnet-backend` profile。選配與受管版本分別見 [installation.json](../.ai/project/installation.json) 和 [framework.lock](../.ai/framework.lock)。
-- 下游應用的規則設計與 consumer 範例可使用所選 .NET 知識。ArchPrecept 本身的 Analyzer、Contracts 與套件政策由產品決策定義。[採納文件](standards/framework-adoption.md)保留 v0.21.0 的原始採納依據，另說明現行 skill 與 binding 允許的資源。
-- 以 installer inspect 判讀受管檔案狀態。installed reader 的任務結果及用戶端實際發現、執行 skill 的情形，須依各自的執行證據判讀。三個 context skills 分別處理初始化／事實更新、政策維護及唯讀稽核。
-- 專案沿用既有 backlog 與工作紀錄位置。此選配未啟用 Framework sub-agents、Claude adapter 或 workflow-records store。
-- adr-author／pr-author 的工具操作需 Python、PyYAML、jsonschema，以及操作所需的 filesystem／Git／gh。此次只安裝能力，不建立預設 notes/adrs、notes/pull-requests 或其他 store；首次記錄工作先明選符合既有文件治理的位置。
+| 文件／規範 | 核對內容、適用性、來源、連結與差異 |
+| 受影響的 .NET 專案 | 核對 [global.json](../global.json) 與已安裝 SDK，選擇對應建置與測試 |
+| 套件結構或相依 | [Build-Packages.ps1](../eng/Build-Packages.ps1) |
+| SDK、安裝與公開 API 相容性 | [Test-PackageConsumer.ps1](../eng/Test-PackageConsumer.ps1) 的對應 consumer 情境 |
+| 合併與發布 | [CI/CD 規則](releases/cicd-plan.md)的適用檢查及[首個正式版條件](releases/cicd-plan.md#首個正式版條件) |

@@ -1,6 +1,57 @@
 # 安裝與使用 ArchPrecept
 
-本頁適用於 **0.0.6-preview**，七個套件可按需選用，支援 SDK 8／10。試裝前可核對[本版發布與採用紀錄](releases/0.0.6-preview.md)。前一版使用 [0.0.5-preview 固定手冊](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.5-preview/docs/getting-started.md)。
+[0.1.0-preview.1](releases/0.1.0-preview.1.md) 上架後可用以下範例驗證安裝。試用已發布的上一版，請參閱 [0.0.6-preview 安裝步驟](releases/0.0.6-preview.md#專案試裝)。
+
+## 首次安裝與診斷驗證（0.1.0-preview.1）
+
+準備 .NET SDK 8 或 10，在全新目錄建立以下三個檔案。此例只安裝 Analyzer，用查詢介面上的寫入方法確認編譯器已載入規則。
+
+`NuGet.Config` 只指定 nuget.org 公開來源，可匿名還原。
+
+```xml
+<configuration>
+  <packageSources>
+    <clear />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+  </packageSources>
+</configuration>
+```
+
+`QuickStart.csproj` 使用精確版號。使用 SDK 10 時，將目標框架改為 `net10.0`。
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ArchPrecept.Analyzers.Core" Version="[0.1.0-preview.1]" PrivateAssets="all" />
+  </ItemGroup>
+</Project>
+```
+
+`Orders.cs` 定義查詢訂單名稱的介面，並故意在同一個介面加入刪除操作。
+
+```csharp
+public interface IQueryRepository { }
+
+public interface IOrderQueries : IQueryRepository
+{
+    string FindName(string id);
+    void Delete(string id);
+}
+```
+
+```sh
+dotnet restore QuickStart.csproj --configfile NuGet.Config --packages ./.packages --no-cache
+dotnet build QuickStart.csproj --no-restore
+```
+
+還原成功後，第一次建置預期在 `Delete` 出現 **error DBA1001**。預設的 `legacy` Profile 透過 `IQueryRepository` 辨識查詢角色。從查詢介面移除 `Delete`，保留 `FindName`，再次執行同一條 build 應成功。實際專案可將刪除命令交給負責寫入的 port。[DBA1001 規則與修正](diagnostics/DBA1001.md)
+
+## 1. 選擇套件
+
+依下表選擇需要的套件；同一個專案請使用相同的 ArchPrecept 版號。
 
 | 套件 | 用途與必要相依 |
 |---|---|
@@ -12,21 +63,7 @@
 | ArchPrecept.Contracts.Messaging | 獨立訊息契約 |
 | ArchPrecept.Contracts.Application.Messaging | Publisher port；依賴 Messaging，不包含 transport adapter |
 
-## 1. 選 feed 與套件
-
-發布來源是 GitHub Packages：`https://nuget.pkg.github.com/YuChia-Wei/index.json`。沿用已設定的 NuGet source／credential provider；本機需要有權限的 GitHub NuGet 憑證，Actions 可使用具存取權的 GITHUB_TOKEN。不要把 token 放進 repository。nuget.org 不承載這些 preview 套件。
-
-從 GitHub Packages 還原時，確認 consumer 的 NuGet source mapping 允許 `ArchPrecept.*` 使用該來源。本機試用也可以選用 `eng/Build-Packages.ps1` 的 nupkg 輸出目錄。在既有專案加入所需 PackageReference。例如僅使用 Analyzer：
-
-```xml
-<ItemGroup>
-  <PackageReference Include="ArchPrecept.Analyzers.Core" Version="[0.0.6-preview]" PrivateAssets="all" />
-</ItemGroup>
-```
-
-需要參考契約時另加 `ArchPrecept.Contracts.Application` 或所需能力；Analyzer 不要求你換掉自有介面，也不強制繼承產品基底。Contracts-only 可完全不安裝 Analyzer。
-
-Contracts-only 的最小使用與責任見[各套件使用範例](package-usage.md)；ES、Messaging 與 publisher 亦各有獨立安裝範例，沒有為使用 Analyzer 而強制引用 runtime 契約。
+自有模型可以單獨使用 Analyzer。需要參考契約時再加入對應套件；單獨採用 Contracts 的最小用法與相依見[各套件使用範例](package-usage.md)。
 
 ## 2. 明確選規則與角色
 
@@ -81,7 +118,7 @@ dotnet_diagnostic.DBA1018.severity = error
 
 例如 Aggregate Repository 的 criteria 查詢應由 query port 找候選 ID，再由命令端載入 Aggregate 並驗證目前狀態；純 Mapper 不負責查詢資料；UseCase 的 Input 不直接承載 HTTP 或 broker 型別。這些都是具體採用政策，其方法論支持與適用條件在各規則說明中列出。
 
-首個不含任何 prerelease 後綴的公開版本發布前不提供向後相容保證。安裝或更新時讀取該版本的使用與規則文件；目前文件中的 `legacy` 是已實作設定名稱，不是保留舊版本的承諾。詳見[版本與發布準備政策](releases/version-policy-proposal.md)。
+首個不含任何 prerelease 後綴的公開版本發布前不提供向後相容保證。安裝或更新時讀取該版本的使用與規則文件；目前文件中的 `legacy` 是已實作設定名稱，不是保留舊版本的承諾。詳見[版本與發布準備政策](releases/version-policy.md)。
 
 Contracts 套件在 `lib/net8.0/<Assembly>.xml` 提供 API 文件；Analyzer 的對應 DLL/XML 在 `analyzers/dotnet/cs/`，不作為 runtime reference。每包的 `docs/` 直接封裝同一份原創說明，`rules/catalog.xml` 保持唯一機器來源。編譯器／IDE 從 DLL 旁 XML 讀 tooltip，AI 或人工可直接讀 XML 的 member ID、summary／param／returns／value／remarks。候選 HelpLink／SARIF 指向組件 informational version 的來源 SHA；無 Git source revision 的開發 build 不符合文件交付驗收。
 

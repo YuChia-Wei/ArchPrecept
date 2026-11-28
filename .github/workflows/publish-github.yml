@@ -1,0 +1,131 @@
+name: Publish to GitHub Packages
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-packages
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    if: github.event_name == 'workflow_dispatch' || !github.event.deleted
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      should-publish: ${{ steps.state.outputs.should-publish }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Verify the new release tag and its source on main
+        shell: pwsh
+        env:
+          NEW_TAG: ${{ github.event.created && !github.event.forced }}
+        run: |
+          if ($env:GITHUB_EVENT_NAME -eq 'push' -and $env:NEW_TAG -ne 'true') { throw 'A release requires a newly created tag.' }
+          ./.github/workflows/scripts/Get-PackageVersion.ps1 -RequireTag
+          if ((git cat-file -t $env:GITHUB_REF) -ne 'tag') { throw 'Create an annotated release tag.' }
+          $tagCommit = git rev-parse --verify "$env:GITHUB_REF^{commit}"
+          if ($tagCommit -cne (git rev-parse HEAD)) { throw 'The tag no longer identifies the checked-out revision.' }
+          git merge-base --is-ancestor HEAD refs/remotes/origin/main
+          if ($LASTEXITCODE -ne 0) { throw 'The tagged commit must be part of main.' }
+          if (!(Test-Path LICENSE)) { throw 'Approved LICENSE is required before publication.' }
+      - name: Inspect all package IDs before any upload
+        id: state
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXPECTED_REPOSITORY: ${{ github.repository }}
+        run: |
+          $state = ./.github/workflows/scripts/Get-PreviewReleaseState.ps1 -Repository $env:EXPECTED_REPOSITORY
+          "should-publish=$($state.shouldPublish.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          $state | ConvertTo-Json -Depth 5 >> $env:GITHUB_STEP_SUMMARY
+  validate:
+    needs: gate
+    uses: ./.github/workflows/ci.yml
+  publish:
+    needs: [ gate, validate ]
+    if: needs.gate.outputs.should-publish == 'true'
+    runs-on: ubuntu-latest
+    environment: github-packages
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-packages
+          path: packages
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Verify and publish the tested bytes
+        shell: bash
+        env:
+          GH_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          cd packages
+          sha256sum --check SHA256SUMS
+          mapfile -t package_ids < ../.github/workflows/scripts/ReleasePackageIds.txt
+          for id in "${package_ids[@]}"; do
+            dotnet nuget push "$id.${GITHUB_REF_NAME#v}.nupkg" --source "https://nuget.pkg.github.com/$PACKAGE_OWNER/index.json" --api-key "$GH_PACKAGES_TOKEN" --no-symbols
+          done
+  verify:
+    needs: [ gate, validate, publish ]
+    if: always() && needs.gate.result == 'success' && needs.validate.result == 'success' && (needs.publish.result == 'success' || needs.publish.result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v7
+      - name: Read back package visibility, repository and version
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXPECTED_REPOSITORY: ${{ github.repository }}
+        run: |
+          ./.github/workflows/scripts/Get-PreviewReleaseState.ps1 -Repository $env:EXPECTED_REPOSITORY -RequirePublished |
+            ConvertTo-Json -Depth 5 | Tee-Object -FilePath $env:GITHUB_STEP_SUMMARY -Append
+  registry-consumer:
+    needs: [ verify, publish ]
+    if: always() && needs.verify.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [ 8, 10 ]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '${{ matrix.sdk }}.0.x'
+      - uses: actions/download-artifact@v4
+        if: needs.publish.result == 'success'
+        with:
+          name: release-packages
+          path: artifacts/packages
+      - name: Restore and exercise published packages with a fresh cache
+        shell: pwsh
+        env:
+          NuGetPackageSourceCredentials_local: Username=${{ github.actor }};Password=${{ secrets.GITHUB_TOKEN }};ValidAuthenticationTypes=Basic
+          VERIFY_ARTIFACT: ${{ needs.publish.result == 'success' }}
+        run: |
+          $arguments = @{ SdkMajor = ${{ matrix.sdk }}; RegistrySource = 'https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json'; ExpectedSourceCommit = (git rev-parse HEAD) }
+          if ($env:VERIFY_ARTIFACT -eq 'true') { $arguments.ExpectedPackageDirectory = 'artifacts/packages' }
+          ./.github/workflows/scripts/Test-PackageConsumer.ps1 @arguments

@@ -8,10 +8,10 @@
 - [唯一 Rule Catalog](../../../rules/catalog.xml)
 - [Products Web API 套件 sample](../../../samples/Products/README.md)
 
-0.0.3-preview 保留 DBA1001–DBA1017 的 legacy 預設；新增 DBA1018／DBA1019 為 ddd opt-in Warning。DBA0001 表示無效設定，DBA0002 提供明確宣告範圍與部分未評估狀態。每項規則的實際 Profile／角色／severity 由 Catalog 提供，Descriptor 直接讀取同一份資料。
+DBA1001–DBA1017 採 legacy 預設。啟用 ddd Profile 後，DBA1018／DBA1019 預設回報 Warning。DBA0001 表示無效設定，DBA0002 提供明確宣告範圍與部分未評估狀態。每項規則的實際 Profile／角色／severity 由 Catalog 提供，Descriptor 直接讀取同一份資料。
 
 ```xml
-<PackageReference Include="ArchPrecept.Analyzers.Core" Version="[0.0.3-preview]" PrivateAssets="all" />
+<PackageReference Include="ArchPrecept.Analyzers.Core" Version="[0.1.0-preview.1]" PrivateAssets="all" />
 ```
 
 需要精確自有契約時，用 AdditionalFiles 的 repository／project XML 設定完整 metadata 與 assembly；不需要安裝產品 Contracts。命名慣例仍可選用，但診斷會標示低信心。規則沒有聲稱覆蓋未辨識的全部型別；用 Expected 取得特定範圍的狀態。
@@ -22,4 +22,4 @@
 dotnet test tests/Analyzers/ArchPrecept.Analyzers.Core.Tests/ArchPrecept.Analyzers.Core.Tests.csproj
 ```
 
-此專案為可封裝的產品專案之一；Roslyn 與第三方 DLL 不會隨 Analyzer nupkg 內嵌。發布狀態以 [版本紀錄](../../../docs/releases/0.0.5-preview.md) 為準。標準 IDE style preferences 與架構 Diagnostic 的 CI 接線是不同責任，單純安裝套件不會替整個 repository 建立完整 gate。
+此專案為可封裝的產品專案之一；Roslyn 與第三方 DLL 不會隨 Analyzer nupkg 內嵌。發布狀態以 [0.1.0-preview.1 候選版說明](../../../docs/releases/0.1.0-preview.1.md) 為準。標準 IDE style preferences 與架構 Diagnostic 的 CI 接線是不同責任，單純安裝套件不會替整個 repository 建立完整 gate。

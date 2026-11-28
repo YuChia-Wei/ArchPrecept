@@ -1,0 +1,216 @@
+name: Publish to NuGet.org
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+env:
+  NUGET_FLAT_CONTAINER: https://api.nuget.org/v3-flatcontainer
+
+concurrency:
+  group: nuget-org
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    if: github.event_name == 'workflow_dispatch' || !github.event.deleted
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      should-publish: ${{ steps.state.outputs.should-publish }}
+      package-ids: ${{ steps.state.outputs.package-ids }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Verify the tagged source on main
+        id: release
+        env:
+          NEW_TAG: ${{ github.event.created && !github.event.forced }}
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_EVENT_NAME -eq 'push' -and $env:NEW_TAG -ne 'true') { throw 'A release requires a newly created tag.' }
+          $version = ./.github/workflows/scripts/Get-PackageVersion.ps1 -RequireTag
+          if ((git cat-file -t $env:GITHUB_REF) -ne 'tag') { throw 'An annotated release tag is required.' }
+          $tagCommit = git rev-parse --verify "$env:GITHUB_REF^{commit}"
+          if ($tagCommit -cne (git rev-parse HEAD)) { throw 'The tag no longer identifies the checked-out revision.' }
+          git merge-base --is-ancestor HEAD refs/remotes/origin/main
+          if ($LASTEXITCODE -ne 0) { throw 'The tagged commit must be part of main.' }
+          if (!(Test-Path LICENSE)) { throw 'Approved LICENSE is required before publication.' }
+          "version=$version" >> $env:GITHUB_OUTPUT
+      - name: Check the release on NuGet.org before building
+        id: state
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          version=${RELEASE_VERSION,,}
+          mapfile -t package_ids < .github/workflows/scripts/ReleasePackageIds.txt
+          if (( ${#package_ids[@]} == 0 )); then
+            echo '::error::The release package inventory is empty.'
+            exit 1
+          fi
+          available=()
+          missing=()
+          for id in "${package_ids[@]}"; do
+            lower_id=${id,,}
+            url="$NUGET_FLAT_CONTAINER/$lower_id/$version/$lower_id.$version.nupkg"
+            if ! status=$(curl --silent --show-error --head --max-time 30 --output /dev/null --write-out '%{http_code}' "$url"); then
+              echo "::error::Cannot query publication state for $id/$RELEASE_VERSION."
+              exit 1
+            fi
+            case "$status" in
+              200) available+=("$id") ;;
+              404) missing+=("$id") ;;
+              *) echo "::error::Cannot determine publication state for $id/$RELEASE_VERSION (HTTP $status)."; exit 1 ;;
+            esac
+          done
+          if (( ${#available[@]} == 0 )); then
+            echo 'should-publish=true' >> "$GITHUB_OUTPUT"
+          elif (( ${#missing[@]} == 0 )); then
+            echo 'should-publish=false' >> "$GITHUB_OUTPUT"
+            echo "All ${#available[@]} packages are available. Proceeding to registry verification."
+          else
+            echo "::error::Release $RELEASE_VERSION is partially available. Available: ${available[*]}. Missing: ${missing[*]}. Recover missing packages from the original release artifact."
+            exit 1
+          fi
+          echo "package-ids=${package_ids[*]}" >> "$GITHUB_OUTPUT"
+
+  validate:
+    needs: gate
+    if: needs.gate.outputs.should-publish == 'true'
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: [ gate, validate ]
+    if: needs.gate.outputs.should-publish == 'true'
+    runs-on: ubuntu-latest
+    environment: nuget-org-packages
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      RELEASE_VERSION: ${{ needs.gate.outputs.version }}
+      NUGET_PACKAGE_IDS: ${{ needs.gate.outputs.package-ids }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-packages
+          path: packages
+      - name: Verify artifacts and confirm the release is unpublished
+        shell: bash
+        working-directory: packages
+        run: |
+          set -euo pipefail
+          sha256sum --check SHA256SUMS
+          version=${RELEASE_VERSION,,}
+          read -r -a package_ids <<< "$NUGET_PACKAGE_IDS"
+          shopt -s nullglob
+          packages=( *.nupkg )
+          if (( ${#packages[@]} != ${#package_ids[@]} )); then
+            echo '::error::The tested artifacts do not match the release package inventory.'
+            exit 1
+          fi
+          for id in "${package_ids[@]}"; do
+            package="$id.$RELEASE_VERSION.nupkg"
+            if [[ ! -f "$package" ]]; then
+              echo "::error::Missing tested release artifact: $package."
+              exit 1
+            fi
+            lower_id=${id,,}
+            url="$NUGET_FLAT_CONTAINER/$lower_id/$version/$lower_id.$version.nupkg"
+            if ! status=$(curl --silent --show-error --head --max-time 30 --output /dev/null --write-out '%{http_code}' "$url"); then
+              echo "::error::Cannot query publication state for $package."
+              exit 1
+            fi
+            case "$status" in
+              404) ;;
+              200) echo "::error::$package already exists. Inspect the published release before retrying."; exit 1 ;;
+              *) echo "::error::Cannot determine publication state for $package (HTTP $status)."; exit 1 ;;
+            esac
+          done
+      - name: Get a short-lived NuGet.org publishing key
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+      - name: Publish the tested packages in dependency order
+        shell: bash
+        working-directory: packages
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: |
+          set -euo pipefail
+          read -r -a package_ids <<< "$NUGET_PACKAGE_IDS"
+          for id in "${package_ids[@]}"; do
+            dotnet nuget push "$id.$RELEASE_VERSION.nupkg" \
+              --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --no-symbols
+          done
+
+  indexed:
+    needs: [ gate, validate, publish ]
+    if: >-
+      ${{ !cancelled() && needs.gate.result == 'success' &&
+      ((needs.gate.outputs.should-publish == 'true' && needs.validate.result == 'success' && needs.publish.result == 'success') ||
+       (needs.gate.outputs.should-publish == 'false' && needs.validate.result == 'skipped' && needs.publish.result == 'skipped')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Confirm all packages are available on NuGet.org
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ needs.gate.outputs.version }}
+          NUGET_PACKAGE_IDS: ${{ needs.gate.outputs.package-ids }}
+        run: |
+          set -euo pipefail
+          deadline=$((SECONDS + 900))
+          version=${RELEASE_VERSION,,}
+          read -r -a package_ids <<< "$NUGET_PACKAGE_IDS"
+          for id in "${package_ids[@]}"; do
+            lower_id=${id,,}
+            url="$NUGET_FLAT_CONTAINER/$lower_id/$version/$lower_id.$version.nupkg"
+            until status=$(curl --silent --show-error --head --max-time 15 --output /dev/null --write-out '%{http_code}' "$url") && [[ "$status" == '200' ]]; do
+              if (( SECONDS >= deadline )); then
+                echo "::error::$id/$RELEASE_VERSION is not available (HTTP $status). Check NuGet.org validation and rerun failed jobs."
+                exit 1
+              fi
+              sleep 15
+            done
+          done
+
+  registry-consumer:
+    needs: [ indexed, publish ]
+    if: ${{ !cancelled() && needs.indexed.result == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [ 8, 10 ]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '${{ matrix.sdk }}.0.x'
+      - uses: actions/download-artifact@v4
+        if: needs.publish.result == 'success'
+        with:
+          name: release-packages
+          path: artifacts/packages
+      - name: Verify the published packages and restore anonymously
+        shell: pwsh
+        env:
+          VERIFY_ARTIFACT: ${{ needs.publish.result == 'success' }}
+        run: |
+          $arguments = @{ SdkMajor = ${{ matrix.sdk }}; RegistrySource = 'https://api.nuget.org/v3/index.json'; ExpectedSourceCommit = (git rev-parse HEAD) }
+          if ($env:VERIFY_ARTIFACT -eq 'true') { $arguments.ExpectedPackageDirectory = 'artifacts/packages' }
+          ./.github/workflows/scripts/Test-PackageConsumer.ps1 @arguments

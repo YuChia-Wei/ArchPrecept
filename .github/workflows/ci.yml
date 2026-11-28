@@ -1,33 +1,37 @@
 name: Package CI
 on:
   pull_request:
-    branches: [main]
+    branches: [ main ]
   workflow_call:
 
 permissions:
   contents: read
+
+concurrency:
+  group: package-ci-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   package:
     name: ${{ github.ref_type == 'tag' && 'Build release packages' || 'Build and test' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
           dotnet-version: |
             8.0.x
             10.0.x
-      - name: Build and test the solution
+      - name: Build, test and check package contents
         shell: pwsh
         run: |
-          ./tests/Release/PreviewReleaseState.Tests.ps1
-          ./eng/Build-Packages.ps1 -SkipPack:($env:GITHUB_REF_TYPE -ne 'tag')
+          ./.github/workflows/tests/PreviewReleaseState.Tests.ps1
+          ./.github/workflows/scripts/Build-Packages.ps1
       - uses: actions/upload-artifact@v4
         if: github.ref_type == 'tag'
         with:
-          name: preview-packages
+          name: release-packages
           path: artifacts/packages/
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
@@ -42,16 +46,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [8, 10]
+        sdk: [ 8, 10 ]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '${{ matrix.sdk }}.0.x'
       - uses: actions/download-artifact@v4
         with:
-          name: preview-packages
+          name: release-packages
           path: artifacts/packages
       - name: Install and run package consumers with the selected SDK
         shell: pwsh
-        run: ./eng/Test-PackageConsumer.ps1 -SdkMajor ${{ matrix.sdk }} -ExpectedSourceCommit (git rev-parse HEAD)
+        run: ./.github/workflows/scripts/Test-PackageConsumer.ps1 -SdkMajor ${{ matrix.sdk }} -ExpectedSourceCommit (git rev-parse HEAD)

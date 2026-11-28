@@ -1,6 +1,6 @@
 # Analyzer 設定、角色與評估契約
 
-0.0.6-preview 沿用 0.0.5-preview 的 Analyzer 設定、角色及評估契約。發布基線見[0.0.5-preview 紀錄](../releases/0.0.5-preview.md)。0.0.3-preview 的行為請讀[固定版本文件](https://github.com/YuChia-Wei/ArchPrecept/blob/v0.0.3-preview/docs/product/analyzer-policy.md)。規則的設計理由、方法論支持範圍及取捨見[規則設計依據](rule-design-rationale.md)與[方法論來源](methodology-references.md)。
+此頁說明 [0.1.0-preview.1 候選版](../releases/0.1.0-preview.1.md)的 Analyzer 設定、角色辨識及診斷範圍。規則的設計理由及方法論支持範圍見[規則設計依據](rule-design-rationale.md)與[方法論來源](methodology-references.md)。
 
 ## 目前預設與選用
 
@@ -8,7 +8,7 @@
 
 提供設定時可選 `core`、`web-api`、`messaging`、`event-sourcing`、`framework`、`ddd` 的聯集。`framework` 表示本產品明列的 ExecuteAsync／static Mapper／薄 Handler 等慣例，不表示已安裝或驗收協作 Framework。DBA1018／1019 包含於 `ddd`，預設 Warning；也可由個別 Rule 明確啟用。實際規則清單、預設值、角色與來源統一由 [Catalog](../../rules/catalog.xml) 提供。
 
-首個不含任何 prerelease 後綴的公開版本發布前，不承諾保留舊版 API、Rule ID、Profile、schema、severity 或 suppression 語意，也不要求維護平行舊模式或遷移層。後續可直接改善契約，但同一版本的 Catalog、實作、設定、文件與套件必須一致。現有行為仍依本節如實記載；文件更新本身不改變 Analyzer。詳見[版本與發布準備政策](../releases/version-policy-proposal.md)。
+首個不含任何 prerelease 後綴的公開版本發布前，不承諾保留舊版 API、Rule ID、Profile、schema、severity 或 suppression 語意，也不要求維護平行舊模式或遷移層。後續可直接改善契約，但同一版本的 Catalog、實作、設定、文件與套件必須一致。現有行為仍依本節如實記載；文件更新本身不改變 Analyzer。詳見[版本與發布準備政策](../releases/version-policy.md)。
 
 ## 選定政策與精確度改進
 
@@ -21,7 +21,7 @@
 
 ### 尚未實現的判定範圍
 
-schema version 1 的本候選新增精確 Controller 層級 `PureQuery` 選擇；不提供 action／endpoint method selector、任意 transition method selector、Repository finder mode 或 Mapper purity engine。DBA1014 的例外同時要求明選與 query-only 宣告能力。DBA1017 計算 UseCase 相依型別，不驗證恰好一次呼叫；DBA1004 即使支援有效 inherited／assembly attribute，仍可能檢查一般 MVC Controller，未縮限 API／MVC 適用性。各規則完整 predicate 與限制見[診斷說明](../diagnostics/README.md)。
+schema version 1 支援精確 Controller 層級 `PureQuery` 選擇；不提供 action／endpoint method selector、任意 transition method selector、Repository finder mode 或 Mapper purity engine。DBA1014 的例外同時要求明選與 query-only 宣告能力。DBA1017 計算 UseCase 相依型別，不驗證恰好一次呼叫；DBA1004 即使支援有效 inherited／assembly attribute，仍可能檢查一般 MVC Controller，未縮限 API／MVC 適用性。各規則完整 predicate 與限制見[診斷說明](../diagnostics/README.md)。
 
 ## 設定合併
 

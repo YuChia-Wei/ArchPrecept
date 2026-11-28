@@ -2,7 +2,6 @@
 title: "ArchPrecept 分析器 Diagnostic 說明書"
 document_id: DOC-DIAGNOSTICS
 document_version: 0.5
-last_reviewed: 2026-10-29
 status: draft
 lang: zh-TW
 canonical_path: docs/diagnostics/README.md
