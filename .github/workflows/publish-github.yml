@@ -22,7 +22,7 @@ jobs:
     outputs:
       should-publish: ${{ steps.state.outputs.should-publish }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
@@ -61,12 +61,12 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/download-artifact@v4
         with:
-          name: preview-packages
+          name: release-packages
           path: packages
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
       - name: Verify and publish the tested bytes
@@ -78,8 +78,9 @@ jobs:
           set -euo pipefail
           cd packages
           sha256sum --check SHA256SUMS
-          for package in *.nupkg; do
-            dotnet nuget push "$package" --source "https://nuget.pkg.github.com/$PACKAGE_OWNER/index.json" --api-key "$GH_PACKAGES_TOKEN" --no-symbols
+          mapfile -t package_ids < ../.github/workflows/scripts/ReleasePackageIds.txt
+          for id in "${package_ids[@]}"; do
+            dotnet nuget push "$id.${GITHUB_REF_NAME#v}.nupkg" --source "https://nuget.pkg.github.com/$PACKAGE_OWNER/index.json" --api-key "$GH_PACKAGES_TOKEN" --no-symbols
           done
   verify:
     needs: [ gate, validate, publish ]
@@ -89,7 +90,7 @@ jobs:
       contents: read
       packages: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Read back package visibility, repository and version
         shell: pwsh
         env:
@@ -110,14 +111,14 @@ jobs:
       matrix:
         sdk: [ 8, 10 ]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '${{ matrix.sdk }}.0.x'
       - uses: actions/download-artifact@v4
         if: needs.publish.result == 'success'
         with:
-          name: preview-packages
+          name: release-packages
           path: artifacts/packages
       - name: Restore and exercise published packages with a fresh cache
         shell: pwsh

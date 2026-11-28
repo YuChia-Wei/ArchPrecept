@@ -1,26 +1,26 @@
 # 套件與文件發布
 
-GitHub Packages 與 NuGet.org 使用獨立的 workflow。兩者重用套件 CI，以同一來源提交各自建置及驗證七個套件，並上傳各自驗證通過的成品。
+GitHub Packages 與 NuGet.org 使用獨立的 workflow。新版本的發布使用同一來源提交，兩個 workflow 各自重用套件 CI 建置及驗證七個套件，並上傳各自驗證通過的成品。NuGet.org 也可對已齊備的版本只執行 feed 驗收。
 
 ## 觸發條件
 
 - 以 `main` 為目標的 PR 執行建置、測試、封裝及套件內容檢查。發布 workflow 另以 SDK 8 與 10 驗證套件安裝。
 - 新推送的 `v*` tag 會啟動兩個發布 workflow。使用 `v` 加完整三段式版號，可加 SemVer 預發行後綴，例如 `v0.1.0-preview.1`、`v0.1.0-rc.1` 或 `v0.1.0`。NuGet 會從套件識別移除 `+build` metadata，所以發布 tag 省略這個欄位。
-- 手動執行時選擇要發布的平台與既有 tag。預設分支與指定 tag 均須包含對應的 workflow。
+- 手動執行套件工作流程時，選擇平台與既有 tag。預設分支與指定 tag 均須包含對應的 workflow。
 
 在工作分支完成審查與必要驗證後，使用 `git merge --ff-only` 整合至 `main`。如推送會觸發網站部署，先完成發布前審查。每個已發布 tag 維持原始指向。
 
 ## 套件發布
 
 1. 更新候選版本的使用說明。發布時從 tag 去掉 `v` 得到七包共用版號，starter 的精確套件參考隨封裝更新。一般 PR 與本機建置沿用 `Directory.Build.props` 的預設版號。將交付內容整合並推送至 `main`。完成發布前審查後，為 `main` 上通過審查的提交建立並單獨推送與版號相符的 annotated tag。
-2. GitHub Packages 使用 repository 的 `GITHUB_TOKEN`。NuGet.org 的發布 job 使用 `nuget-org-packages` environment，透過 Trusted Publishing 為組織取得短效金鑰。兩邊只上傳各自同一次執行已驗證的 artifact。[GitHub Packages workflow](../../.github/workflows/publish-github.yml) · [NuGet.org workflow](../../.github/workflows/publish-nuget.yml)
-3. 在 GitHub Packages 核對可見性與 repository linkage，並等候 NuGet.org 的七包可匿名下載。以 SDK 8 和 10 從各自 feed 還原，核對來源、版號、提交與成品內容，再執行 consumer 驗證。首次 NuGet.org 發布另確認七個 ID 的 Owner 為 ArchPrecept。
-4. 上傳後的索引或 consumer 檢查失敗，待 feed 可用後重跑 failed jobs。若只有部分套件已上傳，保留原 run 的 artifact 與 SHA256SUMS，逐包核對已接受版本及原始內容，只從原 artifact 補送已確認缺少的項目。NuGet.org 會加 repository signature，內容比對依 consumer 腳本核對簽署前的內容雜湊。每個已發布的 ID 與版本均不可覆寫。
+2. GitHub Packages 使用 repository 的 `GITHUB_TOKEN`。NuGet.org 先查詢該版七個套件 ID 的可取得狀態。0/7 進入建置、驗證與發布，發布 job 使用 `nuget-org-packages` environment，透過 Trusted Publishing 為組織取得短效金鑰。1–6/7 會在建置與上傳前停止。7/7 直接從公開 feed 執行驗收。兩邊的發布 job 只上傳各自同一次執行已驗證的 artifact。[GitHub Packages workflow](../../.github/workflows/publish-github.yml) · [NuGet.org workflow](../../.github/workflows/publish-nuget.yml)
+3. 在 GitHub Packages 核對可見性與 repository linkage。以 SDK 8 和 10 從各自 feed 還原，核對來源、版號及 tag 對應的來源提交，再執行 consumer 驗證。有本次發布 artifact 時，比對成品內容，NuGet.org 的比對使用簽署前的內容雜湊。NuGet.org 已齊備版本的免上傳驗收也查驗套件簽章，成品與原 artifact 的內容一致性須有原始成品可供比對。首次 NuGet.org 發布另確認七個 ID 的 Owner 為 ArchPrecept。
+4. 上傳後的索引或 consumer 檢查失敗，待 feed 可用後重跑驗收。NuGet.org 七包可取得後，也可用既有 tag 手動執行免上傳驗收。若確認只有部分套件已上傳，保留原 run 的 artifact 與 SHA256SUMS，逐包核對已接受版本及原始內容，只從原 artifact 補送已確認缺少的項目。每個已發布的 ID 與版本均不可覆寫。
 5. 各平台通過實際安裝驗收後，更新對應的公開安裝文件。
 
 ## 發布要求觸發的文件與規則檢查
 
-套件發布須在推送發布 tag 或手動啟動發布 workflow 前完成本節的 AI 語意審查，核對本版規則、文件與實際成品。網站發布須在將更新推送至 `main` 並觸發部署前完成審查，核對本次變更的文件、對應套件版本及實際閱讀路徑。一併發布時，兩個範圍均須檢查。語意審查是 GitHub Actions 建置與測試以外的必要發布檢查。
+套件發布須在推送發布 tag 或手動啟動發布 workflow 前完成本節的 AI 語意審查，核對本版規則、文件與實際成品。網站發布須在推送會觸發部署的更新至 `main` 或手動啟動部署前完成審查，核對本次變更的文件、對應套件版本及實際閱讀路徑。一併發布時，兩個範圍均須檢查。語意審查是 GitHub Actions 建置與測試以外的必要發布檢查。
 
 ### 模型與成本
 
@@ -51,8 +51,8 @@ GitHub Packages 與 NuGet.org 使用獨立的 workflow。兩者重用套件 CI�
 
 ## 文件發布
 
-`docs/` 的 Markdown 及 `.github/workflows/docfx/` 的設定與樣式變更會觸發網站工作流程。每次建置從該次提交的 Contracts 組件與 XML 註解產生 API 文件。需要發布 Contracts 程式碼的文件更新時，連同相關網站內容一併更新。
+`docs/` 的 Markdown、`.github/workflows/docfx/` 的設定與樣式、文件工作流程、`Build-Documentation.ps1` 及 `.config/dotnet-tools.json` 變更，會在以 `main` 為目標的 PR 執行建置檢查，在推送至 `main` 時建置並部署。每次建置從該次提交的 Contracts 組件與 XML 註解產生 API 文件。需要發布 Contracts API 文件時，可一併更新相關網站內容，或從 `main` 手動部署已審查的提交。
 
 1. 將安裝、範例、診斷及 API 說明整合至 `main`。文件與功能一併交付時，先在網站標示候選版與最近已發布的版本。等相應平台通過安裝驗收，再更新該平台的可用狀態。
-2. 完成發布前審查後，將網站來源變更推送至 `main`。文件 workflow 從該次 push 的提交產生 DocFX 靜態成品，部署到 GitHub Pages 的 `/ArchPrecept/` 專案路徑。[文件工作流程](../../.github/workflows/documentation.yml)
+2. 完成發布前審查後，將網站來源變更推送至 `main`，或在 Actions 手動選取 `main` 並啟用 `deploy`。手動執行預設只驗證建置。文件 workflow 從該次觸發的提交產生 DocFX 靜態成品，部署到 GitHub Pages 的 `/ArchPrecept/` 專案路徑。同一 PR 的新執行可取消舊建置，`main` 的自動與手動部署共用獨立佇列。[文件工作流程](../../.github/workflows/documentation.yml)
 3. 從公開首頁實際開啟安裝指南、Price 範例與 DBA1018 修正說明。確認部署來源，以及頁面標示的套件版本、站內連結與靜態資源。首個正式版發布時，核對 `/stable/` 導覽、`/versions/0.1.0/` 固定版本入口與 NuGet.org 安裝說明。歷史版本可連到對應 Git tag。需要回復網站時，在 `main` 恢復已知正確的 `docs/` 內容並觸發重新部署。

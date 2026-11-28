@@ -25,6 +25,8 @@ try {
         'ArchPrecept.Templates' = @()
     }
     $ids = $expectedDependencies.Keys
+    $releaseIds = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'ReleasePackageIds.txt')
+    if (Compare-Object @($ids) $releaseIds -CaseSensitive) { throw 'The release inventory must include each tested package ID exactly once.' }
     $packages = @(Get-ChildItem $OutputDirectory -Filter *.nupkg)
     if ($packages.Count -ne $ids.Count) { throw "Expected exactly $($ids.Count) packages; use a fresh output directory." }
     foreach ($id in $ids) {

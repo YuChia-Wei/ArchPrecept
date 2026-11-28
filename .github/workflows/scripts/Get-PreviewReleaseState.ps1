@@ -7,7 +7,7 @@ if (!$env:GH_TOKEN) { throw 'GH_TOKEN is required to inspect package state.' }
 $version = & (Join-Path $PSScriptRoot 'Get-PackageVersion.ps1')
 $owner = $Repository.Split('/')[0]
 $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28' }
-$ids = @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging', 'ArchPrecept.Contracts.Application.Messaging', 'ArchPrecept.Contracts.Domain.EventSourcing', 'ArchPrecept.Templates')
+$ids = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'ReleasePackageIds.txt')
 function Get-PackageRecords {
     foreach ($id in $ids) {
         $uri = "https://api.github.com/users/$owner/packages/nuget/$id"

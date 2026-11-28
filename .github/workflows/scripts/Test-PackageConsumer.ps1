@@ -23,7 +23,7 @@ New-Item -ItemType Directory -Path $work -Force | Out-Null
 @{sdk = @{version = "$SdkMajor.0.100"; rollForward = 'latestFeature'; allowPrerelease = $false}} | ConvertTo-Json | Set-Content (Join-Path $work 'global.json')
 $escapedFeed = [Security.SecurityElement]::Escape($feed)
 # Exercise consumers whose feeds allow individual package IDs, including transitive dependencies.
-$packageIds = @('ArchPrecept.Analyzers.Core', 'ArchPrecept.Contracts.Domain', 'ArchPrecept.Contracts.Application', 'ArchPrecept.Contracts.Messaging', 'ArchPrecept.Contracts.Application.Messaging', 'ArchPrecept.Contracts.Domain.EventSourcing', 'ArchPrecept.Templates')
+$packageIds = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'ReleasePackageIds.txt')
 $sourceMappings = ($packageIds | ForEach-Object { "<package pattern=`"$_`" />" }) -join ''
 $nugetOrg = 'https://api.nuget.org/v3/index.json'
 $publicFeed = $feed.TrimEnd('/') -eq $nugetOrg
@@ -302,7 +302,7 @@ namespace Fake
     dotnet restore 'policy/Consumer.csproj'
     $policyAssets = Get-Content 'policy/obj/project.assets.json' -Raw | ConvertFrom-Json
     if ($policyAssets.libraries.PSObject.Properties.Name -match '^ArchPrecept.Contracts\.') { throw 'Analyzer-only policy consumer gained Contracts runtime dependency.' }
-    $installedCatalog = Join-Path $env:NUGET_PACKAGES "archprecept.analyzers.core/$version/rules/catalog.xml"
+    $installedCatalog = Join-Path $analyzerCache 'rules/catalog.xml'
     $ruleIds = @(([xml](Get-Content $installedCatalog -Raw)).RuleCatalog.Rule.diagnostic)
     foreach ($severity in @('error', 'warning', 'none')) {
         (@('root = true', '[*.cs]', 'dotnet_diagnostic.DBA0002.severity = warning') + @($ruleIds | ForEach-Object { "dotnet_diagnostic.$_.severity = $severity" })) | Set-Content 'policy/.editorconfig'
@@ -344,12 +344,16 @@ namespace Fake
 
     Copy-Item -LiteralPath (Join-Path $root 'samples/Products') -Destination 'Products' -Recurse
     & (Join-Path $PSScriptRoot 'Test-TemplateConsumer.ps1') -PackageFile $templatePackage -SdkMajor $SdkMajor -ScratchRoot $work -BoundaryTestDirectory (Join-Path $work 'Products/Tests')
-    dotnet test 'Products/Tests/Products.Tests.csproj' -c Release "-p:ArchPreceptVersion=$version" "-p:SampleTargetFramework=net$SdkMajor.0" --logger trx --results-directory 'Products/results'
+    dotnet test 'Products/Tests/Products.Tests.csproj' -c Release "-p:ArchPreceptVersion=$version" "-p:SampleTargetFramework=net$SdkMajor.0" --logger 'trx;LogFileName=products.trx' --results-directory 'Products/results'
+    $productsResults = [xml](Get-Content -LiteralPath 'Products/results/products.trx' -Raw)
+    if ('DomainCannotReferenceProductsApi' -cnotin $productsResults.TestRun.TestDefinitions.UnitTest.TestMethod.className) {
+        throw 'The generated DomainCannotReferenceProductsApi test should run in the global namespace.'
+    }
     # The API derives Product from Domain's AggregateRoot. Forbid that real edge in the disposable copy.
     $reverseTest = 'Products/Tests/ProductsCannotReferenceDomain.cs'
     Copy-Item -LiteralPath 'Products/violations/ProductsCannotReferenceDomain.cs' -Destination $reverseTest
     $PSNativeCommandUseErrorActionPreference = $false
-    $failure = dotnet test 'Products/Tests/Products.Tests.csproj' -c Release --no-restore "-p:ArchPreceptVersion=$version" "-p:SampleTargetFramework=net$SdkMajor.0" --filter FullyQualifiedName~ProductsCannotReferenceDomain 2>&1 | Out-String
+    $failure = dotnet test 'Products/Tests/Products.Tests.csproj' -c Release --no-restore "-p:ArchPreceptVersion=$version" "-p:SampleTargetFramework=net$SdkMajor.0" --filter 'FullyQualifiedName~Products.Tests.Architecture.ProductsCannotReferenceDomain.' 2>&1 | Out-String
     $code = $LASTEXITCODE
     $PSNativeCommandUseErrorActionPreference = $true
     if ($code -eq 0 -or $failure -notmatch 'ProductsCannotReferenceDomain: Products\.Api,.* -> ArchPrecept\.Contracts\.Domain,') {
@@ -369,20 +373,27 @@ namespace Fake
     foreach ($id in $packageIds) {
         $lowerId = $id.ToLowerInvariant()
         $cacheFolder = Join-Path $env:NUGET_PACKAGES "$lowerId/$cacheVersion"
-        if ($ExpectedSourceCommit) {
-            $spec = [xml](Get-Content (Join-Path $cacheFolder "$lowerId.nuspec") -Raw)
-            if ($spec.package.metadata.repository.commit -cne $ExpectedSourceCommit) {
+        if ($ExpectedSourceCommit -or $publicFeed) {
+            $spec = ([xml](Get-Content (Join-Path $cacheFolder "$lowerId.nuspec") -Raw)).package.metadata
+            if ($spec.id -ne $id -or $spec.version -ne $version) {
+                throw "Restored package identity does not match $id/$version."
+            }
+            if ($ExpectedSourceCommit -and $spec.repository.commit -cne $ExpectedSourceCommit) {
                 throw "Restored $id/$version does not identify the tagged source $ExpectedSourceCommit."
             }
         }
-        if ($expectedFeed) {
-            $cached = Join-Path $cacheFolder "$lowerId.$cacheVersion.nupkg"
-            $expected = Join-Path $expectedFeed "$id.$version.nupkg"
+        $cached = Join-Path $cacheFolder "$lowerId.$cacheVersion.nupkg"
+        if ($expectedFeed -or $publicFeed) {
             $metadata = Get-Content (Join-Path $cacheFolder '.nupkg.metadata') -Raw | ConvertFrom-Json
             if ($metadata.source.TrimEnd('/') -ne $feed.TrimEnd('/')) { throw "Unexpected restore source: $id" }
+        }
+        if ($publicFeed) {
+            # NuGet.org repository-signs the packages returned to consumers.
+            dotnet nuget verify $cached --all
+        }
+        if ($expectedFeed) {
+            $expected = Join-Path $expectedFeed "$id.$version.nupkg"
             if ($publicFeed) {
-                # nuget.org adds a repository signature to our unsigned build artifact.
-                dotnet nuget verify $cached --all
                 $unsignedHash = (Get-FileHash $expected -Algorithm SHA512).Hash
                 if ($metadata.contentHash -cne [Convert]::ToBase64String([Convert]::FromHexString($unsignedHash))) {
                     throw "Restored package content differs from the unsigned release artifact: $id"
@@ -394,6 +405,9 @@ namespace Fake
     }
     if ($ExpectedSourceCommit) {
         Write-Host "All $($packageIds.Count) restored packages identify source commit $ExpectedSourceCommit."
+    }
+    if ($publicFeed) {
+        Write-Host "All $($packageIds.Count) restored NuGet.org packages passed signature and restore-source verification."
     }
     if ($expectedFeed) {
         Write-Host "All $($packageIds.Count) restored nupkg hashes and cache sources match the tested artifact and selected feed."

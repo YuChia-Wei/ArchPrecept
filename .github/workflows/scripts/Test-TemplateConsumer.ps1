@@ -144,7 +144,7 @@ try {
     if ($BoundaryTestDirectory) {
         dotnet new ap-boundary-test -n DomainCannotReferenceProductsApi --sourceType ArchPrecept.Contracts.Domain.IDomainEvent --forbiddenType Products.Sample.Product -o $BoundaryTestDirectory @hive
         $violations = Join-Path (Split-Path $BoundaryTestDirectory) 'violations'
-        dotnet new ap-boundary-test -n ProductsCannotReferenceDomain --sourceType Products.Sample.Product --forbiddenType ArchPrecept.Contracts.Domain.IDomainEvent -o $violations @hive
+        dotnet new ap-boundary-test -n ProductsCannotReferenceDomain --namespace Products.Tests.Architecture --sourceType Products.Sample.Product --forbiddenType ArchPrecept.Contracts.Domain.IDomainEvent -o $violations @hive
     }
     dotnet new uninstall ArchPrecept.Templates @hive
 } finally {

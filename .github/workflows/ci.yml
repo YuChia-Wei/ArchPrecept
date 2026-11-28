@@ -7,13 +7,17 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: package-ci-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   package:
     name: ${{ github.ref_type == 'tag' && 'Build release packages' || 'Build and test' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
           dotnet-version: |
@@ -27,7 +31,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: github.ref_type == 'tag'
         with:
-          name: preview-packages
+          name: release-packages
           path: artifacts/packages/
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
@@ -44,13 +48,13 @@ jobs:
       matrix:
         sdk: [ 8, 10 ]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '${{ matrix.sdk }}.0.x'
       - uses: actions/download-artifact@v4
         with:
-          name: preview-packages
+          name: release-packages
           path: artifacts/packages
       - name: Install and run package consumers with the selected SDK
         shell: pwsh

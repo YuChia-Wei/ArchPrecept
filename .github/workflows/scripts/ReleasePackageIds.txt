@@ -1,0 +1,7 @@
+ArchPrecept.Analyzers.Core
+ArchPrecept.Contracts.Domain
+ArchPrecept.Contracts.Messaging
+ArchPrecept.Contracts.Application
+ArchPrecept.Contracts.Application.Messaging
+ArchPrecept.Contracts.Domain.EventSourcing
+ArchPrecept.Templates

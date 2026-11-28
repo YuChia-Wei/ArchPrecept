@@ -6,23 +6,43 @@ on:
     paths:
       - 'docs/**/*.md'
       - '.github/workflows/docfx/**'
+      - '.github/workflows/documentation.yml'
+      - '.github/workflows/scripts/Build-Documentation.ps1'
+      - '.config/dotnet-tools.json'
   push:
     branches: [main]
     paths:
       - 'docs/**/*.md'
       - '.github/workflows/docfx/**'
+      - '.github/workflows/documentation.yml'
+      - '.github/workflows/scripts/Build-Documentation.ps1'
+      - '.config/dotnet-tools.json'
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Deploy the main branch to GitHub Pages'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 concurrency:
-  group: documentation-${{ github.ref }}
-  cancel-in-progress: false
+  # Keep build-only dispatches out of the main deployment queue.
+  group: documentation-${{ github.event_name == 'workflow_dispatch' && !inputs.deploy && github.run_id || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Verify the main branch
+        if: github.event_name != 'pull_request'
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -cne 'refs/heads/main') {
+            throw 'Run this workflow from the main branch.'
+          }
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
@@ -34,12 +54,12 @@ jobs:
         run: |
           ./.github/workflows/scripts/Build-Documentation.ps1 -ScratchRoot (Join-Path $env:RUNNER_TEMP 'archprecept-docs') -OutputDirectory (Join-Path $env:RUNNER_TEMP 'archprecept-pages')
       - uses: actions/upload-pages-artifact@v5
-        if: github.event_name == 'push'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy))
         with:
           path: ${{ runner.temp }}/archprecept-pages
 
   deploy:
-    if: github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy))
     needs: build
     runs-on: ubuntu-latest
     permissions:
